@@ -1,0 +1,17 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+
+    paths:
+        - app/
+
+    # Nivel 9 (máximo)
+    level: 9
+
+    # Prohibir mixed
+    checkExplicitMixed: true
+
+    # Si quieres ir un paso más allá para evitar escapes de tipos
+    reportUnmatchedIgnoredErrors: true
+    treatPhpDocTypesAsCertain: false
