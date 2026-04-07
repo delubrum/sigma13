@@ -16,6 +16,9 @@ return RectorConfig::configure()
         __DIR__.'/routes',
         __DIR__.'/tests',
     ])
+    ->withSkip([
+        __DIR__.'/legacy',
+    ])
     // Enable PHP level rules (auto-detected from composer.json)
     ->withPhpSets()
     // Laravel and project specific sets

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace Tests\Architecture;
 
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+
 arch()->expect('App\Http\Controllers')
     ->toOnlyDependOn([
         'App\Http\Requests',
@@ -12,8 +15,8 @@ arch()->expect('App\Http\Controllers')
         'App\Data',
         'App\Models',
         'Illuminate\Http',
-        \Illuminate\Support\Arr::class,
-        \Illuminate\Support\Collection::class,
+        Arr::class,
+        Collection::class,
         'Illuminate\View',
         'Illuminate\Routing',
         'Illuminate\Foundation',

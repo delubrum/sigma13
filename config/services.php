@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -38,6 +40,12 @@ return [
     'telegram' => [
         'bot_token' => env('TELEGRAM_BOT_TOKEN'),
         'group_id' => env('TELEGRAM_GROUP_ID'),
+    ],
+
+    'recaptcha' => [
+        'enabled' => (bool) env('RECAPTCHA_ENABLED', false),
+        'site' => env('RECAPTCHA_SITE_KEY'),
+        'secret' => env('RECAPTCHA_SECRET_KEY'),
     ],
 
 ];

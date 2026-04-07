@@ -6,6 +6,9 @@ parameters:
     paths:
         - app/
 
+    excludePaths:
+        - legacy/*
+
     # Nivel 9 (máximo)
     level: 9
 

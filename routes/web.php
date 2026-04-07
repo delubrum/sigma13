@@ -1,90 +1,40 @@
 <?php
 
-use App\Http\Controllers\HomeController;
-use App\Http\Controllers\PasswordResetController;
-use App\Support\HtmxOrchestrator;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+declare(strict_types=1);
+
+use App\Actions\Auth\Login;
+use App\Actions\Auth\Logout;
+use App\Actions\Dashboard\Index;
+use App\Actions\Password\Reset;
+use App\Actions\Password\SendResetLink;
+use App\Actions\Password\Show;
+use App\Actions\Shared\Create;
+use App\Actions\Shared\Detail;
+use App\Actions\Shared\Excel;
+use App\Actions\Shared\Upload;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\Facades\Route;
+use Spatie\Honeypot\ProtectAgainstSpam;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes - SIGMA 13
-|--------------------------------------------------------------------------
-*/
+Route::redirect('/', '/home');
 
-// LOGIN: Definimos la ruta oficial primero para evitar colisiones de nombres.
-Route::get('/login', function () {
-    return Auth::check() ? to_route('home') : view('auth.login');
-})->name('login')->middleware('guest');
+require __DIR__.'/modules/assets.php';
+require __DIR__.'/modules/users.php';
 
-// RAÍZ: Redirección simple. KISS y compatible con cache.
-Route::get('/', function () {
-    return Auth::check() ? to_route('home') : redirect()->route('login');
+Route::get('{route}/export', Excel::class)->name('global.export')->where('route', '[a-zA-Z0-9_-]+');
+Route::get('/{route}/create', Create::class);
+Route::get('/{route}/{id}', [Detail::class, 'asController'])->name('detail');
+Route::post('/{route}/{id}/upload', Upload::class)->name('shared.upload');
+
+Route::middleware('guest')->group(function (): void {
+    Route::get('/login', fn (): Factory|\Illuminate\Contracts\View\View => view('auth.login'))->name('login');
+    Route::post('/login', Login::class)->name('login.store')->middleware(ProtectAgainstSpam::class);
+    Route::post('/forgot-password', SendResetLink::class)->name('password.email');
+    Route::get('/reset-password/{token}', Show::class)->name('password.reset');
+    Route::post('/reset-password', Reset::class)->name('password.update');
 });
 
-// Dashboard Principal
-Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware('auth');
-
-// Autenticación con soporte HTMX
-Route::post('/login', function (Request $request) {
-    $credentials = $request->validate([
-        'email' => ['required', 'email'],
-        'password' => ['required'],
-    ]);
-
-    $orchestrator = new class { use HtmxOrchestrator; };
-
-    if (Auth::attempt($credentials, $request->boolean('remember'))) {
-        $request->session()->regenerate();
-
-        if ($request->header('HX-Request')) {
-            return $orchestrator->hxRedirect('/home');
-        }
-
-        return redirect()->intended('/home');
-    }
-
-    if ($request->header('HX-Request')) {
-        return $orchestrator->hxNotify('Credenciales no válidas.', 'error')
-            ->hxResponse(['message' => 'Error'], 422);
-    }
-
-    return back()->withErrors(['email' => 'Las credenciales proporcionadas no son válidas.']);
-})->name('login.store')->middleware('guest');
-
-/*
-|--------------------------------------------------------------------------
-| Password Recovery
-|--------------------------------------------------------------------------
-*/
-
-Route::get('/forgot-password', fn() => view('auth.forgot-password'))
-    ->name('password.request')
-    ->middleware('guest');
-
-Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])
-    ->name('password.email')
-    ->middleware('guest');
-
-Route::get('/reset-password/{token}', fn(string $token, Request $request) => 
-    view('auth.reset-password', ['token' => $token, 'email' => $request->email])
-)->name('password.reset')->middleware('guest');
-
-Route::post('/reset-password', [PasswordResetController::class, 'reset'])
-    ->name('password.update')->middleware('guest');
-
-/*
-|--------------------------------------------------------------------------
-| Session Closure
-|--------------------------------------------------------------------------
-*/
-
-Route::post('/logout', function (Request $request) {
-    Auth::guard('web')->logout();
-
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-
-    return redirect()->route('login');
-})->name('logout');
+Route::middleware('auth')->group(function (): void {
+    Route::post('/logout', Logout::class)->name('logout');
+    Route::get('/home', Index::class)->name('home');
+});

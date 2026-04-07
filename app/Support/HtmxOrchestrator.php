@@ -1,8 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Support;
 
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 trait HtmxOrchestrator
 {
@@ -40,6 +44,21 @@ trait HtmxOrchestrator
         return $this;
     }
 
+    /** @param array{icon: string, title: string, subtitle: string} $header */
+    public function hxModalHeader(array $header): static
+    {
+        $this->hxTriggers['update-modal-header'] = $header;
+
+        return $this;
+    }
+
+    public function hxModalWidth(string $width): static
+    {
+        $this->hxTriggers['set-modal-width'] = ['width' => $width];
+
+        return $this;
+    }
+
     /** @param array<string, mixed> $data */
     public function hxResponse(array $data = [], int $status = 200): JsonResponse
     {
@@ -49,6 +68,13 @@ trait HtmxOrchestrator
         }
 
         return response()->json($data, $status)->withHeaders([
+            'HX-Trigger' => json_encode($this->hxTriggers),
+        ]);
+    }
+
+    public function hxView(View $view): Response
+    {
+        return response($view->render())->withHeaders([
             'HX-Trigger' => json_encode($this->hxTriggers),
         ]);
     }

@@ -1,16 +1,15 @@
-@extends('layouts.app')
+{{-- resources/views/home.blade.php --}}
+<x-layouts.app>
+    
+    <section class="flex items-center justify-center min-h-[60vh]">
+        <div class="text-center">
+            <h1 class="text-4xl font-black uppercase tracking-tight" style="color:var(--tw-tx)">
+                Bienvenido
+            </h1>
+            <p class="mt-2 text-sm font-mono" style="color:var(--tw-tx2)">
+                Selecciona un módulo del menú para comenzar
+            </p>
+        </div>
+    </section>
 
-@section('content')
-<div class="p-6">
-    <div class="max-w-md mx-auto bg-white shadow rounded-lg p-6">
-        <h2 class="text-2xl font-bold mb-4">Bienvenido, {{ auth()->user()->name }}!</h2>
-        
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg font-semibold">
-                Cerrar Sesión
-            </button>
-        </form>
-    </div>
-</div>
-@endsection
+</x-layouts.app>

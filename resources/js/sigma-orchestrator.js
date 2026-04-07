@@ -42,6 +42,19 @@
                             if (el?.tabulator) el.tabulator.setData();
                         });
                     }
+
+                    if (triggers['update-modal-header']) {
+                        const { icon, title, subtitle } = triggers['update-modal-header'];
+                        window.dispatchEvent(new CustomEvent('update-modal-header', {
+                            detail: { icon, title, subtitle }
+                        }));
+                    }
+
+                    if (triggers['set-modal-width']?.width) {
+                        window.dispatchEvent(new CustomEvent('set-modal-width', {
+                            detail: { width: triggers['set-modal-width'].width }
+                        }));
+                    }
                 } catch (err) {}
             }
 
