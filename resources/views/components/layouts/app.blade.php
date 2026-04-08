@@ -67,24 +67,26 @@
             subtitle: 'Por favor espere'
         }"
         @open-modal.window="open = true"
-        @close-modal.window="open = false; modalWidth = '50%'; icon = 'ri-loader-4-line'; title = 'Cargando...'; subtitle = 'Por favor espere'"
+        @close-modal.window="open = false"
         @set-modal-width.window="modalWidth = $event.detail.width"
         @update-modal-header.window="icon = $event.detail.icon; title = $event.detail.title; subtitle = $event.detail.subtitle"
         x-show="open"
         x-cloak
-        class="fixed inset-0 z-50 flex items-start pt-4 justify-center p-4 bg-black/40 backdrop-blur-sm"
+        class="fixed inset-0 z-50 flex items-start pt-4 justify-center p-4 bg-black/40 backdrop-blur-sm transition-opacity duration-500"
+        x-transition:enter="ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
     >
         <div
             id="modal-panel"
             x-show="open"
-            x-transition:enter="transition ease-out duration-300"
-            x-transition:enter-start="opacity-0 scale-95"
-            x-transition:enter-end="opacity-100 scale-100"
-            x-transition:leave="transition ease-in duration-200"
-            x-transition:leave-start="opacity-100 scale-100"
-            x-transition:leave-end="opacity-0 scale-95"
-            :class="'w-[95%] max-h-[98vh] sm:w-[' + modalWidth + '] rounded-lg flex flex-col overflow-hidden shadow-2xl relative'"
-            style="background:var(--bg); border:1px solid var(--b)"
+            x-transition:enter="animate-bounce-in"
+            x-transition:leave="animate-bounce-out"
+            :class="'w-[95%] max-h-[98vh] sm:w-[' + modalWidth + '] rounded-2xl flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative border border-sigma-b'"
+            style="background:var(--bg)"
         >
             {{-- Header --}}
             <div class="p-4 border-b flex justify-between items-center shrink-0"
@@ -112,6 +114,74 @@
 
             {{-- Body --}}
             <div id="modal-body"
+                 class="p-6 flex flex-col grow overflow-y-auto"
+                 style="background:var(--bg)">
+                <div class="flex justify-center p-10 opacity-20">
+                    <i class="ri-loader-4-line animate-spin text-4xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- MODAL GLOBAL CASCADA (Nivel 2) --}}
+    <div
+        id="sigma-modal-2"
+        x-data="{ 
+            open: false, 
+            modalWidth: '50%',
+            icon: 'ri-loader-4-line',
+            title: 'Cargando...',
+            subtitle: 'Por favor espere'
+        }"
+        @open-modal-2.window="open = true"
+        @close-modal-2.window="open = false"
+        @set-modal-width-2.window="modalWidth = $event.detail.width"
+        @update-modal-header-2.window="icon = $event.detail.icon; title = $event.detail.title; subtitle = $event.detail.subtitle"
+        x-show="open"
+        x-cloak
+        class="fixed inset-0 z-60 flex items-start pt-10 justify-center p-4 bg-black/40 backdrop-blur-sm transition-opacity duration-500"
+        x-transition:enter="ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+    >
+        <div
+            id="modal-panel-2"
+            x-show="open"
+            x-transition:enter="animate-bounce-in"
+            x-transition:leave="animate-bounce-out"
+            :class="'w-[95%] max-h-[95vh] sm:w-[' + modalWidth + '] rounded-2xl flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative border border-sigma-b'"
+            style="background:var(--bg)"
+            @click.stop
+        >
+            {{-- Header --}}
+            <div class="p-4 border-b flex justify-between items-center shrink-0"
+                 style="background:var(--bg2); border-bottom:1px solid var(--b)">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 rounded-lg shadow-md" style="background:var(--ac)">
+                        <i :class="icon + ' text-xl'" style="color:var(--ac-inv)"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-extrabold uppercase tracking-tight"
+                            style="color:var(--tx)"
+                            x-text="title">
+                        </h1>
+                        <p class="text-[10px] uppercase font-bold tracking-widest"
+                           style="color:var(--tx2); opacity:.6"
+                           x-text="subtitle">
+                        </p>
+                    </div>
+                </div>
+                <button onclick="window.dispatchEvent(new CustomEvent('close-modal-2'))"
+                        class="text-3xl" style="color:var(--tx)">
+                    <i class="ri-close-circle-fill"></i>
+                </button>
+            </div>
+
+            {{-- Body --}}
+            <div id="modal-body-2"
                  class="p-6 flex flex-col flex-grow overflow-y-auto"
                  style="background:var(--bg)">
                 <div class="flex justify-center p-10 opacity-20">

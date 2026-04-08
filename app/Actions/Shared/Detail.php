@@ -18,7 +18,7 @@ final class Detail
     use AsAction;
     use HtmxOrchestrator;
 
-    public function handle(string $route, int $id): View
+    public function handle(string $route, string $id): View
     {
         $folder = Str::studly($route);
         $indexAction = "App\\Actions\\{$folder}\\Index";
@@ -36,16 +36,27 @@ final class Detail
 
         if ($instance instanceof HasDetail) {
             $sidebarView = "{$route}.sidebar";
-            $sidebarData = $instance->sidebarData($id);
+            $sidebarData = $instance->sidebarData((int) $id);
+        }
+
+        $displayName = null;
+        if (isset($sidebarData->name)) {
+            $displayName = $sidebarData->name;
+        } elseif (isset($sidebarData->user)) {
+            $displayName = $sidebarData->user;
+        } elseif (isset($sidebarData->hostname)) {
+            $displayName = $sidebarData->hostname;
+        } elseif (isset($sidebarData->serial)) {
+            $displayName = $sidebarData->serial;
         }
 
         $tabs = $config->tabs;
         $defaultTab = collect($tabs)->first(fn ($t) => $t->default === true);
 
         $this->hxModalHeader([
-            'icon' => $config->icon,
-            'title' => $config->title,
-            'subtitle' => $config->subtitle ?: 'Detalle',
+            'icon'     => $config->icon,
+            'title'    => "{$config->title} · #{$id}" . ($displayName ? " · {$displayName}" : ""),
+            'subtitle' => $config->subtitle ?: '',
         ]);
 
         $this->hxModalWidth('98%');
@@ -53,7 +64,7 @@ final class Detail
         return view('components.detail-modal', [
             'route' => $route,
             'config' => $config,
-            'id' => $id,
+            'id' => (int) $id,
             'sidebarView' => $sidebarView,
             'sidebarData' => $sidebarData,
             'tabs' => $tabs,
@@ -61,7 +72,7 @@ final class Detail
         ]);
     }
 
-    public function asController(Request $request, string $route, int $id): Response
+    public function asController(Request $request, string $route, string $id): Response
     {
         return $this->hxView($this->handle($route, $id));
     }

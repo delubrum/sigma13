@@ -21,5 +21,6 @@ final class Config extends Data
         public readonly array $formFields = [],
         /** @var list<Tabs> */
         public readonly array $tabs = [],
+        public readonly bool $multipart = false,
     ) {}
 }

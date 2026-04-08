@@ -92,7 +92,7 @@ final class Table extends Data
                     'retired' => 'border-red-500 text-red-500',
                     default => 'border-sigma-b text-sigma-tx2',
                 },
-                $asset->status
+                $asset->status ?? 'available'
             ),
         );
     }

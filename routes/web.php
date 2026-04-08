@@ -20,11 +20,12 @@ Route::redirect('/', '/home');
 
 require __DIR__.'/modules/assets.php';
 require __DIR__.'/modules/users.php';
+require __DIR__.'/modules/it.php';
+require __DIR__.'/modules/maintenance.php';
+require __DIR__.'/modules/maintenancep.php';
+require __DIR__.'/modules/recruitment.php';
 
-Route::get('{route}/export', Excel::class)->name('global.export')->where('route', '[a-zA-Z0-9_-]+');
-Route::get('/{route}/create', Create::class);
-Route::get('/{route}/{id}', [Detail::class, 'asController'])->name('detail');
-Route::post('/{route}/{id}/upload', Upload::class)->name('shared.upload');
+
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', fn (): Factory|\Illuminate\Contracts\View\View => view('auth.login'))->name('login');
@@ -38,3 +39,9 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/logout', Logout::class)->name('logout');
     Route::get('/home', Index::class)->name('home');
 });
+
+// SIGMA Shared Orchestrators
+Route::get('{route}/export', Excel::class)->name('global.export')->where('route', '[a-zA-Z0-9_-]+');
+Route::get('/{route}/create', Create::class);
+Route::get('/{route}/{id}', [Detail::class, 'asController'])->name('detail');
+Route::post('/{route}/{id}/upload', Upload::class)->name('shared.upload');

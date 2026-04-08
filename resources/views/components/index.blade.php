@@ -119,14 +119,14 @@ document.addEventListener('alpine:init', () => {
                 pagination: true,
                 paginationMode: "remote",
                 paginationSize: 15,
-                paginationButtonCount: 25,
+                paginationButtonCount: 10,
                 dataField: "data",
                 paginationDataReceived: {
                     last_page: "last_page",
                 },
                 ajaxParams: {},
-                ajaxFiltering: true,
-                ajaxSorting: true,
+                filterMode: "remote",
+                sortMode: "remote",
                 layout: "fitDataStretch",
                 movableColumns: true,
                 persistence: {

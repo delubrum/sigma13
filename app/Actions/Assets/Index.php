@@ -91,10 +91,12 @@ final class Index implements HasDetail, HasModule
             ],
             tabs: [
                 new Tabs(key: 'details', label: 'Detalles', icon: 'ri-information-line', route: 'assets.details', default: true),
-                new Tabs(key: 'assignments', label: 'Asignaciones', icon: 'ri-user-line', route: 'assets.assignments'),
-                new Tabs(key: 'returns', label: 'Retornos', icon: 'ri-arrow-go-back-line', route: 'assets.returns'),
+                new Tabs(key: 'movements', label: 'Movimientos', icon: 'ri-arrow-left-right-line', route: 'assets.movements'),
                 new Tabs(key: 'documents', label: 'Documentos', icon: 'ri-file-line', route: 'assets.documents'),
-                new Tabs(key: 'maintenances', label: 'Mantenimientos', icon: 'ri-tools-line', route: 'assets.maintenances'),
+                new Tabs(key: 'automations', label: 'Automations', icon: 'ri-settings-4-line', route: 'assets.automations'),
+                new Tabs(key: 'maintenances', label: 'Correctivos', icon: 'ri-tools-line', route: 'assets.maintenances'),
+                new Tabs(key: 'preventive', label: 'Preventivos', icon: 'ri-calendar-check-line', route: 'assets.preventive'),
+                new Tabs(key: 'ai', label: 'SIGMA AI', icon: 'ri-robot-2-line', route: 'assets.ai'),
             ],
         );
     }
@@ -115,29 +117,34 @@ final class Index implements HasDetail, HasModule
 
         $query = Asset::query()->with(['currentAssignment.employee']);
 
-        if ($request->has('filter')) {
-            foreach ($request->array('filter') as $f) {
+        // Filtros Tabulator (Array de Objetos)
+        $filters = $request->input('filters', $request->input('filter', []));
+        if (is_array($filters)) {
+
+            foreach ($filters as $f) {
                 $field = $f['field'] ?? null;
                 $value = $f['value'] ?? null;
 
-                if (empty($value) && $value !== '0') {
+                if ($value === null || $value === '') {
                     continue;
                 }
+
+                $valStr = (string) $value;
 
                 match ($field) {
                     'area', 'hostname', 'serial', 'sap', 'brand', 'model', 'kind',
                     'cpu', 'ram', 'ssd', 'hdd', 'so', 'invoice', 'supplier',
-                    'location', 'operator', 'classification', 'work_mode', 'phone' => $query->where($field, 'ilike', "%{$value}%"),
+                    'location', 'operator', 'classification', 'work_mode', 'phone' => $query->where($field, 'ilike', "%{$valStr}%"),
 
-                    'status' => $query->where('status', $value),
+                    'status' => $query->where('status', $valStr),
                     'confidentiality', 'integrity', 'availability' => $query->where($field, (int) $value),
 
-                    'date', 'acquisition_date' => is_string($value) && str_contains($value, ' to ')
-                        ? $query->whereBetween('acquisition_date', explode(' to ', $value))
-                        : $query->whereDate('acquisition_date', $value),
+                    'date', 'acquisition_date' => str_contains($valStr, ' to ')
+                        ? $query->whereBetween('acquisition_date', explode(' to ', $valStr))
+                        : $query->whereDate('acquisition_date', $valStr),
 
-                    'assignee' => $query->whereHas('currentAssignment.employee', function (Builder $q) use ($value): void {
-                        $q->where('name', 'ilike', "%{$value}%");
+                    'assignee' => $query->whereHas('currentAssignment.employee', function (Builder $q) use ($valStr): void {
+                        $q->where('name', 'ilike', "%{$valStr}%");
                     }),
 
                     default => null

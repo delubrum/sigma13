@@ -11,5 +11,7 @@
             ]
         }
     },
-    "instructions": ["AGENTS.md", "SIGMA.md"]
+    "instructions": [
+        "SIGMA.md"
+    ]
 }

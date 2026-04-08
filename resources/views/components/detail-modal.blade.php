@@ -1,12 +1,12 @@
-<div class="grid grid-cols-4 gap-4">
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
 
-    <div id="sidebar-summary" class="rounded-lg shadow-md lg:col-span-1 overflow-hidden" style="background:var(--bg); border:1px solid var(--b)">
+    <div id="sidebar-summary" class="rounded-lg shadow-md col-span-1 overflow-hidden" style="background:var(--bg); border:1px solid var(--b)">
         @if($sidebarView && $sidebarData)
             @include($sidebarView, ['data' => $sidebarData])
         @endif
     </div>  
 
-    <div class="rounded-lg shadow-md overflow-hidden lg:col-span-3" style="background:var(--bg); border:1px solid var(--b)">
+    <div class="rounded-lg shadow-md overflow-hidden col-span-1 lg:col-span-3" style="background:var(--bg); border:1px solid var(--b)">
 
         @if(count($tabs) > 1)
         {{-- Tab bar --}}
@@ -25,15 +25,15 @@
         </div>
 
         {{-- Tab content --}}
-        <div id="tab-content" class="p-4 overflow-y-auto flex-grow" style="background:var(--bg)">
+        <div id="tab-content" class="p-4 overflow-y-auto grow" style="background:var(--bg)">
             <div class="flex justify-center p-10 opacity-20">
                 <i class="ri-loader-4-line animate-spin text-4xl"></i>
             </div>
         </div>
         @elseif(count($tabs) === 1)
         {{-- Single tab - load content directly --}}
-        @php $singleTab = $tabs->first(); @endphp
-        <div id="tab-content" class="p-4 overflow-y-auto flex-grow" style="background:var(--bg)"
+        @php $singleTab = collect($tabs)->first(); @endphp
+        <div id="tab-content" class="p-4 overflow-y-auto grow" style="background:var(--bg)"
             hx-get="{{ route($singleTab->route, ['id' => $id]) }}"
             hx-trigger="load"
             hx-swap="innerHTML">

@@ -4,18 +4,25 @@ declare(strict_types=1);
 
 namespace App\Actions\Users;
 
+use App\Actions\Password\SendResetLink;
+use App\Contracts\HasDetail;
+use App\Contracts\HasModule;
 use App\Data\Shared\Config;
 use App\Data\Shared\Field;
+use App\Data\Shared\Tabs;
+use App\Data\Users\Sidebar;
 use App\Data\Users\Table;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Lorisleiva\Actions\Concerns\AsAction;
+use App\Support\HtmxOrchestrator;
 
-final class Index
+final class Index implements HasModule, HasDetail
 {
     use AsAction;
+    use HtmxOrchestrator;
 
     public function config(): Config
     {
@@ -38,7 +45,15 @@ final class Index
                 new Field(name: 'email', label: 'Email', type: 'email', required: true, placeholder: 'correo@ejemplo.com'),
                 new Field(name: 'document', label: 'Cédula', required: true, placeholder: 'Número de documento'),
             ],
+            tabs: [
+                new Tabs(key: 'info', label: 'Permisos', icon: 'ri-shield-keyhole-line', route: 'users.info', default: true),
+            ],
         );
+    }
+
+    public function sidebarData(int $id): Sidebar
+    {
+        return Sidebar::fromModel(User::findOrFail($id));
     }
 
     public function asController(): View
@@ -57,13 +72,17 @@ final class Index
 
         $query = User::query();
 
-        // Filtros corregidos para PostgreSQL
-        $filters = $request->input('filter', []);
+        // Filtros Tabulator (Array de Objetos)
+        $filters = $request->input('filters', $request->input('filter', []));
         if (is_array($filters)) {
-            foreach ($filters as $field => $value) {
-                if (! is_string($value) || $value === '') {
+            foreach ($filters as $f) {
+                $field = $f['field'] ?? null;
+                $value = $f['value'] ?? null;
+
+                if ($value === null || $value === '') {
                     continue;
                 }
+                
                 match ($field) {
                     'name', 'email', 'document' => $query->where($field, 'ilike', '%'.$value.'%'),
                     'isActive' => $query->where('is_active', filter_var($value, FILTER_VALIDATE_BOOLEAN)),
@@ -74,7 +93,7 @@ final class Index
         }
 
         // Ordenamiento con mapeo de campos JS -> DB
-        $sortRaw = $request->input('sort', []);
+        $sortRaw = $request->input('sorters', $request->input('sort', []));
         /** @var array{field?: string, dir?: string} $sort */
         $sort = is_array($sortRaw) && isset($sortRaw[0]) && is_array($sortRaw[0]) ? $sortRaw[0] : [];
         $sortField = match ($sort['field'] ?? '') {
@@ -97,5 +116,16 @@ final class Index
             'last_page' => (int) ceil($total / $size),
             'last_row' => $total,
         ]);
+    }
+
+    public function asResetPassword(string $id): JsonResponse
+    {
+        $user = User::findOrFail($id);
+        
+        SendResetLink::run($user->email);
+
+        return $this
+            ->hxNotify("Correo de restauración enviado a: {$user->email}")
+            ->hxResponse();
     }
 }

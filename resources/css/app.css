@@ -51,6 +51,17 @@
         color: var(--tx) !important;
         @apply font-sans antialiased;
     }
+
+    button, 
+    [type="button"], 
+    [type="reset"], 
+    [type="submit"],
+    a,
+    label,
+    .cursor-pointer,
+    [onclick] {
+        cursor: pointer !important;
+    }
 }
 
 /* ─── TABULATOR ────────────────────────────────────────────────────────────── */
@@ -113,6 +124,7 @@
 .tabulator-row:hover {
     background: var(--hbg) !important;
     color: var(--htx) !important;
+    cursor: pointer;
 }
 
 .tabulator-row:hover .tabulator-cell {
@@ -168,6 +180,49 @@
 
 .animate-core {
     animation: core-in 0.3s ease-out forwards;
+}
+
+/* ─── MODAL BOUNCE ────────────────────────────────────────────────────────── */
+@keyframes bounce-in-down {
+    0% {
+        opacity: 0;
+        transform: translate3d(0, -100%, 0) scaleY(1.2);
+    }
+    60% {
+        opacity: 1;
+        transform: translate3d(0, 20px, 0) scaleY(0.9);
+    }
+    75% {
+        transform: translate3d(0, -8px, 0) scaleY(0.95);
+    }
+    90% {
+        transform: translate3d(0, 4px, 0) scaleY(0.98);
+    }
+    100% {
+        transform: translate3d(0, 0, 0) scaleY(1);
+    }
+}
+
+@keyframes bounce-out-up {
+    20% {
+        transform: translate3d(0, 10px, 0) scaleY(0.98);
+    }
+    40%, 45% {
+        opacity: 1;
+        transform: translate3d(0, -20px, 0) scaleY(0.9);
+    }
+    100% {
+        opacity: 0;
+        transform: translate3d(0, -100%, 0) scaleY(1.2);
+    }
+}
+
+.animate-bounce-in {
+    animation: bounce-in-down 0.6s cubic-bezier(0.215, 0.61, 0.355, 1) forwards;
+}
+
+.animate-bounce-out {
+    animation: bounce-out-up 0.5s ease-in-out forwards;
 }
 
 /* ─── VIEW TRANSITIONS ─────────────────────────────────────────────────────── */
