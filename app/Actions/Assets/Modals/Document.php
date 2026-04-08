@@ -76,6 +76,7 @@ final class Document
         ], '-2');
 
         $this->hxModalWidth($config->modalWidth, '-2');
+        $this->hxTriggers['open-modal-2'] = true;
 
         return view('components.new-modal', [
             'route' => "assets/{$id}/documents",
