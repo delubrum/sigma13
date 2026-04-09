@@ -1,5 +1,5 @@
 @php
-    $sidebarMenu = app(\App\Actions\Dashboard\LoadSidebar::class)->handle();
+    $sidebarMenu = app(\App\Domain\Dashboard\Actions\LoadSidebar::class)->handle();
     $currentUrl  = request()->url();
 
     // Helper para detectar si una URL relativa matchea la actual

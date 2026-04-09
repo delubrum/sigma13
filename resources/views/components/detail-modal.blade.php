@@ -44,3 +44,16 @@
         @endif
     </div>
 </div>
+
+{{-- SIGMA OOB: Actualización atómica de cabecera --}}
+<div id="modal-icon{{ $suffix ?? '' }}" hx-swap-oob="true" class="p-2 rounded-lg shadow-md" style="background:var(--ac)">
+    <i class="{{ $config->icon }} text-xl" style="color:var(--ac-inv)"></i>
+</div>
+
+<h1 id="modal-title{{ $suffix ?? '' }}" hx-swap-oob="true" class="text-xl font-extrabold uppercase tracking-tight" style="color:var(--tx)">
+    {{ $config->title }} · #{{ $id }} {!! $displayName ? " · <span class='opacity-50'>{$displayName}</span>" : "" !!}
+</h1>
+
+<p id="modal-subtitle{{ $suffix ?? '' }}" hx-swap-oob="true" class="text-[10px] uppercase font-bold tracking-widest" style="color:var(--tx2); opacity:.6">
+    {{ $config->subtitle }}
+</p>

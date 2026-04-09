@@ -9,16 +9,24 @@
       class="grid grid-cols-1 sm:grid-cols-4 gap-4">
 
     @csrf
+    @if(isset($data['id']))
+        <input type="hidden" name="id" value="{{ $data['id'] }}">
+    @endif
 
     @foreach ($config->formFields as $field)
         @php
             $colSpan = match($field->width) {
-                \App\Data\Shared\FieldWidth::ThreeQuarters => 'col-span-4 sm:col-span-3',
-                \App\Data\Shared\FieldWidth::Half => 'col-span-4 sm:col-span-2',
-                \App\Data\Shared\FieldWidth::Quarter => 'col-span-4 sm:col-span-1',
-                default => 'col-span-4 sm:col-span-4',
+                3 => 'col-span-1 sm:col-span-3',
+                2 => 'col-span-1 sm:col-span-2',
+                1 => 'col-span-1 sm:col-span-1',
+                default => 'col-span-1 sm:col-span-4',
             };
             $inputId = 'field-' . $field->name;
+            $value = $data[$field->name] ?? '';
+            // Handle Carbon dates if necessary
+            if ($value instanceof \Carbon\Carbon) {
+                $value = $value->format($field->type === 'date' ? 'Y-m-d' : 'Y-m-d H:i:s');
+            }
         @endphp
 
         <div class="flex flex-col gap-1 {{ $colSpan }}">
@@ -41,6 +49,7 @@
                 <input type="text"
                        id="{{ $inputId }}"
                        name="{{ $field->name }}"
+                       value="{{ $value }}"
                        placeholder="{{ $field->placeholder ?: 'Seleccionar fecha' }}"
                        data-widget="flatpickr"
                        autocomplete="off"
@@ -52,6 +61,7 @@
                 <input type="text"
                        id="{{ $inputId }}"
                        name="{{ $field->name }}"
+                       value="{{ $value }}"
                        placeholder="{{ $field->placeholder ?: 'Rango de fechas' }}"
                        data-widget="flatpickr-range"
                        autocomplete="off"
@@ -65,8 +75,8 @@
                         data-widget="slimselect"
                         {{ $field->required ? 'required' : '' }}>
                     <option value="">— Seleccionar —</option>
-                    @foreach ($field->options as $value => $label)
-                        <option value="{{ $value }}">{{ $label }}</option>
+                    @foreach ($field->options as $optValue => $optLabel)
+                        <option value="{{ $optValue }}" @if($value == $optValue) selected @endif>{{ $optLabel }}</option>
                     @endforeach
                 </select>
 
@@ -77,8 +87,8 @@
                         class="w-full px-3 py-2 rounded-lg text-sm outline-none transition-all border"
                         style="background:var(--bg2); border-color:var(--b); color:var(--tx)">
                     <option value="">— Seleccionar —</option>
-                    @foreach ($field->options as $value => $label)
-                        <option value="{{ $value }}">{{ $label }}</option>
+                    @foreach ($field->options as $optValue => $optLabel)
+                        <option value="{{ $optValue }}" @if($value == $optValue) selected @endif>{{ $optLabel }}</option>
                     @endforeach
                 </select>
 
@@ -89,12 +99,13 @@
                           placeholder="{{ $field->placeholder }}"
                           {{ $field->required ? 'required' : '' }}
                           class="w-full px-3 py-2 rounded-lg text-sm outline-none transition-all border resize-none"
-                          style="background:var(--bg2); border-color:var(--b); color:var(--tx)"></textarea>
+                          style="background:var(--bg2); border-color:var(--b); color:var(--tx)">{{ $value }}</textarea>
 
             @else
                 <input id="{{ $inputId }}"
                        type="{{ $field->type }}"
                        name="{{ $field->name }}"
+                       value="{{ $value }}"
                        placeholder="{{ $field->placeholder }}"
                        {{ $field->required ? 'required' : '' }}
                        class="w-full px-3 py-2 rounded-lg text-sm outline-none transition-all border"
@@ -124,3 +135,16 @@
     </div>
 
 </form>
+
+{{-- MÁGICA OOB: Actualiza la cabecera del layout desde la respuesta del servidor --}}
+<div id="modal-icon{{ $suffix ?? '' }}" hx-swap-oob="true" class="p-2 rounded-lg shadow-md" style="background:var(--ac)">
+    <i class="{{ $config->icon }} text-xl" style="color:var(--ac-inv)"></i>
+</div>
+
+<h1 id="modal-title{{ $suffix ?? '' }}" hx-swap-oob="true" class="text-xl font-extrabold uppercase tracking-tight" style="color:var(--tx)">
+    {{ $config->title }}
+</h1>
+
+<p id="modal-subtitle{{ $suffix ?? '' }}" hx-swap-oob="true" class="text-[10px] uppercase font-bold tracking-widest" style="color:var(--tx2); opacity:.6">
+    {{ $config->subtitle }}
+</p>

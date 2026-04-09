@@ -47,14 +47,14 @@ trait HtmxOrchestrator
     /** @param array{icon: string, title: string, subtitle: string} $header */
     public function hxModalHeader(array $header, string $suffix = ''): static
     {
-        $this->hxTriggers['update-modal-header' . $suffix] = $header;
+        $this->hxTriggers['update-modal-header'.$suffix] = $header;
 
         return $this;
     }
 
     public function hxModalWidth(string $width, string $suffix = ''): static
     {
-        $this->hxTriggers['set-modal-width' . $suffix] = ['width' => $width];
+        $this->hxTriggers['set-modal-width'.$suffix] = ['width' => $width];
 
         return $this;
     }

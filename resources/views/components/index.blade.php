@@ -80,8 +80,8 @@
                 @endif
             </div>
 
-            {{-- Botón Nuevo - solo si hay formFields --}}
-            @if(count($config->formFields) > 0)
+            {{-- Botón Nuevo --}}
+            @if($config->newButtonLabel)
             <div class="flex items-center">
                 <button
                     hx-get="/{{ $route }}/create"
@@ -135,14 +135,14 @@ document.addEventListener('alpine:init', () => {
                 persistenceMode: "local",
                 persistenceID: this.storageKey,
                 locale: "es",
-                columns: @js($config->columns),
+                columns: this.thawColumns(@js($config->columns)),
             });
 
             this.table.on("tableBuilt", () => {
                 this.refreshColumnList();
                 const urlParams = new URLSearchParams(window.location.search);
                 const id = urlParams.get("id");
-                if(id) setTimeout(() => this.openRow(id, true), 300);
+                if(id) setTimeout(() => this.openRow(id), 300);
             });
 
             const events = ["columnMoved", "columnResized", "columnVisibilityChanged"];
@@ -153,6 +153,20 @@ document.addEventListener('alpine:init', () => {
             this.table.on("rowClick", (e, row) => {
                 if(e.target.closest('button, a, input, [tabulator-field="files"], .no-click')) return;
                 this.openRow(row.getData().id);
+            });
+        },
+
+        thawColumns(columns) {
+            return columns.map(col => {
+                // Si la columna tiene un formateador que empieza con 'function', lo hidratamos
+                if (typeof col.formatter === 'string' && col.formatter.startsWith('function')) {
+                    try {
+                        col.formatter = new Function('return ' + col.formatter)();
+                    } catch (e) {
+                        console.error('Error hydrating formatter for field: ' + col.field, e);
+                    }
+                }
+                return col;
             });
         },
 
@@ -178,18 +192,13 @@ document.addEventListener('alpine:init', () => {
             window.location.reload(); 
         },
 
-        openRow(id, cleanUrl = false) {
+        openRow(id) {
+            // Usamos htmx.ajax pero sin disparar eventos manuales en el .then()
+            // El backend usará el HtmxOrchestrator para enviar los triggers necesarios (open-modal, etc)
+            window.dispatchEvent(new CustomEvent('open-modal'));
             htmx.ajax('GET', `/{{ $route }}/${id}`, {
                 target: '#modal-body',
                 swap: 'innerHTML',
-            }).then(() => {
-                window.dispatchEvent(new CustomEvent('open-modal'));
-                
-                if(cleanUrl){
-                    const url = new URL(window.location);
-                    url.searchParams.delete("id");
-                    window.history.replaceState({}, '', url);
-                }
             });
         }
     }));

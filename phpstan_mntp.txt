@@ -1,0 +1,55 @@
+Note: Using configuration file /home/felipe/Escritorio/Proyects/sigma13/phpstan.neon.
+ ------ ---------------- 
+  Line   Actions/Update  
+         .php            
+ ------ ---------------- 
+  :34    PHPDoc tag      
+         @var for        
+         variable $now   
+         contains        
+         unknown class   
+         App\Domain\Mai  
+         ntenanceP\Acti  
+         ons\Carbon\Car  
+         bon.            
+         🪪              
+         class.notFound  
+         💡  Learn more  
+         at              
+         https://phpsta  
+         n.org/user-gui  
+         de/discovering  
+         -symbols        
+  :34    PHPDoc tag      
+         @var with type  
+         App\Domain\Mai  
+         ntenanceP\Acti  
+         ons\Carbon\Car  
+         bon is not      
+         subtype of      
+         native type     
+         Carbon\CarbonI  
+         nterface.       
+         🪪              
+         varTag.nativeT  
+         ype             
+  :35    Call to method  
+         format() on an  
+         unknown class   
+         App\Domain\Mai  
+         ntenanceP\Acti  
+         ons\Carbon\Car  
+         bon.            
+         🪪              
+         class.notFound  
+         💡  Learn more  
+         at              
+         https://phpsta  
+         n.org/user-gui  
+         de/discovering  
+         -symbols        
+ ------ ---------------- 
+
+
+ [ERROR] Found 3 errors  
+

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Contracts;
 
-use App\Data\Shared\Config;
+use App\Domain\Shared\Data\Config;
 
 interface HasModule
 {

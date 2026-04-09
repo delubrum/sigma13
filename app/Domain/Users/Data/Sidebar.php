@@ -1,0 +1,21 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Domain\Users\Data;
+
+use Spatie\LaravelData\Attributes\MapInputName;
+use Spatie\LaravelData\Data;
+
+final class Sidebar extends Data
+{
+    public function __construct(
+        public readonly int $id,
+        public readonly string $name,
+        public readonly string $email,
+        public readonly ?string $document,
+        #[MapInputName('is_active')]
+        public readonly bool $isActive,
+    ) {}
+
+}

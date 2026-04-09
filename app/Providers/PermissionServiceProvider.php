@@ -1,8 +1,11 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Providers;
 
-use App\Models\User;
+use App\Domain\Users\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
@@ -28,11 +31,14 @@ class PermissionServiceProvider extends ServiceProvider
         });
 
         Blade::if('canany', function ($permissions): bool {
-            if (! auth()->check()) {
+            if (! Auth::check()) {
                 return false;
             }
 
-            $user = auth()->user();
+            $user = Auth::user();
+            if (! $user instanceof User) {
+                return false;
+            }
             $userPermissions = $user->permissions;
 
             if (! is_array($userPermissions) || $userPermissions === []) {

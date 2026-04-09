@@ -1,0 +1,92 @@
+Note: Using configuration file /home/felipe/Escritorio/Proyects/sigma13/phpstan.neon.
+ ------ ---------------- 
+  Line   Actions/Index.  
+         php             
+ ------ ---------------- 
+  :103   Cannot cast     
+         mixed to        
+         string.         
+         🪪  cast.string  
+  :109   Cannot cast     
+         mixed to int.   
+         🪪  cast.int    
+ ------ ---------------- 
+
+ ------ ---------------- 
+  Line   Actions/PrintQ  
+         r.php           
+ ------ ---------------- 
+  :20    Call to an      
+         undefined       
+         static method   
+         App\Domain\Ass  
+         ets\Data\Sideb  
+         ar::fromModel(  
+         ).              
+         🪪              
+         staticMethod.n  
+         otFound         
+ ------ ---------------- 
+
+ ------ ---------------- 
+  Line   Actions/Tabs/M  
+         ovements.php    
+ ------ ---------------- 
+  :27    Parameter       
+         $newButtonLabe  
+         l of class      
+         App\Domain\Sha  
+         red\Data\Confi  
+         g constructor   
+         expects         
+         string, null    
+         given.          
+         🪪              
+         argument.type   
+ ------ ---------------- 
+
+ ------ ---------------- 
+  Line   Models/Asset.p  
+         hp              
+ ------ ---------------- 
+  :51    Parameter #1    
+         $sql of method  
+         Illuminate\Dat  
+         abase\Eloquent  
+         \Builder<App\D  
+         omain\Assets\M  
+         odels\Asset>::  
+         orderByRaw()    
+         expects         
+         literal-string  
+         ,               
+         non-falsy-stri  
+         ng given.       
+         🪪              
+         argument.type   
+  :82    Using nullsafe  
+         property        
+         access          
+         "?->name" on    
+         left side of    
+         ?? is           
+         unnecessary.    
+         Use ->          
+         instead.        
+         🪪              
+         nullsafe.never  
+         Null            
+  :134   Call to an      
+         undefined       
+         method          
+         Spatie\Image\D  
+         rivers\ImageDr  
+         iver::nonQueue  
+         d().            
+         🪪              
+         method.notFoun  
+         d               
+ ------ ---------------- 
+
+ [ERROR] Found 7 errors  
+

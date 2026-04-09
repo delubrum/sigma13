@@ -33,7 +33,6 @@
         "driftingly/rector-laravel": "^2.2",
         "fakerphp/faker": "^1.23",
         "larastan/larastan": "^3.9",
-        "laravel/boost": "^2.0",
         "laravel/pail": "^1.2",
         "laravel/pint": "^1.27",
         "mockery/mockery": "^1.6",
@@ -89,10 +88,12 @@
         "lint": "pint",
         "rector": "rector process",
         "stan": "phpstan analyse",
+        "test:arch": "pest tests/Architecture/StructuralTest.php",
         "check-all": [
-            "@lint",
             "@rector",
-            "@stan"
+            "@lint",
+            "@stan",
+            "@test:arch"
         ]
     },
     "extra": {

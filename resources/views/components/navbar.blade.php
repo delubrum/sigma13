@@ -22,7 +22,8 @@
     <div class="flex items-center space-x-3">
         {{-- Theme Switcher con Animación de Iconos Nativa --}}
         <button x-data="{ isDark: document.documentElement.classList.contains('dark') }"
-                @click="window.toggleTheme($event); isDark = !isDark"
+                x-init="window.addEventListener('theme-changed', (e) => isDark = e.detail.isDark)"
+                @click="window.toggleTheme($event); isDark = document.documentElement.classList.contains('dark')"
                 class="group relative w-9 h-9 rounded-xl flex items-center justify-center overflow-hidden transition-all bg-sigma-bg2 border border-sigma-b hover:border-sigma-ac active:scale-95">
             
             {{-- Sol --}}
