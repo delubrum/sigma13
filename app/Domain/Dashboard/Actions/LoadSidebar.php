@@ -40,7 +40,7 @@ class LoadSidebar
                 $allSimple = $items->every(fn ($i): bool => empty($i->subtitle) && empty($i->link));
                 if ($allSimple) {
                     return [
-                        'label' => (string) $title,
+                        'title' => (string) $title,
                         'icon' => (string) ($first->icon ?: '<i class="ri-circle-line mr-3 text-lg"></i>'),
                         'url' => (string) $first->url,
                         'children' => [],
@@ -53,7 +53,7 @@ class LoadSidebar
                     ->map(function ($links, $subtitle) {
                         if (empty($subtitle)) {
                             return $links->map(fn ($l): array => [
-                                'label' => (string) ($l->link ?: $l->name),
+                                'title' => (string) ($l->link ?: $l->name),
                                 'url' => (string) $l->url,
                                 'children' => [],
                             ])->values()->toArray();
@@ -63,17 +63,17 @@ class LoadSidebar
 
                         if (! $hasLinks) {
                             return $links->map(fn ($l): array => [
-                                'label' => (string) $subtitle,
+                                'title' => (string) $subtitle,
                                 'url' => (string) $l->url,
                                 'children' => [],
-                            ])->unique('label')->values()->toArray();
+                            ])->unique('title')->values()->toArray();
                         }
 
                         return [[
-                            'label' => (string) $subtitle,
+                            'title' => (string) $subtitle,
                             'url' => null,
                             'children' => $links->map(fn ($l): array => [
-                                'label' => (string) ($l->link ?: $l->name),
+                                'title' => (string) ($l->link ?: $l->name),
                                 'url' => (string) $l->url,
                             ])->values()->toArray(),
                         ]];
@@ -83,7 +83,7 @@ class LoadSidebar
                     ->toArray();
 
                 return [
-                    'label' => (string) $title,
+                    'title' => (string) $title,
                     'icon' => (string) ($first->icon ?: '<i class="ri-circle-line mr-3 text-lg"></i>'),
                     'url' => null,
                     'children' => $children,

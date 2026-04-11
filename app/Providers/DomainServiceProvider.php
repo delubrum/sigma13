@@ -30,14 +30,19 @@ final class DomainServiceProvider extends ServiceProvider
             return;
         }
 
-        // Discovery of domain routes
+        // Discovery of domain routes and views
         $modules = File::directories($domainPath);
 
         foreach ($modules as $module) {
             $routeFile = $module.'/routes.php';
-
             if (File::exists($routeFile)) {
                 Route::middleware('web')->group($routeFile);
+            }
+
+            $viewsPath = $module.'/Web/Views';
+            if (File::isDirectory($viewsPath)) {
+                $domainName = strtolower(basename($module));
+                $this->loadViewsFrom($viewsPath, $domainName);
             }
         }
     }

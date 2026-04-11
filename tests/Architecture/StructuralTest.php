@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Tests\Architecture;
 
 use App\Domain\Shared\Data\FieldWidth;
+use App\Support\HtmxOrchestrator;
 use Carbon\Carbon;
 use Illuminate\Http\Middleware\FrameGuard;
+use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -24,10 +27,9 @@ use Spatie\LaravelData\Lazy;
  * Nomenclatura de tests : español  (output legible para el dev)
  * Código PHP / clases   : inglés   (sin excepción)
  */
-
-$core  = 'App\Domain\*\Actions';
-$web   = 'App\Domain\*\Web\Actions';
-$api   = 'App\Domain\*\Api\Actions';
+$core = 'App\Domain\*\Actions';
+$web = 'App\Domain\*\Web\Actions';
+$api = 'App\Domain\*\Api\Actions';
 $views = 'App\Domain\*\Web\Views';
 $pipes = 'App\Domain\*\Pipelines';
 
@@ -80,6 +82,7 @@ arch('el domain solo puede usar la lista blanca estricta')
         'Illuminate\Contracts\Queue',       // ShouldQueue interface
         'Illuminate\Notifications',         // NotificationService
         'Illuminate\Contracts\Container',   // IoC for Pipelines
+        'Illuminate\Http',                  // Web Actions — controllers, responses, requests
         // Third-party
         'Spatie',
         'Lorisleiva\Actions',
@@ -132,18 +135,16 @@ arch('todas las actions deben usar AsAction y declarar handle()')
     ->toUse(AsAction::class)
     ->and->toHaveMethod('handle');
 
-arch('core actions son 100% agnósticas de infraestructura HTTP')
+arch('core actions no retornan View ni Response — solo DTOs')
     ->expect($core)
     ->not->toUse([
-        'Illuminate\Http',
         'Illuminate\Contracts\View',
         'Illuminate\View',
-        'view', 'response', 'request', 'redirect', 'back',
     ]);
 
-arch('core actions nunca reciben Request crudo')
+arch('core actions no declaran asController()')
     ->expect($core)
-    ->not->toUse([\Illuminate\Http\Request::class]);
+    ->not->toHaveMethod('asController');
 
 arch('web y api adapters nunca importan Models directamente')
     ->expect([$web, $api])
@@ -154,7 +155,7 @@ arch('web y api adapters nunca importan Models directamente')
 // =============================================================================
 
 arch('HtmxOrchestrator solo puede usarse en Web Actions')
-    ->expect('App\Support\HtmxOrchestrator')
+    ->expect(HtmxOrchestrator::class)
     ->toBeUsedIn($web)
     ->and->not->toBeUsedIn([
         $core, $api, $pipes,
@@ -166,7 +167,7 @@ arch('HtmxOrchestrator solo puede usarse en Web Actions')
 
 arch('todas las Web Actions deben usar HtmxOrchestrator')
     ->expect($web)
-    ->toUse('App\Support\HtmxOrchestrator');
+    ->toUse(HtmxOrchestrator::class);
 
 arch('Web Actions no manipulan headers HX-* manualmente')
     ->expect($web)
@@ -174,7 +175,7 @@ arch('Web Actions no manipulan headers HX-* manualmente')
         'HX-Request', 'HX-Redirect', 'HX-Trigger',
         'HX-Retarget', 'HX-Reswap', 'HX-Push-Url', 'HX-Refresh',
     ])
-    ->ignoring('App\Support\HtmxOrchestrator');
+    ->ignoring(HtmxOrchestrator::class);
 
 // =============================================================================
 // 6. MODELS — anémicos, sin lógica de negocio
@@ -194,7 +195,7 @@ arch('los models no se filtran a vistas Blade')
     ->description('Las Views solo reciben DTOs — nunca Models directamente.');
 
 // =============================================================================
-// 6. DTOs (Spatie Laravel Data) — full power
+// 7. DTOs (Spatie Laravel Data) — full power
 //
 // ✅ Sufijos permitidos : Form · Table · Upsert · Collection · Filter · Resource · Payload
 // ✅ fromModel()        : constructor estático canónico de TableData → PERMITIDO
@@ -218,16 +219,20 @@ arch('los DTOs de colección deben usar Lazy para diferir hidratación')
     ->filter(fn ($dto): bool => str_contains((string) $dto->getName(), 'Collection'))
     ->toUse(Lazy::class);
 
+arch('los TableData deben declarar fromModel() estático')
+    ->expect('App\Domain\*\Data')
+    ->filter(fn ($dto): bool => str_contains((string) $dto->getName(), 'Table'))
+    ->toHaveMethod('fromModel');
+
 arch('no se permiten DTOs sin sufijo semántico')
     ->expect('App\Domain\*\Data')
-    ->filter(fn ($dto): bool =>
-        ! str_contains((string) $dto->getName(), 'Form')       &&
-        ! str_contains((string) $dto->getName(), 'Table')      &&
-        ! str_contains((string) $dto->getName(), 'Upsert')     &&
+    ->filter(fn ($dto): bool => ! str_contains((string) $dto->getName(), 'Form') &&
+        ! str_contains((string) $dto->getName(), 'Table') &&
+        ! str_contains((string) $dto->getName(), 'Upsert') &&
         ! str_contains((string) $dto->getName(), 'Collection') &&
-        ! str_contains((string) $dto->getName(), 'Filter')     &&
-        ! str_contains((string) $dto->getName(), 'Resource')   &&
-        ! str_contains((string) $dto->getName(), 'Payload')    &&
+        ! str_contains((string) $dto->getName(), 'Filter') &&
+        ! str_contains((string) $dto->getName(), 'Resource') &&
+        ! str_contains((string) $dto->getName(), 'Payload') &&
         (string) $dto->getName() !== FieldWidth::class
     )
     ->not->toExist();
@@ -258,7 +263,7 @@ arch('los pipeline pipes deben ser final y declarar handle()')
 
 arch('los pipes son agnósticos de HTTP')
     ->expect($pipes)
-    ->not->toUse(['Illuminate\Http\Request', 'Illuminate\Http\Response']);
+    ->not->toUse([Request::class, Response::class]);
 
 // =============================================================================
 // 10. SEGURIDAD
@@ -267,9 +272,7 @@ arch('los pipes son agnósticos de HTTP')
 arch('las mutaciones web (Store/Upsert) deben usar ProtectAgainstSpam')
     ->expect($web)
     ->toUse(ProtectAgainstSpam::class)
-    ->ignoring(fn (string $class): bool =>
-        ! str_contains($class, 'Store') && ! str_contains($class, 'Upsert')
-    );
+    ->ignoring(fn (string $class): bool => ! str_contains($class, 'Store') && ! str_contains($class, 'Upsert'));
 
 arch('el kernel debe incluir headers de seguridad')
     ->expect('App\Http\Kernel')

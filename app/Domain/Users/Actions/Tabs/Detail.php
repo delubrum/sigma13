@@ -84,13 +84,10 @@ final class Detail
         $this->hxRefreshTables(['users-table']);
 
         if ($data->field === 'name') {
-            // OOB update for modal title
-            $title = 'Usuarios';
-            $oob = '<h1 id="modal-title" hx-swap-oob="true" class="text-xl font-extrabold uppercase tracking-tight" style="color:var(--tx)">'.
-                   "{$title} · #{$id} · <span class='opacity-50'>{$user->name}</span></h1>";
-
-            return response($oob)->withHeaders([
-                'HX-Trigger' => json_encode($this->hxTriggers),
+            $this->hxModalHeader([
+                'icon' => 'ri-user-line',
+                'title' => "Usuarios · #{$id} · <span class='opacity-50'>{$user->name}</span>",
+                'subtitle' => 'Gestión de perfil y permisos'
             ]);
         }
 

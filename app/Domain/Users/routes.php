@@ -2,18 +2,14 @@
 
 declare(strict_types=1);
 
-use App\Domain\Users\Actions\Create;
-use App\Domain\Users\Actions\Index;
-use App\Domain\Users\Actions\Tabs\Detail;
+use App\Domain\Users\Web\Actions\Create;
+use App\Domain\Users\Web\Actions\Index;
+use App\Domain\Users\Web\Actions\Tabs\Detail;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->prefix('users')->name('users.')->group(function (): void {
     Route::get('/', [Index::class, 'asController'])->name('index');
     Route::get('/data', [Index::class, 'asData'])->name('data');
-
-    // Create
-    Route::get('/create', [Create::class, 'asController'])->name('create');
-    Route::post('/', [Create::class, 'asStore'])->name('store');
 
     // Tabs
     Route::get('/{id}/info', [Detail::class, 'asController'])->name('info');

@@ -4,18 +4,37 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Domain\Identity\Listeners\SendUserInvitation;
+use App\Domain\Shared\Events\PasswordResetRequested;
+use App\Domain\Shared\Events\UserCreated;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
-class AppServiceProvider extends ServiceProvider
+final class AppServiceProvider extends ServiceProvider
 {
-    #[\Override]
-    public function register(): void
-    {
-        //
-    }
-
     public function boot(): void
     {
-        //
+        Event::listen(
+            UserCreated::class,
+            SendUserInvitation::class
+        );
+
+        Event::listen(
+            PasswordResetRequested::class,
+            SendUserInvitation::class
+        );
+
+        Blade::anonymousComponentPath(app_path('Domain/Shared/Web/Views/components'));
+
+        View::addNamespace('components', app_path('Domain/Shared/Web/Views/components'));
+        View::addNamespace('layouts', app_path('Domain/Shared/Web/Views/components/layouts'));
+
+        View::addNamespace('assets', app_path('Domain/Assets/Web/Views'));
+        View::addNamespace('users', app_path('Domain/Users/Web/Views'));
+        View::addNamespace('dashboard', app_path('Domain/Dashboard/Web/Views'));
+        View::addNamespace('identity', app_path('Domain/Identity/Web/Views'));
+        View::addNamespace('auth', app_path('Domain/Identity/Web/Views/auth'));
     }
 }

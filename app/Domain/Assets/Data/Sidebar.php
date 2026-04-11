@@ -11,21 +11,34 @@ final class Sidebar extends Data
 {
     public function __construct(
         public readonly int $id,
-        public readonly string $serial,
-        public readonly string $sap,
+        public readonly ?string $serial,
+        public readonly ?string $sap,
         public readonly ?string $hostname,
-        #[MapInputName('work_mode')]
         public readonly ?string $workMode,
         public readonly ?string $location,
         public readonly ?string $phone,
         public readonly string $status,
-        #[MapInputName('currentAssignment.employee.name')]
         public readonly ?string $assignee,
-        #[MapInputName('currentAssignment.created_at')]
         public readonly ?string $assignedAt,
-        #[MapInputName('url')]
         public readonly ?string $photoUrl,
         public readonly ?string $qrUrl,
     ) {}
 
+    public static function fromModel(\App\Domain\Assets\Models\Asset $asset): self
+    {
+        return new self(
+            id: $asset->id,
+            serial: $asset->serial,
+            sap: $asset->sap,
+            hostname: $asset->hostname,
+            workMode: $asset->work_mode,
+            location: $asset->location,
+            phone: $asset->phone,
+            status: $asset->status ?? 'available',
+            assignee: $asset->currentAssignment?->employee?->name,
+            assignedAt: $asset->currentAssignment?->created_at?->format('d/m/Y'),
+            photoUrl: $asset->profile_photo_url,
+            qrUrl: $asset->qr_url,
+        );
+    }
 }

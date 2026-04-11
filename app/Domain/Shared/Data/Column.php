@@ -20,6 +20,8 @@ final class Column extends Data
         public readonly ?array $headerFilterParams = null,
         public readonly ?string $headerFilterPlaceholder = null,
         public readonly bool $clearable = false,
+        public readonly bool $headerSort = true,
+        public readonly ?int $responsive = null,
     ) {}
 
     /** @param array<string, mixed>|null $headerFilterParams */
@@ -34,6 +36,8 @@ final class Column extends Data
         ?array $headerFilterParams = null,
         ?string $headerFilterPlaceholder = null,
         bool $clearable = false,
+        bool $headerSort = true,
+        ?int $responsive = null,
     ): self {
         return new self(
             $title,
@@ -45,7 +49,9 @@ final class Column extends Data
             $headerFilter,
             $headerFilterParams,
             $headerFilterPlaceholder,
-            $clearable
+            $clearable,
+            $headerSort,
+            $responsive
         );
     }
 }

@@ -26,10 +26,6 @@ import { TabulatorFull as Tabulator } from 'tabulator-tables';
 import 'tabulator-tables/dist/css/tabulator.min.css';
 window.Tabulator = Tabulator;
 
-import * as FilePond from 'filepond';
-import 'filepond/dist/filepond.min.css';
-window.FilePond = FilePond;
-
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 window.flatpickr = flatpickr;
@@ -61,36 +57,115 @@ document.addEventListener('htmx:afterRequest', () => {
     document.getElementById('hx-indicator')?.classList.add('hidden');
 });
 
-document.body.addEventListener('htmx:afterSettle', function (evt) {
+function sigmaInit(container = document) {
     // 1. Inicializar SlimSelect
-    document.querySelectorAll('[data-widget="slimselect"]').forEach(el => {
-        // Evitamos duplicar si ya tiene la clase de SlimSelect
+    container.querySelectorAll('[data-widget="slimselect"]').forEach(el => {
         if (!el.nextElementSibling?.classList.contains('ss-main')) {
             new SlimSelect({ select: el });
         }
     });
 
-    // 2. Inicializar FilePond
-    document.querySelectorAll('[data-widget="filepond"]').forEach(el => {
-        if (!el.classList.contains('filepond--browser')) {
-            FilePond.create(el, {
-                labelIdle: 'Arrastra archivos',
-                allowMultiple: false,
-            });
-        }
-    });
+    // 2. Otros widgets se inicializan nativamente
 
     // 3. Inicializar Flatpickr
-    document.querySelectorAll('[data-widget^="flatpickr"]').forEach(el => {
+    container.querySelectorAll('[data-widget^="flatpickr"]').forEach(el => {
         if (!el.classList.contains('flatpickr-input')) {
             const isRange = el.dataset.widget === 'flatpickr-range';
             flatpickr(el, {
                 locale: 'es',
                 mode: isRange ? 'range' : 'single',
-                dateFormat: 'Y-m-d'
+                dateFormat: 'Y-m-d',
+                static: true,
+                allowInput: true
             });
         }
     });
+
+    // 4. Inicializar Tabulator (SIGMA Standard)
+    container.querySelectorAll('[data-widget="tabulator"]').forEach(el => {
+        if (!el.tabulator) {
+            const config = JSON.parse(el.dataset.config || '{}');
+            
+            // Hidratar formateadores (thawColumns)
+            if (config.columns) {
+                config.columns = config.columns.map(col => {
+                    if (typeof col.formatter === 'string' && col.formatter.startsWith('function')) {
+                        try {
+                            col.formatter = new Function('return ' + col.formatter)();
+                        } catch (e) {
+                            console.error('Error hydrating formatter:', e);
+                        }
+                    }
+                    return col;
+                });
+            }
+
+            const table = new Tabulator(el, config);
+            el.tabulator = table;
+
+            // Al terminar de renderizar/actualizar datos
+            table.on("renderComplete", () => {
+                window.htmx.process(el);
+            });
+
+            // Al terminar de construir la tabla
+            table.on("tableBuilt", () => {
+                const urlParams = new URLSearchParams(window.location.search);
+                const id = urlParams.get("id");
+                const route = el.dataset.route;
+                if (id && route && !el.dataset.detailOpened) {
+                    el.dataset.detailOpened = "true";
+                    setTimeout(() => {
+                        window.dispatchEvent(new CustomEvent('open-modal'));
+                        window.htmx.ajax('GET', `/${route}/${id}`, {
+                            target: '#modal-body',
+                            swap: 'innerHTML',
+                        });
+                    }, 300);
+                }
+            });
+
+            // Comportamiento global de click en fila
+            const route = el.dataset.route;
+            if (route) {
+                table.on("rowClick", (e, row) => {
+                    if (e.target.closest('button, a, input, [tabulator-field="files"], .no-click')) return;
+                    const id = row.getData().id;
+                    window.dispatchEvent(new CustomEvent('open-modal'));
+                    window.htmx.ajax('GET', `/${route}/${id}`, {
+                        target: '#modal-body',
+                        swap: 'innerHTML',
+                    });
+                });
+            }
+        }
+    });
+
+    // 5. Inicializar QRCodes
+    container.querySelectorAll('[data-widget="qrcode"]').forEach(el => {
+        if (!el.dataset.initialized) {
+            const text = el.dataset.text;
+            if (text) {
+                new QRCode(el, {
+                    text: text,
+                    width: el.dataset.size || 128,
+                    height: el.dataset.size || 128,
+                    correctLevel: QRCode.CorrectLevel.L
+                });
+                el.dataset.initialized = "true";
+            }
+        }
+    });
+}
+
+// Escuchar cambios de HTMX
+document.body.addEventListener('htmx:afterSettle', (evt) => {
+    sigmaInit(evt.detail.target);
+});
+
+// Carga inicial
+document.addEventListener('DOMContentLoaded', () => {
+    sigmaInit();
 });
 
 document.addEventListener('htmx:afterRequest', (e) => {
@@ -104,6 +179,33 @@ document.addEventListener('htmx:afterRequest', (e) => {
     tab.style.color = 'var(--ac)';
     tab.style.borderBottom = '2px solid var(--ac)';
 });
+
+// --- SIGMA Theme Helper ---
+window.toggleTheme = async (event) => {
+    const root = document.documentElement;
+    const x = event?.clientX ?? window.innerWidth / 2;
+    const y = event?.clientY ?? window.innerHeight / 2;
+    const endRadius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
+
+    const toggle = () => {
+        const isDark = root.classList.toggle('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        window.dispatchEvent(new CustomEvent('theme-changed', { detail: { isDark } }));
+    };
+
+    if (!document.startViewTransition) {
+        toggle();
+        return;
+    }
+
+    const transition = document.startViewTransition(toggle);
+
+    await transition.ready;
+    root.animate(
+        { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`] },
+        { duration: 500, easing: 'ease-in-out', pseudoElement: '::view-transition-new(root)' }
+    );
+};
 
 // --- Alpine Initialization (Siempre al final) ---
 

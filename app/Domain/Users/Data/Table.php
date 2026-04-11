@@ -14,11 +14,11 @@ final class Table extends Data
         public readonly int $id,
         public readonly string $name,
         public readonly string $email,
-        public readonly string $document,
-        #[MapInputName('is_active')]
+        public readonly ?string $document,
+        #[MapInputName('status_label')]
         public readonly string $isActive,
         #[MapInputName('created_at')]
-        public readonly string $createdAt,
+        public readonly \DateTimeInterface $createdAt,
     ) {}
 
     /** @return list<Column> */

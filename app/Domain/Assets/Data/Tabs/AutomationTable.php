@@ -21,9 +21,9 @@ final class AutomationTable extends Data
     public static function columns(): array
     {
         return [
-            Column::make(title: 'Actividad', field: 'activity'),
-            Column::make(title: 'Frecuencia', field: 'frequency', width: 150),
-            Column::make(title: 'Última Ejecución', field: 'last_performed_at', width: 150),
+            Column::make(title: 'Actividad', field: 'activity', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
+            Column::make(title: 'Frecuencia', field: 'frequency', width: 150, headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
+            Column::make(title: 'Última Ejecución', field: 'last_performed_at', width: 150, headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
         ];
     }
 

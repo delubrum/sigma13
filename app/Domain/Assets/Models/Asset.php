@@ -11,6 +11,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Activitylog\Support\LogOptions;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -26,6 +28,15 @@ class Asset extends Model implements HasMedia
 {
     use InteractsWithMedia;
     use SoftDeletes;
+    use LogsActivity;
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty()
+            ->dontLogEmptyChanges();
+    }
 
     #[\Override]
     public $timestamps = false;
@@ -123,11 +134,30 @@ class Asset extends Model implements HasMedia
         );
     }
 
+    /** @return Attribute<string, never> */
+    protected function qrUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn (): string => route('assets.public', ['serial' => $this->serial ?: $this->id]),
+        );
+    }
+
+    /** @return Attribute<string, never> */
+    protected function profilePhotoUrl(): Attribute
+    {
+        return Attribute::make(
+            get: function (): string {
+                $media = $this->getFirstMedia('profile');
+                return $media ? route('shared.media.download', $media->id) : '';
+            }
+        );
+    }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('profile')
             ->singleFile()
-            ->useDisk('s3');
+            ->useDisk('r2_public');
     }
 
     public function registerMediaConversions(?Media $media = null): void

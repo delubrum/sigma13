@@ -8,17 +8,20 @@ use App\Domain\Users\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
 #[Fillable([
     'name',
     'expiry',
     'code',
-    'url',
     'asset_id',
     'user_id',
+    'url', // Lo mantenemos temporalmente para compatibilidad pero usaremos media
 ])]
-class AssetDocument extends Model
+class AssetDocument extends Model implements HasMedia
 {
+    use InteractsWithMedia;
     #[\Override]
     public $timestamps = false;
 
@@ -42,5 +45,12 @@ class AssetDocument extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('documents')
+            ->singleFile()
+            ->useDisk('r2');
     }
 }

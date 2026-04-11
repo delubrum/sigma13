@@ -52,9 +52,9 @@
         @apply font-sans antialiased;
     }
 
-    button, 
-    [type="button"], 
-    [type="reset"], 
+    button,
+    [type="button"],
+    [type="reset"],
     [type="submit"],
     a,
     label,
@@ -186,31 +186,42 @@
 @keyframes bounce-in-down {
     0% {
         opacity: 0;
-        transform: translate3d(0, -100%, 0) scaleY(1.2);
+        transform: translateY(-400px);
     }
+
     60% {
         opacity: 1;
-        transform: translate3d(0, 20px, 0) scaleY(0.9);
+        transform: translateY(50px);
     }
+
     75% {
-        transform: translate3d(0, -8px, 0) scaleY(0.95);
+        transform: translateY(-30px);
     }
+
     90% {
-        transform: translate3d(0, 4px, 0) scaleY(0.98);
+        transform: translateY(12px);
     }
+
     100% {
-        transform: translate3d(0, 0, 0) scaleY(1);
+        transform: translateY(0);
     }
+}
+
+.animate-bounce-in {
+    animation: bounce-in-down 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
 @keyframes bounce-out-up {
     20% {
         transform: translate3d(0, 10px, 0) scaleY(0.98);
     }
-    40%, 45% {
+
+    40%,
+    45% {
         opacity: 1;
         transform: translate3d(0, -20px, 0) scaleY(0.9);
     }
+
     100% {
         opacity: 0;
         transform: translate3d(0, -100%, 0) scaleY(1.2);
@@ -238,4 +249,109 @@
 
 .dark::view-transition-old(root) {
     z-index: 9999;
+}
+/* Sigma Premium File Input */
+.sigma-file-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: var(--bg2);
+    border: 2px dashed var(--b);
+    border-radius: 12px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.sigma-file-wrapper:hover {
+    border-style: solid;
+    border-color: var(--ac);
+    background: color-mix(in srgb, var(--ac) 3%, var(--bg));
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.sigma-file-wrapper.has-file {
+    border-style: solid;
+    border-color: var(--ac);
+    background: color-mix(in srgb, var(--ac) 5%, var(--bg));
+}
+
+.sigma-file-icon-bg {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: color-mix(in srgb, var(--ac) 8%, var(--bg2));
+    color: var(--ac);
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+}
+
+.sigma-file-wrapper:hover .sigma-file-icon-bg {
+    background: var(--ac);
+    color: var(--ac-inv);
+}
+
+.sigma-file-icon {
+    font-size: 20px !important;
+}
+
+.sigma-file-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex-grow: 1;
+}
+
+.sigma-file-name {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--tx);
+}
+
+.sigma-file-hint {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--tx2);
+    opacity: 0.6;
+}
+
+.sigma-file-wrapper input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 20;
+}
+
+.sigma-file-hint {
+    font-size: 9px;
+    opacity: 0.5;
+    color: var(--tx2);
+}
+
+.sigma-file-preview {
+    display: none;
+    margin-top: 4px;
+    padding: 6px 16px;
+    background: var(--ac);
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 900;
+    color: var(--ac-inv);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
 }

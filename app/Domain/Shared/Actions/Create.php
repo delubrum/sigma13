@@ -17,7 +17,7 @@ final class Create
     use AsAction;
     use HtmxOrchestrator;
 
-    public function handle(string $route): View
+    public function handle(string $route, ?int $id = null): View
     {
         $domain = Str::studly($route);
         $indexAction = "App\\Domain\\{$domain}\\Actions\\Index";
@@ -34,9 +34,22 @@ final class Create
             abort(404, 'Este módulo no permite creación de registros.');
         }
 
+        $model = null;
+        $data = [];
+
+        if ($id) {
+            $modelClass = "App\\Domain\\{$domain}\\Models\\" . Str::singular($domain);
+            $model = $modelClass::findOrFail($id);
+
+            $dtoClass = "App\\Domain\\{$domain}\\Data\\UpsertData";
+            if (class_exists($dtoClass)) {
+                $data = $dtoClass::from($model);
+            }
+        }
+
         $this->hxModalHeader([
             'icon' => $config->icon,
-            'title' => $config->title,
+            'title' => ($id ? 'Edit ' : 'New ') . $config->title,
             'subtitle' => $config->subtitle ?: 'Registro',
         ]);
 
@@ -45,11 +58,12 @@ final class Create
         return view('components.new-modal', [
             'route' => $route,
             'config' => $config,
+            'data' => $data,
         ]);
     }
 
-    public function asController(Request $request, string $route): Response
+    public function asController(Request $request, string $route, ?int $id = null): Response
     {
-        return $this->hxView($this->handle($route));
+        return $this->hxView($this->handle($route, $id ? (int) $id : null));
     }
 }

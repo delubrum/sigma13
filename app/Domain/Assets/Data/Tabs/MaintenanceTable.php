@@ -26,13 +26,13 @@ final class MaintenanceTable extends Data
     public static function columns(): array
     {
         return [
-            Column::make(title: 'Tipo', field: 'type', width: 120),
-            Column::make(title: 'Fecha', field: 'date', width: 130),
-            Column::make(title: 'Solicitante', field: 'user', width: 200),
-            Column::make(title: 'Descripción', field: 'description'),
-            Column::make(title: 'Cerrado', field: 'closed', width: 130),
-            Column::make(title: 'Estado', field: 'status', width: 100),
-            Column::make(title: 'Calif.', field: 'rating', width: 80),
+            Column::make(title: 'Tipo', field: 'type', width: 120, headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
+            Column::make(title: 'Fecha', field: 'date', width: 130, headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
+            Column::make(title: 'Solicitante', field: 'user', width: 200, headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
+            Column::make(title: 'Descripción', field: 'description', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
+            Column::make(title: 'Cerrado', field: 'closed', width: 130, headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
+            Column::make(title: 'Estado', field: 'status', width: 100, headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
+            Column::make(title: 'Calif.', field: 'rating', width: 80, headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
         ];
     }
 

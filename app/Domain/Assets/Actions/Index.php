@@ -8,11 +8,11 @@ use App\Contracts\HasDetail;
 use App\Contracts\HasModule;
 use App\Domain\Assets\Data\Sidebar;
 use App\Domain\Assets\Data\Table;
+use App\Domain\Assets\Data\UpsertData;
 use App\Domain\Assets\Models\Asset;
+use App\Domain\Shared\Data\ActionOption;
 use App\Domain\Shared\Data\Config;
 use App\Domain\Shared\Data\Tabs;
-use Illuminate\Contracts\View\View;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -21,6 +21,11 @@ final class Index implements HasDetail, HasModule
 {
     use AsAction;
 
+    public function handle(): Config
+    {
+        return $this->config();
+    }
+
     public function config(): Config
     {
         return new Config(
@@ -28,7 +33,9 @@ final class Index implements HasDetail, HasModule
             subtitle: 'Registro de activos tecnológicos',
             icon: 'ri-stack-line',
             newButtonLabel: 'Nuevo Activo',
+            modalWidth: '90',
             columns: Table::columns(),
+            formFields: UpsertData::fields(),
             tabs: [
                 new Tabs(key: 'details', label: 'Detalles', icon: 'ri-information-line', route: 'assets.details', default: true),
                 new Tabs(key: 'movements', label: 'Movimientos', icon: 'ri-arrow-left-right-line', route: 'assets.movements'),
@@ -38,31 +45,47 @@ final class Index implements HasDetail, HasModule
                 new Tabs(key: 'preventive', label: 'Preventivos', icon: 'ri-calendar-check-line', route: 'assets.preventive'),
                 new Tabs(key: 'ai', label: 'SIGMA AI', icon: 'ri-robot-2-line', route: 'assets.ai'),
             ],
+            options: [
+                new ActionOption(
+                    label: 'Editar Activo',
+                    icon: 'ri-edit-line',
+                    route: 'assets/create', // Usamos URL relativa para el orquestador global
+                    target: '#modal-body',
+                    level: 1
+                ),
+                new ActionOption(
+                    label: 'Dar de Baja',
+                    icon: 'ri-delete-bin-line',
+                    route: 'assets/dispose', // Ejemplo de otra acción
+                    target: '#modal-body-2', 
+                    level: 2
+                ),
+            ]
         );
     }
 
-    public function asController(Request $request): View
+    public function sidebarData(int $id): Sidebar
     {
-        return view('components.index', [
-            'route' => 'assets',
-            'config' => $this->config(),
-        ]);
+        $asset = Asset::query()
+            ->with(['currentAssignment.employee'])
+            ->findOrFail($id);
+
+        return Sidebar::from($asset);
     }
 
     public function asData(Request $request): JsonResponse
     {
-        // 1. Paginación y Query Base
-        $size = $request->integer('size', 15);
+        $size = max(1, $request->integer('size', 15));
+        $page = max(1, $request->integer('page', 1));
+
         $query = Asset::query()->with(['currentAssignment.employee']);
 
-        // 2. Aplicar Filtros (Tabulator 6.4 usa 'filter')
         /** @var list<array{field: string, value: mixed}> $filters */
-        $filters = (array) $request->input('filter', []);
+        $filters = (array) $request->input('filters', $request->input('filter', []));
         $this->applyFilters($query, $filters);
 
-        // 3. Aplicar Ordenamiento (Tabulator 6.4 usa 'sort')
         /** @var list<array{field: string, dir: string}> $sorters */
-        $sorters = (array) $request->input('sort', []);
+        $sorters = (array) $request->input('sorters', $request->input('sort', []));
         $sort = $sorters[0] ?? ['field' => 'id', 'dir' => 'desc'];
 
         $field = (string) ($sort['field'] ?? 'id');
@@ -72,31 +95,31 @@ final class Index implements HasDetail, HasModule
         match ($field) {
             'criticality' => $query->orderByCriticality($dir),
             'assignee' => $query->orderByAssignee($dir),
-            'workMode' => $query->orderBy("$table.work_mode", $dir),
+            'work_mode' => $query->orderBy("$table.work_mode", $dir),
             'date' => $query->orderBy("$table.acquisition_date", $dir),
             default => $query->orderBy("$table.$field", $dir),
         };
 
-        // 4. Paginación Nativa y Respuesta con DTO
-        $paginator = $query->paginate($size);
+        $paginator = $query->paginate($size, ['*'], 'page', $page);
 
         return response()->json([
-            'data' => Table::collect($paginator->items()),
+            'data' => $paginator->map(fn (Asset $asset) => Table::fromModel($asset))->values(),
             'last_page' => $paginator->lastPage(),
+            'last_row' => $paginator->total(),
         ]);
     }
 
     /**
-     * @param  Builder<Asset>  $query
+     * @param  \Illuminate\Database\Eloquent\Builder<Asset>  $query
      * @param  list<array{field: string, value: mixed}>  $filters
      */
-    private function applyFilters(Builder $query, array $filters): void
+    private function applyFilters(\Illuminate\Database\Eloquent\Builder $query, array $filters): void
     {
         foreach ($filters as $f) {
             $field = $f['field'] ?? null;
             $value = $f['value'] ?? null;
 
-            if (blank($value)) {
+            if (trim((string) ($value ?? '')) === '') {
                 continue;
             }
 
@@ -107,32 +130,17 @@ final class Index implements HasDetail, HasModule
             $valStr = (string) $value;
 
             match ($field) {
+                'id' => $query->where('id', (int) $value),
                 'status' => $query->where('status', $valStr),
-                'workMode' => $query->where('work_mode', 'ilike', "%{$valStr}%"),
-
+                'work_mode' => $query->where('work_mode', 'ilike', "%{$valStr}%"),
                 'confidentiality', 'integrity', 'availability' => $query->where($field, (int) $value),
-
+                'criticality' => $query->whereRaw('(confidentiality + integrity + availability) = ?', [(int) $value]),
                 'date', 'acquisition_date' => str_contains($valStr, ' to ')
                     ? $query->whereBetween('acquisition_date', explode(' to ', $valStr))
                     : $query->whereDate('acquisition_date', $valStr),
-
-                'assignee' => $query->whereHas('currentAssignment.employee', fn ($q) => $q->where('name', 'ilike', "%{$valStr}%")
-                ),
-
-                // Filtro genérico para campos de texto (PostgreSQL ilike)
+                'assignee' => $query->whereHas('currentAssignment.employee', fn (\Illuminate\Database\Eloquent\Builder $q) => $q->where('name', 'ilike', "%{$valStr}%")),
                 default => $query->where($field, 'ilike', "%{$valStr}%"),
             };
         }
-    }
-
-    public function sidebarData(int $id): Sidebar
-    {
-        $asset = Asset::query()->with(['currentAssignment.employee'])->findOrFail($id);
-
-        return Sidebar::from([
-            ...$asset->attributesToArray(),
-            'assignee_name' => $asset->assignee_name,
-            'qrUrl' => route('detail', ['route' => 'assets', 'id' => $asset->id]),
-        ]);
     }
 }

@@ -17,15 +17,16 @@ final class DocumentTable extends Data
         public readonly string $code,
         public readonly string $expiry,
         public readonly string $file,
+        public readonly string $actions,
     ) {}
 
     /** @return list<Column> */
     public static function columns(): array
     {
         return [
-            Column::make(title: 'Nombre', field: 'name', width: 300),
-            Column::make(title: 'Código de Ref.', field: 'code'),
-            Column::make(title: 'Vencimiento', field: 'expiry'),
+            Column::make(title: 'Nombre', field: 'name', width: 400, headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
+            Column::make(title: 'Código de Ref.', field: 'code', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
+            Column::make(title: 'Vencimiento', field: 'expiry', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
             Column::make(title: 'Archivo', field: 'file', width: 150, hozAlign: 'center', formatter: 'html'),
         ];
     }
@@ -36,9 +37,16 @@ final class DocumentTable extends Data
             ? $doc->expiry->format('d/m/Y')
             : '---';
 
-        $fileLink = $doc->url
-            ? '<a href="'.e($doc->url).'" target="_blank" class="text-blue-500 font-bold hover:underline"><i class="ri-file-download-line mr-1"></i>Descargar</a>'
-            : '<span class="text-gray-400">Sin archivo</span>';
+        $media = $doc->getFirstMedia('documents');
+        $url = $media ? route('shared.media.download', $media->id) : null;
+
+        if (! $url && $doc->url) {
+            $url = $doc->url;
+        }
+
+        $fileLink = $url
+            ? '<a href="'.e($url).'" target="_blank" class="text-slate-900 font-bold hover:underline"><i class="ri-external-link-line mr-1 text-slate-400"></i>Ver Documento</a>'
+            : '<span class="text-gray-400">---</span>';
 
         return new self(
             id: $doc->id,
@@ -46,6 +54,7 @@ final class DocumentTable extends Data
             code: $doc->code ?? '---',
             expiry: $expiryDate,
             file: $fileLink,
+            actions: '',
         );
     }
 }

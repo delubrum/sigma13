@@ -27,4 +27,6 @@ Thumbs.db
 **/caddy
 frankenphp
 frankenphp-worker.php
-/legacy
+# /legacy
+/storage/media-library
+/storage/clockwork

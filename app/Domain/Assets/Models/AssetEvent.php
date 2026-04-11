@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
 #[Fillable([
     'kind',
@@ -24,8 +26,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'expiry',
 ])]
 #[Hidden(['user_id'])]
-class AssetEvent extends Model
+class AssetEvent extends Model implements HasMedia
 {
+    use InteractsWithMedia;
+
     #[\Override]
     public $timestamps = false;
 

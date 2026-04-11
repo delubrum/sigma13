@@ -15,7 +15,7 @@ final class LoginData extends Data
         public string $email,
 
         #[Required]
-        public string $password,
+        public ?string $password = null,
 
         public bool $remember = false,
 

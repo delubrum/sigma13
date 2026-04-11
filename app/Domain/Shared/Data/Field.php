@@ -20,9 +20,10 @@ final class Field extends Data
         public readonly ?string $hint = null,
         public readonly array $options = [],
 
-        /** 'flatpickr' | 'flatpickr-range' | 'slimselect' | 'filepond' | null */
+        /** 'flatpickr' | 'flatpickr-range' | 'slimselect' | 'sigma-file' | 'asset-hardware' | 'asset-software' | 'asset-condition-grid' | null */
         public readonly ?string $widget = null,
 
         public readonly FieldWidth $width = FieldWidth::Full,
+        public readonly ?string $accept = null,
     ) {}
 }

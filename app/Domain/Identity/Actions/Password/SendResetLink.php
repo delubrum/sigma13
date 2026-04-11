@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Identity\Actions\Password;
 
-use App\Domain\Users\Data\Form;
+use App\Domain\Users\Data\UserForm;
 use App\Domain\Users\Models\User;
 use App\Notifications\ResetPasswordMail;
 use App\Support\HtmxOrchestrator;
@@ -32,14 +32,29 @@ final class SendResetLink
 
         $token = Password::createToken($user);
 
-        $user->notify(new ResetPasswordMail($token, $email));
+        \App\Domain\Shared\Actions\SendGlobalNotificationAction::dispatch(
+            new \App\Domain\Shared\Data\EmailData(
+                to: $email,
+                subject: 'Restablecer Contraseña',
+                template: 'identity::emails.reset-password',
+                data: [
+                    'token' => $token,
+                    'email' => $email,
+                    'user' => $user
+                ]
+            )
+        );
     }
 
     public function asController(Request $request): JsonResponse
     {
-        $data = Form::from($request->all());
+        $email = $request->input('email');
 
-        $this->handle((string) $data->email);
+        if (! is_string($email) || blank($email)) {
+            return $this->hxNotify('El correo es obligatorio.', 'error')->hxResponse();
+        }
+
+        $this->handle($email);
 
         return $this
             ->hxNotify('Si el correo existe, recibirás el enlace en breve.', 'success')
