@@ -14,34 +14,24 @@ final class PublicShow
 
     public function handle(string $serial): Response
     {
-        $asset = is_numeric($serial) 
-            ? Asset::with(['currentAssignment.employee', 'media'])->find($serial)
-            : Asset::with(['currentAssignment.employee', 'media'])->where('serial', $serial)->first();
-
-        if (! $asset) {
-            abort(404, 'Activo no encontrado');
-        }
-
-        // Obtener últimos 3 correctivos (Tabla mnt)
-        $correctives = \Illuminate\Support\Facades\DB::table('mnt')
-            ->where('asset_id', $asset->id)
-            ->whereNotNull('ended_at')
-            ->orderByDesc('ended_at')
-            ->limit(3)
-            ->get();
-
-        // Obtener últimos 3 preventivos (Tabla mnt_preventive_form)
-        $preventives = \Illuminate\Support\Facades\DB::table('mnt_preventive_form')
-            ->where('asset_id', $asset->id)
-            ->whereNotNull('last_performed_at')
-            ->orderByDesc('last_performed_at')
-            ->limit(3)
-            ->get();
+        /** @var Asset $asset */
+        $asset = Asset::query()
+            ->with([
+                'currentAssignment.employee', 
+                'media',
+                'correctives' => fn($q) => $q->limit(3),
+                'preventives' => fn($q) => $q->limit(3)
+            ])
+            ->when(is_numeric($serial), 
+                fn($q) => $q->where('id', (int) $serial),
+                fn($q) => $q->where('serial', $serial)
+            )
+            ->firstOrFail();
 
         return response()->view('assets::public-show', [
-            'asset' => $asset,
-            'correctives' => $correctives,
-            'preventives' => $preventives,
+            'asset'       => $asset,
+            'correctives' => $asset->correctives,
+            'preventives' => $asset->preventives,
         ]);
     }
 }

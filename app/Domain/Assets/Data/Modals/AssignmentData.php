@@ -4,35 +4,32 @@ declare(strict_types=1);
 
 namespace App\Domain\Assets\Data\Modals;
 
-use App\Domain\Shared\Data\UI;
-use App\Domain\Shared\Data\FieldWidth;
-use Spatie\LaravelData\Attributes\Validation\ArrayType;
-use Spatie\LaravelData\Attributes\Validation\Exists;
-use Spatie\LaravelData\Attributes\Validation\Max;
-use Spatie\LaravelData\Attributes\Validation\MimeTypes;
-use Spatie\LaravelData\Attributes\Validation\Required;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Attributes\Validation\Exists;
+use Spatie\LaravelData\Attributes\Validation\Required;
+use Spatie\LaravelData\Attributes\Validation\ArrayType;
+use App\Domain\Shared\Data\Field;
 
 final class AssignmentData extends Data
 {
     public function __construct(
         #[Required, Exists('employees', 'id')]
-        #[UI(label: 'Responsable', widget: 'slimselect')]
+        #[Field(label: 'Responsable', widget: 'slimselect')]
         public int $employee_id,
 
+        /** @var array<int, string> */
         #[ArrayType]
-        #[UI(label: 'Inventario de Hardware', widget: 'assets::components.widgets.hardware-list')]
+        #[Field(label: 'Hardware', widget: 'hardware-list')]
         public array $hardware = [],
 
+        /** @var array<int, string> */
         #[ArrayType]
-        #[UI(label: 'Software Requerido', widget: 'assets::components.widgets.software-list')]
+        #[Field(label: 'Software', widget: 'software-list')]
         public array $software = [],
 
-        #[UI(label: 'Observaciones', placeholder: 'Notas adicionales sobre la entrega...')]
+        #[Field(label: 'Observaciones')]
         public ?string $notes = null,
 
-        #[MimeTypes('application/pdf'), Max(10240)]
-        #[UI(label: 'Acta de Entrega (PDF)', widget: 'sigma-file')]
         public mixed $file = null,
     ) {}
 }

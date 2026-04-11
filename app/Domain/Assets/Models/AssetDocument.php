@@ -8,8 +8,10 @@ use App\Domain\Users\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Auth;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 #[Fillable([
     'name',
@@ -17,11 +19,12 @@ use Spatie\MediaLibrary\InteractsWithMedia;
     'code',
     'asset_id',
     'user_id',
-    'url', // Lo mantenemos temporalmente para compatibilidad pero usaremos media
+    'url',
 ])]
 class AssetDocument extends Model implements HasMedia
 {
     use InteractsWithMedia;
+
     #[\Override]
     public $timestamps = false;
 
@@ -29,10 +32,36 @@ class AssetDocument extends Model implements HasMedia
     protected function casts(): array
     {
         return [
-            'expiry' => 'date',
+            'expiry'   => 'date',
             'asset_id' => 'integer',
-            'user_id' => 'integer',
+            'user_id'  => 'integer',
         ];
+    }
+
+    /**
+     * Property Hook (PHP 8.5) para URL Firmada.
+     */
+    public ?string $viewUrl {
+        get {
+            if (!Auth::check()) {
+                return null;
+            }
+
+            /** @var Media|null $media */
+            $media = $this->getFirstMedia('documents');
+
+            if (! $media) {
+                return null;
+            }
+
+            return $media->getTemporaryUrl(
+                now()->addMinutes(15),
+                '',
+                [
+                    'ResponseContentDisposition' => 'inline',
+                ]
+            );
+        }
     }
 
     /** @return BelongsTo<Asset, $this> */

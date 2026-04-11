@@ -5,32 +5,24 @@ declare(strict_types=1);
 namespace App\Domain\Assets\Data\Modals;
 
 use App\Domain\Shared\Data\Field;
-use Spatie\LaravelData\Attributes\Validation\ArrayType;
-use Spatie\LaravelData\Attributes\Validation\Max;
-use Spatie\LaravelData\Attributes\Validation\MimeTypes;
-use Spatie\LaravelData\Attributes\Validation\Required;
 use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Attributes\Validation\Required;
+use Spatie\LaravelData\Attributes\Validation\BooleanType;
+use Spatie\LaravelData\Attributes\Validation\ArrayType;
 
 final class ReturnData extends Data
 {
     public function __construct(
+        /** @var array<string, string> */
         #[Required, ArrayType]
-        #[Field(label: 'Estado del Hardware', widget: 'assets::components.widgets.condition-grid')]
-        public array $hardware = [],
+        #[Field(label: 'Estado del Hardware', widget: 'condition-grid')]
+        public array $hardware,
 
-        #[Required]
-        #[Field(label: 'Borrado Seguro de Datos', widget: 'select', options: [
-            'Yes' => 'Sí, realizado',
-            'No' => 'No realizado',
-            'N/A' => 'No aplica',
-        ])]
-        public string $wipe = 'No',
+        #[Required, BooleanType]
+        #[Field(label: '¿Borrado de datos (Wipe)?', type: 'checkbox')]
+        public bool $wipe,
 
-        #[Field(label: 'Estado General / Observaciones', placeholder: 'Describa cualquier detalle adicional sobre el retorno...')]
+        #[Field(label: 'Notas de Recepción', type: 'textarea')]
         public ?string $notes = null,
-
-        #[Required, MimeTypes('application/pdf'), Max(10240)]
-        #[Field(label: 'Acta de Retorno (PDF)', widget: 'sigma-file')]
-        public mixed $file = null,
     ) {}
 }

@@ -16,32 +16,29 @@ final class UpsertData extends Data
         public ?int $id = null,
 
         #[Required, Max(255)]
+        #[Field(label: 'Nombre Completo', placeholder: 'Ej: Juan Pérez')]
         public ?string $name = null,
 
         #[Required, Email, Max(255)]
+        #[Field(label: 'Correo Electrónico', type: 'email', placeholder: 'juan@ejemplo.com')]
         public ?string $email = null,
 
         #[Max(50)]
+        #[Field(label: 'Número de Documento', placeholder: 'Cédula o ID')]
         public ?string $document = null,
 
         /** @var array<int, string> */
         public array $permissions = [],
 
         #[Required]
+        #[Field(
+            label: 'Usuario Activo', 
+            type: 'select', 
+            options: [
+                ['value' => true, 'label' => 'Activo'],
+                ['value' => false, 'label' => 'Inactivo']
+            ]
+        )]
         public bool $is_active = true,
     ) {}
-
-    /** @return list<Field> */
-    public static function fields(): array
-    {
-        return [
-            new Field(name: 'name', label: 'Nombre Completo', required: true, placeholder: 'Ej: Juan Pérez'),
-            new Field(name: 'email', label: 'Correo Electrónico', type: 'email', required: true, placeholder: 'juan@ejemplo.com'),
-            new Field(name: 'document', label: 'Número de Documento', required: true, placeholder: 'Cédula o ID'),
-            new Field(name: 'is_active', label: 'Usuario Activo', type: 'select', required: true, options: [
-                true => 'Activo',
-                false => 'Inactivo'
-            ]),
-        ];
-    }
 }

@@ -4,34 +4,40 @@ declare(strict_types=1);
 
 namespace App\Domain\Assets\Actions;
 
-use App\Domain\Assets\Data\Modals\Assignment as AssignmentData;
+use App\Domain\Assets\Data\Modals\AssignmentData;
 use App\Domain\Assets\Models\Asset;
 use App\Domain\Assets\Models\AssetEvent;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 final class RegisterAssignment
 {
     use AsAction;
 
-    /**
-     * Core logic to register a new asset assignment.
-     * Infra-agnostic. Returns the created event.
-     */
-    public function handle(int $assetId, AssignmentData $data): AssetEvent
+    public function handle(int $assetId, AssignmentData $data, int $userId): AssetEvent
     {
-        $event = AssetEvent::create([
-            'kind' => 'assignment',
-            'asset_id' => $assetId,
-            'employee_id' => $data->employee_id,
-            'hardware' => $data->hardware,
-            'software' => $data->software,
-            'notes' => $data->notes,
-            'user_id' => Auth::id(),
-        ]);
+        return DB::transaction(function () use ($assetId, $data, $userId) {
+            /** @var Asset $asset */
+            $asset = Asset::query()->lockForUpdate()->findOrFail($assetId);
 
-        Asset::where('id', $assetId)->update(['status' => 'assigned']);
+            if ($asset->status !== 'available') {
+                throw new \DomainException("Activo {$assetId} no disponible (Status: {$asset->status})");
+            }
 
-        return $event;
+            $event = AssetEvent::create([
+                'kind'        => 'assignment',
+                'asset_id'    => $assetId,
+                'employee_id' => $data->employee_id,
+                'hardware'    => $data->hardware,
+                'software'    => $data->software,
+                'notes'       => $data->notes,
+                'user_id'     => $userId,
+                'created_at'  => now(),
+            ]);
+
+            $asset->update(['status' => 'assigned']);
+
+            return $event;
+        });
     }
 }

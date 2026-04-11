@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Assets\Web\Actions;
 
-use App\Domain\Assets\Actions\GetData;
+use App\Domain\Assets\Actions\GetAssetsData;
 use App\Domain\Assets\Data\Sidebar;
 use App\Domain\Assets\Data\Table;
 use App\Domain\Assets\Data\UpsertData;
@@ -12,6 +12,7 @@ use App\Domain\Assets\Models\Asset;
 use App\Domain\Shared\Data\ActionOption;
 use App\Domain\Shared\Data\Config;
 use App\Domain\Shared\Data\Tabs;
+use App\Domain\Shared\Services\SchemaGenerator;
 use App\Support\HtmxOrchestrator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -39,8 +40,8 @@ final class Index
             icon: 'ri-stack-line',
             newButtonLabel: 'Nuevo Activo',
             modalWidth: '90',
-            columns: \App\Domain\Shared\Services\SchemaGenerator::toColumns(Table::class),
-            formFields: \App\Domain\Shared\Services\SchemaGenerator::toFields(UpsertData::class),
+            columns: SchemaGenerator::toColumns(Table::class),
+            formFields: SchemaGenerator::toFields(UpsertData::class),
             tabs: [
                 new Tabs(key: 'details', label: 'Detalles', icon: 'ri-information-line', route: 'assets.details', default: true),
                 new Tabs(key: 'movements', label: 'Movimientos', icon: 'ri-arrow-left-right-line', route: 'assets.movements'),
@@ -51,31 +52,16 @@ final class Index
                 new Tabs(key: 'ai', label: 'SIGMA AI', icon: 'ri-robot-2-line', route: 'assets.ai'),
             ],
             options: [
-                new ActionOption(
-                    label: 'Editar Activo',
-                    icon: 'ri-edit-line',
-                    route: 'assets/create',
-                    target: '#modal-body',
-                    level: 1
-                ),
-                new ActionOption(
-                    label: 'Dar de Baja',
-                    icon: 'ri-delete-bin-line',
-                    route: 'assets/dispose',
-                    target: '#modal-body-2', 
-                    level: 2
-                ),
+                new ActionOption(label: 'Editar Activo', icon: 'ri-edit-line', route: 'assets/create', target: '#modal-body', level: 1),
+                new ActionOption(label: 'Dar de Baja', icon: 'ri-delete-bin-line', route: 'assets/dispose', target: '#modal-body-2', level: 2),
             ]
         );
     }
 
     public function sidebarData(int $id): Sidebar
     {
-        $asset = Asset::query()
-            ->with(['currentAssignment.employee'])
-            ->findOrFail($id);
-
-        return Sidebar::from($asset);
+        $asset = Asset::query()->with(['currentAssignment.employee'])->findOrFail($id);
+        return Sidebar::fromModel($asset);
     }
 
     public function asController(): Response
@@ -85,17 +71,20 @@ final class Index
 
     public function asData(Request $request): JsonResponse
     {
-        $paginator = GetData::run([
-            'sort' => $request->get('sort', []),
-            'filter' => $request->get('filter', []),
-            'size' => (int) $request->get('size', 15),
-            'page' => (int) $request->get('page', 1),
-        ]);
+        $filters = $request->collect('filter')->pluck('value', 'field')->toArray();
+        $sorts   = $request->collect('sort')->pluck('dir', 'field')->toArray();
+
+        $result = GetAssetsData::run(
+            filters: $filters,
+            sorts:   $sorts,
+            page:    $request->integer('page', 1),
+            size:    $request->integer('size', 15)
+        );
 
         return response()->json([
-            'data' => $paginator['data'],
-            'last_page' => $paginator['last_page'],
-            'last_row' => $paginator['total'],
+            'data'      => $result['data'],
+            'last_page' => $result['last_page'],
+            'last_row'  => $result['total'],
         ]);
     }
 }

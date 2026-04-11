@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Assets\Models;
 
+use App\Domain\Maintenance\Models\Mnt;
+use App\Domain\Maintenance\Models\MntPreventiveForm;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -30,14 +30,6 @@ class Asset extends Model implements HasMedia
     use SoftDeletes;
     use LogsActivity;
 
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logFillable()
-            ->logOnlyDirty()
-            ->dontLogEmptyChanges();
-    }
-
     #[\Override]
     public $timestamps = false;
 
@@ -46,41 +38,35 @@ class Asset extends Model implements HasMedia
     {
         return [
             'acquisition_date' => 'date',
-            'price' => 'float',
-            'confidentiality' => 'integer',
-            'integrity' => 'integer',
-            'availability' => 'integer',
-            'deleted_at' => 'datetime',
+            'price'            => 'float',
+            'confidentiality'  => 'integer',
+            'integrity'        => 'integer',
+            'availability'     => 'integer',
+            'deleted_at'       => 'datetime',
         ];
     }
 
-    /**
-     * @param  Builder<Asset>  $query
-     */
-    protected function scopeOrderByCriticality(Builder $query, string $direction = 'desc'): void
-    {
-        if (strtolower($direction) === 'asc') {
-            $query->orderByRaw('(confidentiality + integrity + availability) asc');
-        } else {
-            $query->orderByRaw('(confidentiality + integrity + availability) desc');
+    // --- Property Hooks (PHP 8.5) ---
+
+    /** Score de criticidad (Suma pura de dimensiones) */
+    public int $criticalityScore {
+        get => ($this->confidentiality ?? 0) + ($this->integrity ?? 0) + ($this->availability ?? 0);
+    }
+
+    /** URL pública de la foto (R2 Público) */
+    public string $profilePhotoUrl {
+        get {
+            $media = $this->getFirstMedia('profile');
+            return $media ? $media->getUrl() : '';
         }
     }
 
-    /**
-     * @param  Builder<Asset>  $query
-     */
-    protected function scopeOrderByAssignee(Builder $query, string $direction = 'desc'): void
-    {
-        $dir = strtolower($direction) === 'asc' ? 'asc' : 'desc';
-        $query->leftJoin('asset_events', function ($join): void {
-            $join->on('assets.id', '=', 'asset_events.asset_id')
-                ->where('asset_events.kind', '=', 'assignment')
-                ->whereRaw('asset_events.id = (select max(id) from asset_events where asset_id = assets.id and kind = ?)', ['assignment']);
-        })
-            ->leftJoin('employees', 'asset_events.employee_id', '=', 'employees.id')
-            ->orderBy('employees.name', $dir)
-            ->select('assets.*');
+    /** URL del QR para la vista pública */
+    public string $qrUrl {
+        get => route('assets.public', ['serial' => $this->serial ?: (string) $this->id]);
     }
+
+    // --- Relaciones ---
 
     /** @return HasOne<AssetEvent, $this> */
     public function currentAssignment(): HasOne
@@ -91,66 +77,39 @@ class Asset extends Model implements HasMedia
             ->with('employee');
     }
 
-    /** @return Attribute<string, never> */
-    protected function assigneeName(): Attribute
+    /** @return HasMany<Mnt, $this> */
+    public function correctives(): HasMany
     {
-        return Attribute::make(
-            get: fn () => $this->currentAssignment?->employee->name ?? '—',
-        );
+        return $this->hasMany(Mnt::class, 'asset_id')
+            ->whereNotNull('ended_at')
+            ->orderByDesc('ended_at');
     }
 
-    /** @return Attribute<string, never> */
-    protected function criticality(): Attribute
+    /** @return HasMany<MntPreventiveForm, $this> */
+    public function preventives(): HasMany
     {
-        return Attribute::make(
-            get: function (): string {
-                $score = ($this->confidentiality ?? 0) + ($this->integrity ?? 0) + ($this->availability ?? 0);
-                $color = match (true) {
-                    $score >= 8 => 'border-red-500 text-red-500',
-                    $score >= 5 => 'border-orange-500 text-orange-500',
-                    default => 'border-sigma-b text-sigma-tx2',
-                };
-
-                return sprintf('<span class="px-2 py-0.5 rounded border %s font-bold text-[10px]">%d</span>', $color, $score);
-            }
-        );
+        return $this->hasMany(MntPreventiveForm::class, 'asset_id')
+            ->whereNotNull('last_performed_at')
+            ->orderByDesc('last_performed_at');
     }
 
-    /** @return Attribute<string, never> */
-    protected function statusLabel(): Attribute
+    /** @return HasMany<AssetDocument, $this> */
+    public function documents(): HasMany
     {
-        return Attribute::make(
-            get: fn (): string => sprintf(
-                '<span class="px-2 py-0.5 rounded border %s font-bold uppercase text-[10px]">%s</span>',
-                match ($this->status) {
-                    'available' => 'border-green-500 text-green-500',
-                    'assigned' => 'border-blue-500 text-blue-500',
-                    'maintenance' => 'border-yellow-500 text-yellow-500',
-                    'retired' => 'border-red-500 text-red-500',
-                    default => 'border-sigma-b text-sigma-tx2',
-                },
-                $this->status ?? 'available'
-            )
-        );
+        return $this->hasMany(AssetDocument::class, 'asset_id');
     }
 
-    /** @return Attribute<string, never> */
-    protected function qrUrl(): Attribute
+    /** @return HasMany<AssetEvent, $this> */
+    public function events(): HasMany
     {
-        return Attribute::make(
-            get: fn (): string => route('assets.public', ['serial' => $this->serial ?: $this->id]),
-        );
+        return $this->hasMany(AssetEvent::class, 'asset_id')->orderByDesc('id');
     }
 
-    /** @return Attribute<string, never> */
-    protected function profilePhotoUrl(): Attribute
+    // --- Configuración Spatie ---
+
+    public function getActivitylogOptions(): LogOptions
     {
-        return Attribute::make(
-            get: function (): string {
-                $media = $this->getFirstMedia('profile');
-                return $media ? route('shared.media.download', $media->id) : '';
-            }
-        );
+        return LogOptions::defaults()->logFillable()->logOnlyDirty();
     }
 
     public function registerMediaCollections(): void
@@ -166,17 +125,5 @@ class Asset extends Model implements HasMedia
             ->width(400)
             ->height(400)
             ->sharpen(10);
-    }
-
-    /** @return HasMany<AssetDocument, $this> */
-    public function documents(): HasMany
-    {
-        return $this->hasMany(AssetDocument::class, 'asset_id');
-    }
-
-    /** @return HasMany<AssetEvent, $this> */
-    public function events(): HasMany
-    {
-        return $this->hasMany(AssetEvent::class, 'asset_id')->orderByDesc('id');
     }
 }

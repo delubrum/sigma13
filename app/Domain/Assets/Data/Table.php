@@ -6,7 +6,6 @@ namespace App\Domain\Assets\Data;
 
 use App\Domain\Assets\Models\Asset;
 use App\Domain\Shared\Data\Column;
-use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Data;
 
 final class Table extends Data
@@ -122,7 +121,7 @@ final class Table extends Data
             area: $asset->area ?? '',
             sap: $asset->sap,
             serial: $asset->serial,
-            assignee: $asset->assignee_name,
+            assignee: $asset->currentAssignment?->employee?->name ?? '—',
             hostname: $asset->hostname,
             brand: $asset->brand ?? '',
             model: $asset->model ?? '',
@@ -133,7 +132,7 @@ final class Table extends Data
             hdd: $asset->hdd ?? '',
             so: $asset->so ?? '',
             price: (string) ($asset->price ?? 0),
-            date: $asset->acquisition_date ? $asset->acquisition_date->format('Y-m-d') : '',
+            date: $asset->acquisition_date?->format('Y-m-d') ?? '',
             invoice: $asset->invoice ?? '',
             supplier: $asset->supplier ?? '',
             warranty: $asset->warranty ?? '',
@@ -141,12 +140,44 @@ final class Table extends Data
             location: $asset->location ?? '',
             phone: $asset->phone ?? '',
             operator: $asset->operator ?? '',
-            status: $asset->status_label ?? '',
+            status: self::renderStatusBadge($asset->status),
             classification: $asset->classification ?? '',
             confidentiality: $asset->confidentiality,
             integrity: $asset->integrity,
             availability: $asset->availability,
-            criticality: $asset->criticality ?? '',
+            criticality: self::renderCriticalityBadge($asset->criticalityScore),
+        );
+    }
+
+    private static function renderStatusBadge(?string $status): string
+    {
+        $color = match ($status) {
+            'available'   => 'border-green-500 text-green-500',
+            'assigned'    => 'border-blue-500 text-blue-500',
+            'maintenance' => 'border-yellow-500 text-yellow-500',
+            'retired'     => 'border-red-500 text-red-500',
+            default       => 'border-sigma-b text-sigma-tx2',
+        };
+
+        return sprintf(
+            '<span class="px-2 py-0.5 rounded border %s font-bold uppercase text-[10px]">%s</span>',
+            $color,
+            $status ?? 'available'
+        );
+    }
+
+    private static function renderCriticalityBadge(int $score): string
+    {
+        $color = match (true) {
+            $score >= 8 => 'border-red-500 text-red-500',
+            $score >= 5 => 'border-orange-500 text-orange-500',
+            default     => 'border-sigma-b text-sigma-tx2',
+        };
+
+        return sprintf(
+            '<span class="px-2 py-0.5 rounded border %s font-bold text-[10px]">%d</span>',
+            $color,
+            $score
         );
     }
 }

@@ -32,7 +32,6 @@
     "require-dev": {
         "driftingly/rector-laravel": "^2.2",
         "fakerphp/faker": "^1.23",
-        "itsgoingd/clockwork": "^5.3",
         "larastan/larastan": "^3.9",
         "laravel/pail": "^1.2",
         "laravel/pint": "^1.27",
