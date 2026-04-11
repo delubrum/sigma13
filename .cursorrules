@@ -1,56 +1,454 @@
-###############################################################################
-#   ____ ___ ____ __  __    _      ____  _   _ _     _____ ____               #
-#  / ___|_ _/ ___|  \/  |  / \    |  _ \| | | | |   | ____/ ___|              #
-#  \___ \| | |  _| |\/| | / _ \   | |_) | | | | |   |  _| \___ \              #
-#   ___) | | |_| | |  | |/ ___ \  |  _ <| |_| | |___| |___ ___) |             #
-#  |____/___\____|_|  |_/_/   \_\ |_| \_\\___/|_____|_____|____/              #
-#                                                                             #
-#           SIGMA ARCHITECTURE - MASTER BLINDADO V6 (GOD MODE)                #
-###############################################################################
+# SIGMA 13 — CURSOR RULES MASTER V31 EXPERT FINAL
+# Stack: HALT (HTMX · Alpine.js · Laravel 13 · Tabulator)
+#        + Spatie Data · lorisleiva Actions · Pipelines · FrankenPHP Octane
 
-[POLICY: ZERO_DEBT] [LANGUAGE: SPANISH/ENGLISH] [PHP_VERSION: 8.5] [LARAVEL: 13]
+You are an elite Senior Software Architect on the SIGMA 13 project.
+Your code MUST pass ALL tests in tests/Architecture/StructuralTest.php.
 
-You are an expert Senior Software Architect working on the SIGMA project.
-Your code MUST strictly pass the `tests/Architecture/StructuralTest.php` validation.
-We use a strict Domain-Driven Design (DDD) approach combined with Lorisleiva Actions and Spatie Data.
+ABSOLUTE RULES:
+- All PHP code, class names, method names, variables, and inline comments → ENGLISH
+- Architecture test descriptions are intentionally in SPANISH (do not change them)
+- Never suggest alternatives to the established stack
 
 ===============================================================================
-1. THE HTTP FIREWALL (App\Domain vs App\Http\Web)
+STACK (NON-NEGOTIABLE)
 ===============================================================================
-- STRICT ISOLATION: `App\Domain` MUST NEVER use `Illuminate\Http\Request`, `view()`, `response()`, or any UI/HTTP classes.
-- ROUTING & CONTROLLERS: Web Actions (`asController`) MUST live in `App\Http\Web\{Module}\Actions`. They receive the HTTP Request, transform it into a DTO, pass it to the Domain Action, and return the `view()`.
-- PURE DOMAIN: Business logic Actions MUST live in `App\Domain\{Module}\Actions`. They only contain the `handle()` method, taking DTOs as input and returning DTOs or primitive types.
+
+Backend  : Laravel 13 · PHP 8.5 · FrankenPHP · Laravel Octane
+Database : PostgreSQL 18 — never assume MySQL syntax, use pg-specific features
+Cache    : Valkey (Redis-compatible)
+Frontend : HTMX 2.x · Alpine.js 3.x · Tabulator 6.x · Blade components
+Libraries: spatie/laravel-data · lorisleiva/laravel-actions
+           spatie/laravel-medialibrary · spatie/laravel-permission
+           Laravel Pipelines
+Build    : Vite 8 · Tailwind v4 · Spatie CSP
 
 ===============================================================================
-2. ACTION RIGOR (Lorisleiva/Actions) -> FULL POWER
+PROJECT STRUCTURE (CANONICAL)
 ===============================================================================
-- SINGLE RESPONSIBILITY: All business logic MUST reside in Actions (`use AsAction`).
-- NO STANDALONE JOBS/COMMANDS: Do NOT create files in `App\Jobs` or `App\Console\Commands`. Use Lorisleiva's `asJob()` and `asCommand()` within the Action class.
-- NO DIRECT INSTANTIATION IN CONTROLLERS: Routes must point directly to the Action class (e.g., `Route::get('/path', MyAction::class)`).
+
+app/
+├── Domain/
+│   ├── {Module}/
+│   │   ├── Actions/                  # Core business logic — infra agnostic
+│   │   │                             # Can be AsController·AsJob·AsListener·AsCommand
+│   │   ├── Web/
+│   │   │   ├── Actions/              # HTMX adapters — MUST use HtmxOrchestrator
+│   │   │   ├── Views/                # Blade templates + HTMX partials
+│   │   │   └── Components/           # Blade components for this module
+│   │   ├── Api/
+│   │   │   └── Actions/              # JSON adapters — thin, delegates to Core
+│   │   ├── Data/                     # Spatie Laravel Data DTOs
+│   │   │   ├── {Model}FormData       # Mutation input + validation
+│   │   │   ├── {Model}TableData      # Read output — MUST have fromModel()
+│   │   │   ├── {Model}FilterData     # Query scope / search parameters
+│   │   │   ├── {Model}ResourceData   # API output shape
+│   │   │   ├── {Model}UpsertData     # Create-or-update payload
+│   │   │   ├── {Model}CollectionData # Typed collection — MUST use Lazy
+│   │   │   └── {Model}PayloadData    # Job / event payload
+│   │   ├── Pipelines/                # Laravel Pipeline pipe classes
+│   │   ├── ValueObjects/             # final readonly — validated in constructor
+│   │   ├── Enums/                    # Backed enums (string|int)
+│   │   └── Models/                   # Anemic Eloquent — scopes, casts, relations ONLY
+│   │
+│   └── Shared/
+│       ├── Actions/                  # Cross-module, polymorphic use cases
+│       ├── Data/                     # Shared DTOs and contracts
+│       ├── Events/                   # Domain events for cross-context communication
+│       ├── Notifications/            # NotificationService (email + telegram)
+│       ├── ValueObjects/             # Shared value objects (Money, DateRange…)
+│       └── Enums/                    # Shared backed enums
+│
+└── Support/
+    └── HtmxOrchestrator.php          # HTMX response builder (trait)
+
+routes/modules/{module}.php           # One flat file per module
 
 ===============================================================================
-3. DATA LAYER (Spatie Laravel Data) -> FULL POWER
+PRINCIPLE 1 — CORE ACTIONS
 ===============================================================================
-- IMMUTABILITY: Every DTO MUST be a `final readonly class`.
-- NO MANUAL CONSTRUCTORS: The `__construct` method is STRICTLY FORBIDDEN in DTOs. Declare properties directly and use `Data::from()` to hydrate them via the Spatie pipeline.
-- NO MANUAL MAPPING: Methods like `fromModel()`, `map()`, `toHtml()`, or `render()` are FORBIDDEN.
-- LAZY COLLECTIONS: If a DTO handles collections of data (must be named `*CollectionData`), it MUST use `Spatie\LaravelData\Lazy` to prevent loading full datasets into memory.
-- STRICT NAMING: DTOs must end in `FormData`, `TableData`, `UpsertData`, or `CollectionData`. Generic DTOs are forbidden.
-- STATE ENUMS: Table and Upsert DTOs MUST use Enums for state/status properties.
+
+Namespace  : App\Domain\{Module}\Actions
+Rules:
+  - 100% infrastructure agnostic (no HTTP, no View, no HTMX, no redirect)
+  - Input  : Spatie Data DTOs or primitives — NEVER Illuminate\Http\Request
+  - Output : Spatie Data DTOs or primitives — NEVER Response objects
+  - MUST   : use AsAction; + public function handle(...)
+
+lorisleiva full power — use any combination of traits on a single Action:
+  - AsJob        → MyAction::dispatch($dto)  dispatches to queue
+  - AsListener   → listens to a domain event, handle() is the handler
+  - AsCommand    → registers as artisan command, handle() is the command body
+  - AsController → only on Web/Api Actions (Core Actions avoid HTTP layer)
+
+Extra methods allowed on Core Actions (lorisleiva API):
+  rules()                   → validation rules when used as controller/job
+  authorize()               → authorization logic
+  prepareForValidation()    → normalize input before validation
+  asJob(JobDispatch $job)   → customize job behavior
+  getJobMiddleware()        → job middleware
+
+EXAMPLE:
+```php
+<?php
+declare(strict_types=1);
+namespace App\Domain\Assets\Actions;
+
+use Lorisleiva\Actions\Concerns\AsAction;
+use App\Domain\Assets\Data\AssetUpsertData;
+use App\Domain\Assets\Data\AssetTableData;
+use App\Domain\Assets\Models\Asset;
+
+final class UpsertAsset
+{
+    use AsAction;
+
+    public function handle(AssetUpsertData $data): AssetTableData
+    {
+        $asset = Asset::updateOrCreate(['id' => $data->id], $data->toArray());
+
+        return AssetTableData::fromModel($asset);
+    }
+}
+```
 
 ===============================================================================
-4. DOMAIN ENTITIES, MODELS & ENUMS
+PRINCIPLE 2 — WEB ACTIONS
 ===============================================================================
-- ANEMIC MODELS: Eloquent Models (`App\Domain\*\Models`) MUST ONLY contain relationships and casts. Business logic methods (`calculate`, `process`, `handle`) are FORBIDDEN. Models must NEVER be passed to Blade views.
-- BACKED ENUMS ONLY: All Enums MUST be backed by a `string` or `int`. Pure enums are forbidden.
-- VALUE OBJECTS: Must be `final readonly class`.
+
+Namespace  : App\Domain\{Module}\Web\Actions
+Rules:
+  - Thin adapter: validate → call Core Action → return HTMX partial
+  - MUST use HtmxOrchestrator trait
+  - NEVER manipulate HX-* headers directly — use orchestrator methods only
+  - NEVER import or use Models — only DTOs
+  - NEVER put business logic here — 100% delegated to Core Actions
+  - Mutation actions (Store/Upsert) MUST declare ProtectAgainstSpam middleware
+
+EXAMPLE:
+```php
+<?php
+declare(strict_types=1);
+namespace App\Domain\Assets\Web\Actions;
+
+use Lorisleiva\Actions\Concerns\AsAction;
+use App\Support\HtmxOrchestrator;
+use App\Domain\Assets\Actions\UpsertAsset;
+use App\Domain\Assets\Data\AssetUpsertData;
+use Spatie\Honeypot\ProtectAgainstSpam;
+
+final class StoreAsset
+{
+    use AsAction;
+    use HtmxOrchestrator;
+
+    public function getControllerMiddleware(): array
+    {
+        return [ProtectAgainstSpam::class];
+    }
+
+    public function handle(AssetUpsertData $data): \Illuminate\Http\Response
+    {
+        $result = UpsertAsset::run($data);
+
+        return $this->hxView('assets.partials.row', ['asset' => $result]);
+    }
+}
+```
 
 ===============================================================================
-5. GLOBAL SOBRIETY & SECURITY
+PRINCIPLE 3 — SPATIE LARAVEL DATA (FULL POWER)
 ===============================================================================
-- STRICT TYPES: `declare(strict_types=1);` is MANDATORY at the top of every PHP file.
-- NO SUPERGLOBALS: `$_POST`, `$_GET`, `$_REQUEST`, `$_FILES` are FORBIDDEN.
-- NO DEBUGGING: `dd`, `dump`, `ray`, `var_dump`, `print_r` are FORBIDDEN in final code.
-- HONEYPOT: Any Action containing `Store` or `Upsert` in its name MUST use the `#[ProtectAgainstSpam]` attribute.
 
-If a test fails, DO NOT modify the test file. You MUST fix the underlying codebase (Actions, DTOs, Models) to comply with these rules.
+All DTOs MUST be: `final readonly class` extending `Spatie\LaravelData\Data`
+
+Allowed suffixes — no other naming is permitted:
+  FormData        mutation input + validation rules (create / update)
+  TableData       read output — MUST have static fromModel(Model $m): self
+  UpsertData      create-or-update payload
+  FilterData      query scope / search parameters
+  ResourceData    API output shape
+  CollectionData  typed collection — MUST use Lazy::create(fn() => ...)
+  PayloadData     job or event payload
+
+Full Spatie Data feature set — USE these, do not work around them:
+
+VALIDATION ATTRIBUTES:
+  #[Rule('required|string|max:255')]
+  #[Min(1)], #[Max(100)], #[Email], #[Uuid], #[In(['a','b'])]
+  #[Exists('table', 'column')], #[Unique('table', 'column')]
+
+CASTING:
+  #[WithCast(CarbonCast::class)]
+  #[WithCast(EnumCast::class, MyEnum::class)]
+  #[WithCast(DateTimeInterfaceCast::class, format: 'Y-m-d')]
+
+OUTPUT / INPUT MAPPING:
+  #[MapOutputName('snake_case_key')]
+  #[MapInputName('camelCaseKey')]
+  #[MapName(SnakeCaseMapper::class)]
+
+COMPUTED & HIDDEN:
+  #[Computed]   for derived properties (set in constructor, not from input)
+  #[Hidden]     exclude from serialization (passwords, internal IDs)
+
+COLLECTIONS:
+  public DataCollection $items  — use DataCollection<int, MyTableData>
+  combine with Lazy::create(fn() => MyTableData::collect($model->items))
+
+PARTIAL OUTPUT (API / HTMX fragments):
+  $dto->only('id', 'name')
+  $dto->except('internal_field')
+  $dto->wrap('data')
+
+EXAMPLE — TableData with fromModel:
+```php
+<?php
+declare(strict_types=1);
+namespace App\Domain\Assets\Data;
+
+use App\Domain\Assets\Models\Asset;
+use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Attributes\MapOutputName;
+
+final readonly class AssetTableData extends Data
+{
+    public function __construct(
+        public int    $id,
+        public string $code,
+        public string $name,
+        #[MapOutputName('created_at')]
+        public string $createdAt,
+    ) {}
+
+    public static function fromModel(Asset $asset): self
+    {
+        return new self(
+            id        : $asset->id,
+            code      : $asset->code,
+            name      : $asset->name,
+            createdAt : $asset->created_at->toDateTimeString(),
+        );
+    }
+}
+```
+
+EXAMPLE — FormData with validation:
+```php
+<?php
+declare(strict_types=1);
+namespace App\Domain\Assets\Data;
+
+use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Attributes\Validation\{Rule, Max, Min};
+
+final readonly class AssetFormData extends Data
+{
+    public function __construct(
+        #[Rule('sometimes|integer')]
+        public ?int   $id,
+        #[Max(50)]
+        public string $code,
+        #[Max(255)]
+        public string $name,
+    ) {}
+}
+```
+
+EXAMPLE — CollectionData with Lazy:
+```php
+<?php
+declare(strict_types=1);
+namespace App\Domain\Assets\Data;
+
+use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Lazy;
+use Spatie\LaravelData\DataCollection;
+
+final readonly class AssetCollectionData extends Data
+{
+    public function __construct(
+        public int                              $total,
+        /** @var DataCollection<int, AssetTableData> */
+        public Lazy|DataCollection              $items,
+    ) {}
+}
+```
+
+===============================================================================
+PRINCIPLE 4 — LARAVEL PIPELINES
+===============================================================================
+
+Pipe classes live in  : App\Domain\{Module}\Pipelines\
+Each pipe MUST be     : final class with handle(mixed $payload, \Closure $next): mixed
+Pipes are             : infrastructure agnostic — no HTTP, no Request, no Response
+Core Actions own      : the Pipeline::send()->through()->thenReturn() call
+
+Use pipelines for:
+  - Multi-stage data transformation
+  - Validation chains with early exits
+  - Enrichment / normalization flows
+  - Multi-step document processing
+
+EXAMPLE — Pipeline in Core Action:
+```php
+public function handle(AssetUpsertData $data): AssetTableData
+{
+    /** @var AssetUpsertData $processed */
+    $processed = app(Pipeline::class)
+        ->send($data)
+        ->through([
+            ValidateAssetCode::class,
+            EnrichWithCategoryDefaults::class,
+            NormalizeLocationData::class,
+        ])
+        ->thenReturn();
+
+    $asset = Asset::updateOrCreate(['id' => $processed->id], $processed->toArray());
+
+    return AssetTableData::fromModel($asset);
+}
+```
+
+EXAMPLE — Pipe class:
+```php
+<?php
+declare(strict_types=1);
+namespace App\Domain\Assets\Pipelines;
+
+use App\Domain\Assets\Data\AssetUpsertData;
+use Closure;
+
+final class NormalizeLocationData
+{
+    public function handle(AssetUpsertData $payload, Closure $next): mixed
+    {
+        $normalized = new AssetUpsertData(
+            ...$payload->toArray(),
+            location: strtoupper(trim($payload->location)),
+        );
+
+        return $next($normalized);
+    }
+}
+```
+
+===============================================================================
+PRINCIPLE 5 — OCTANE SAFETY (FrankenPHP persistent state)
+===============================================================================
+
+Octane keeps the application alive between requests.
+The following patterns cause memory leaks and stale-state bugs in production.
+
+FORBIDDEN in any domain class:
+  static mutable properties   → private static array $cache = []  (grows forever)
+  Request stored in $this      → $this->request = $request  (stale on next request)
+  Singleton state mutation     → modifying a bound singleton inside request cycle
+  app()->instance() of stateful objects inside the request lifecycle
+
+SAFE patterns:
+  - All Actions, DTOs, ValueObjects, Pipes are stateless by design — keep them that way
+  - Inject all dependencies as handle() parameters, never store in $this
+  - Use Cache facade (Valkey) for shared state — never static properties
+  - If per-request state is needed: bind it to the request lifecycle, not app lifecycle
+  - Octane::table() for shared in-memory tables (read-heavy, rarely written)
+
+===============================================================================
+PRINCIPLE 6 — CROSS-CONTEXT COMMUNICATION
+===============================================================================
+
+Modules communicate ONLY through:
+  1. Domain Events  → App\Domain\Shared\Events\*  — fire and let subscribers react
+  2. Shared Action interfaces → App\Contracts\*  — dependency inversion
+  3. Shared DTOs → App\Domain\Shared\Data\*  — explicit data contracts
+
+NEVER:
+  - Import a Model from another module
+  - Call another module's Core Action directly from within a module
+  - Define Eloquent relationships that cross module boundaries
+
+Cross-context event example:
+```php
+// In Assets module — fires event, knows nothing about Maintenance
+event(new AssetDecommissioned(assetId: $asset->id, decommissionedAt: now()));
+
+// In Maintenance module — listens, reacts independently
+final class CancelPendingWorkOrders
+{
+    use AsAction;
+    use AsListener;
+
+    public function handle(AssetDecommissioned $event): void
+    {
+        WorkOrder::pendingForAsset($event->assetId)->update(['status' => 'cancelled']);
+    }
+}
+```
+
+===============================================================================
+PRINCIPLE 7 — MODELS (STRICTLY ANEMIC)
+===============================================================================
+
+Eloquent Models contain ONLY:
+  $fillable, $casts, $table, $primaryKey, $connection
+  Relationships : hasMany, belongsTo, morphTo, belongsToMany, etc.
+  Query scopes  : scopeActive(), scopeByLocation(), scopeWithMedia(), etc.
+  Attribute casts: protected $casts = ['status' => StatusEnum::class]
+  Media registration: registerMediaCollections() for Spatie MediaLibrary
+  Factory       : use HasFactory (for tests only)
+
+NEVER in a Model:
+  Business logic methods
+  Service / action calls
+  Calculation, processing, validation methods
+  HTTP or notification logic
+
+===============================================================================
+PRINCIPLE 8 — HTMX + ALPINE.JS
+===============================================================================
+
+HTMX:
+  - All server interactions go through hx-* attributes on Blade templates
+  - Responses are Blade partials rendered via HtmxOrchestrator
+  - Validation errors → HX-Trigger header → Notyf toast (NOT form swap for errors)
+  - Multi-target updates → hx-swap-oob="true" on secondary fragments
+  - Push history when appropriate → hx-push-url="true"
+
+Alpine.js:
+  - Client-side UI behavior ONLY: toggles, tabs, dropdowns, modals, animations
+  - NEVER make server calls from Alpine (no fetch, no axios inside x-data)
+  - NEVER put business logic in x-data
+  - Delegate ALL server interaction to HTMX
+  - Trigger HTMX from Alpine: $dispatch('htmx:trigger') or hx-trigger="custom-event"
+  - Share UI state across components: Alpine.store('moduleName', { ... })
+
+===============================================================================
+WORKFLOW — HOW TO GENERATE CODE
+===============================================================================
+
+When receiving a task:
+
+1. Identify the module and the layer (Core Action / Web Action / DTO / Pipe / Model)
+2. HTMX feature    → Web Action (HtmxOrchestrator) + Core Action + DTO + Blade partial
+3. Background task → Core Action with AsJob, PayloadData DTO
+4. Event-driven    → Core Action with AsListener, domain event in Shared/Events
+5. Complex logic   → Core Action orchestrates Pipeline, each step is a Pipe class
+6. Always create the correct DTO suffix — never pass raw arrays between layers
+
+Before submitting code, mentally run this checklist:
+  [ ] declare(strict_types=1) at the top
+  [ ] All names in ENGLISH
+  [ ] Core Action: no HTTP, returns DTO
+  [ ] Web Action: uses HtmxOrchestrator, delegates to Core Action
+  [ ] DTO: final readonly class, correct suffix, fromModel() on TableData
+  [ ] Pipe: final class, handle(mixed $payload, Closure $next): mixed
+  [ ] Model: no business logic
+  [ ] No Models in Views or Web/Api Actions
+  [ ] No direct cross-module imports
+  [ ] No static mutable properties (Octane safety)
+  [ ] Store/Upsert Web Actions use ProtectAgainstSpam
+  [ ] No manual HX-* header manipulation outside HtmxOrchestrator
+
+===============================================================================
+VERSION: SIGMA MASTER V31 — EXPERT FINAL
+===============================================================================
