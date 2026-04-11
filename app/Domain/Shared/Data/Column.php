@@ -4,54 +4,64 @@ declare(strict_types=1);
 
 namespace App\Domain\Shared\Data;
 
+use Attribute;
 use Spatie\LaravelData\Data;
 
+#[Attribute(Attribute::TARGET_PROPERTY)]
 final class Column extends Data
 {
     public function __construct(
-        public readonly string $title,
-        public readonly string $field,
-        public readonly ?int $width = null,
-        public readonly ?string $hozAlign = null,
-        public readonly ?string $headerHozAlign = null,
-        public readonly ?string $formatter = null,
-        public readonly ?string $headerFilter = null,
+        public ?string $title = null,
+        public ?string $field = null,
+        public ?int $width = null,
+        public ?int $minWidth = null,
+        public ?int $maxWidth = null,
+        public ?string $hozAlign = null,
+        public ?string $vertAlign = null,
+        public ?string $headerHozAlign = null,
+        public ?string $formatter = null,
         /** @var array<string, mixed>|null */
-        public readonly ?array $headerFilterParams = null,
-        public readonly ?string $headerFilterPlaceholder = null,
-        public readonly bool $clearable = false,
-        public readonly bool $headerSort = true,
-        public readonly ?int $responsive = null,
+        public ?array $formatterParams = null,
+        public ?string $accessor = null,
+        /** @var array<string, mixed>|null */
+        public ?array $accessorParams = null,
+        public ?string $headerFilter = null,
+        /** @var array<string, mixed>|null */
+        public ?array $headerFilterParams = null,
+        public ?string $headerFilterPlaceholder = null,
+        public ?string $headerFilterFunc = null,
+        public bool $headerSort = true,
+        public bool $headerSortTristate = false,
+        public bool $resizable = true,
+        public bool|string $frozen = false,
+        public ?int $responsive = null,
+        public ?string $tooltip = null,
+        public ?string $topCalc = null,
+        public ?string $bottomCalc = null,
+        public ?string $sorter = null,
+        /** @var array<string, mixed>|null */
+        public ?array $sorterParams = null,
+        public bool $clearable = false,
+        public bool $hide = false,
+        public ?bool $visible = null,
     ) {}
 
-    /** @param array<string, mixed>|null $headerFilterParams */
+    /** @param array<string, mixed>|null $params */
     public static function make(
-        string $title,
-        string $field,
+        ?string $title = null,
+        ?string $field = null,
         ?int $width = null,
         ?string $hozAlign = null,
-        ?string $headerHozAlign = null,
         ?string $formatter = null,
-        ?string $headerFilter = null,
-        ?array $headerFilterParams = null,
-        ?string $headerFilterPlaceholder = null,
-        bool $clearable = false,
-        bool $headerSort = true,
-        ?int $responsive = null,
+        ?array $params = null,
     ): self {
         return new self(
-            $title,
-            $field,
-            $width,
-            $hozAlign,
-            $headerHozAlign,
-            $formatter,
-            $headerFilter,
-            $headerFilterParams,
-            $headerFilterPlaceholder,
-            $clearable,
-            $headerSort,
-            $responsive
+            title: $title,
+            field: $field,
+            width: $width,
+            hozAlign: $hozAlign,
+            formatter: $formatter,
+            formatterParams: $params
         );
     }
 }

@@ -4,57 +4,54 @@ declare(strict_types=1);
 
 namespace App\Domain\Shared\Web\Actions;
 
-use App\Support\HtmxOrchestrator;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
+use Illuminate\Http\Response;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
 final class Upload
 {
     use AsAction;
-    use HtmxOrchestrator;
 
-    public function handle(string $route, string $id, string $domain, string $modelName): JsonResponse
+    public function handle(string $route, int $id, UploadedFile $photo): string
     {
+        $model = $this->resolveModel($route);
+        $record = $model::findOrFail($id);
+
+        if (! in_array(InteractsWithMedia::class, class_uses_recursive($record), true)) {
+            abort(404, 'Este modelo no soporta uploads.');
+        }
+
+        $record->addMedia($photo)
+            ->toMediaCollection('profile');
+
+        return $record->getFirstMediaUrl('profile');
+    }
+
+    public function asController(Request $request, string $route, int $id): Response
+    {
+        $url = $this->handle($route, $id, $request->file('photo'));
+
+        return response($url, 200);
+    }
+
+    /** @return class-string */
+    private function resolveModel(string $route): string
+    {
+        $domain = Str::studly($route);
+        $modelName = Str::studly(Str::singular($route));
         $class = "App\\Domain\\{$domain}\\Models\\{$modelName}";
+
         if (! class_exists($class)) {
+            // Check if domain name is model name (singular)
             $class = "App\\Domain\\{$domain}\\Models\\{$domain}";
-        }
-
-        if (! class_exists($class)) {
-            App::abort(404, "Modelo {$class} no encontrado.");
-        }
-
-        $model = $class::findOrFail($id);
-        
-        if (! ($model instanceof \Spatie\MediaLibrary\HasMedia)) {
-            $this->hxNotify('El modelo no soporta archivos multimedia.', 'error');
-            return $this->hxResponse();
-        }
-
-        $files = request()->file('files') ?: (request()->file('file') ? [request()->file('file')] : []);
-        $collection = request()->input('collection', 'gallery');
-
-        if (!empty($files)) {
-            foreach ($files as $file) {
-                $model->addMedia($file)->toMediaCollection($collection);
+            if (! class_exists($class)) {
+                abort(404, "Modelo no encontrado para: {$route}");
             }
         }
 
-        $this->hxNotify('Archivo(s) subido(s) con éxito');
-        $this->hxRefresh(['#gallery-content', '#media-content', '#asset_photo_preview']);
-        $this->hxTriggers['refresh-sidebar-photo'] = true;
-
-        return $this->hxResponse();
-    }
-
-    public function asController(Request $request, string $route, string $id): JsonResponse
-    {
-        $domain = Str::studly($route);
-        $modelName = Str::singular($domain);
-
-        return $this->handle($route, $id, $domain, $modelName);
+        return $class;
     }
 }

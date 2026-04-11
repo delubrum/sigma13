@@ -7,6 +7,7 @@ namespace App\Domain\Shared\Web\Actions;
 use App\Contracts\HasDetail;
 use App\Contracts\HasModule;
 use App\Support\HtmxOrchestrator;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
@@ -17,12 +18,8 @@ final class Detail
     use AsAction;
     use HtmxOrchestrator;
 
-    public function handle(string $route, string $id): Response
+    public function handle(string $route, string $id): View
     {
-        if (! ctype_digit($id) && ! is_int($id)) {
-            abort(404, "Identificador inválido: {$id}");
-        }
-
         $domain = Str::studly($route);
         $indexAction = "App\\Domain\\{$domain}\\Actions\\Index";
 
@@ -34,9 +31,11 @@ final class Detail
         $instance = resolve($indexAction);
         $config = $instance->config();
 
+        $sidebarView = null;
         $sidebarData = null;
 
         if ($instance instanceof HasDetail) {
+            $sidebarView = "{$route}.sidebar";
             $sidebarData = $instance->sidebarData((int) $id);
         }
 
@@ -60,27 +59,21 @@ final class Detail
             'subtitle' => $config->subtitle ?: '',
         ]);
 
-        $this->hxModalWidth('98');
+        $this->hxModalWidth('98%');
 
-        $sidebarView = "{$route}::sidebar";
-        if (! view()->exists($sidebarView)) {
-            $sidebarView = null;
-        }
-
-        return $this->hxView('components::detail-modal', [
+        return view('components.detail-modal', [
             'route' => $route,
             'config' => $config,
             'id' => (int) $id,
-            'sidebarData' => $sidebarData,
             'sidebarView' => $sidebarView,
+            'sidebarData' => $sidebarData,
             'tabs' => $tabs,
             'defaultTab' => $defaultTab,
-            'displayName' => $displayName,
         ]);
     }
 
     public function asController(Request $request, string $route, string $id): Response
     {
-        return $this->handle($route, $id);
+        return $this->hxView($this->handle($route, $id));
     }
 }

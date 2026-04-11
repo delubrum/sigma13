@@ -6,25 +6,24 @@ namespace App\Domain\Assets\Web\Actions;
 
 use App\Domain\Assets\Data\Sidebar;
 use App\Domain\Assets\Models\Asset;
-use App\Support\HtmxOrchestrator;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 final class PrintQr
 {
     use AsAction;
-    use HtmxOrchestrator;
 
-    public function handle(Asset $asset): \Illuminate\View\View
+    public function handle(int $id): View
     {
+        $asset = Asset::findOrFail($id);
         $data = Sidebar::from($asset);
 
-        return view('assets::print-qr', ['data' => $data]);
+        return view('assets.print-qr', ['data' => $data]);
     }
 
-    public function asController(Asset $asset): \Illuminate\View\View
+    public function asController(Request $request, int $id): View
     {
-        return $this->handle($asset);
+        return $this->handle($id);
     }
 }

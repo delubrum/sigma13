@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Shared\Web\Actions;
 
+use App\Contracts\HasModule;
 use App\Support\HtmxOrchestrator;
+use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
@@ -15,39 +17,53 @@ final class Create
     use AsAction;
     use HtmxOrchestrator;
 
-    public function handle(string $route, ?string $id = null): Response
+    public function handle(string $route, ?int $id = null): View
     {
         $domain = Str::studly($route);
-        $singular = Str::singular($domain);
         $indexAction = "App\\Domain\\{$domain}\\Actions\\Index";
-        $modelClass = "App\\Domain\\{$domain}\\Models\\{$singular}";
 
         if (! class_exists($indexAction)) {
             abort(404, 'Módulo no encontrado.');
         }
 
+        /** @var HasModule $instance */
         $instance = resolve($indexAction);
         $config = $instance->config();
-        
-        $data = $id ? $modelClass::findOrFail($id) : [];
+
+        if ($config->formFields === []) {
+            abort(404, 'Este módulo no permite creación de registros.');
+        }
+
+        $model = null;
+        $data = [];
+
+        if ($id) {
+            $modelClass = "App\\Domain\\{$domain}\\Models\\" . Str::singular($domain);
+            $model = $modelClass::findOrFail($id);
+
+            $dtoClass = "App\\Domain\\{$domain}\\Data\\UpsertData";
+            if (class_exists($dtoClass)) {
+                $data = $dtoClass::from($model);
+            }
+        }
 
         $this->hxModalHeader([
             'icon' => $config->icon,
-            'title' => ($id ? "Editar " : "Nuevo ") . $config->title,
-            'subtitle' => $config->subtitle ?: '',
+            'title' => ($id ? 'Edit ' : 'New ') . $config->title,
+            'subtitle' => $config->subtitle ?: 'Registro',
         ]);
 
-        $this->hxModalWidth($config->modalWidth ?: 'md');
+        $this->hxModalWidth($config->modalWidth);
 
-        return $this->hxView('components::new-modal', [
+        return view('components.new-modal', [
             'route' => $route,
             'config' => $config,
             'data' => $data,
         ]);
     }
 
-    public function asController(Request $request, string $route, ?string $id = null): Response
+    public function asController(Request $request, string $route, ?int $id = null): Response
     {
-        return $this->handle($route, $id);
+        return $this->hxView($this->handle($route, $id ? (int) $id : null));
     }
 }

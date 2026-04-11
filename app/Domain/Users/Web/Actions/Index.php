@@ -34,35 +34,11 @@ final class Index
 
     public function asData(Request $request): JsonResponse
     {
-        $query = User::query();
-
-        // Ordenamiento
-        $sorts = $request->get('sort', []);
-        foreach ($sorts as $s) {
-            $field = $s['field'] === 'isActive' ? 'is_active' : ($s['field'] === 'createdAt' ? 'created_at' : $s['field']);
-            $query->orderBy($field, $s['dir']);
-        }
-
-        if (empty($sorts)) {
-            $query->latest();
-        }
-
-        // Filtros básicos
-        $filters = $request->get('filter', []);
-        foreach ($filters as $f) {
-            $field = $f['field'] ?? null;
-            $value = $f['value'] ?? null;
-            if ($field && $value !== null) {
-                $dbField = $field === 'isActive' ? 'is_active' : $field;
-                if ($dbField === 'is_active') {
-                    $query->where($dbField, $value);
-                } else {
-                    $query->where($dbField, 'ilike', "%{$value}%");
-                }
-            }
-        }
-
-        $paginator = $query->paginate($request->get('size', 15));
+        $paginator = \App\Domain\Users\Actions\GetUsersTableData::run([
+            'sort' => $request->get('sort', []),
+            'filter' => $request->get('filter', []),
+            'size' => (int) $request->get('size', 15),
+        ]);
 
         return response()->json([
             'data' => $paginator->getCollection()->map(fn (User $user) => \App\Domain\Users\Data\Table::from($user))->values(),
@@ -72,11 +48,7 @@ final class Index
 
     public function asResetPassword(string $id): JsonResponse
     {
-        /** @var class-string<User> $userModel */
-        $userModel = config('auth.providers.users.model');
-        $user = $userModel::findOrFail($id);
-
-        \App\Domain\Shared\Events\PasswordResetRequested::dispatch($user);
+        $user = \App\Domain\Users\Actions\RequestPasswordReset::run($id);
 
         return $this
             ->hxNotify("Correo de restauración enviado a: {$user->email}")

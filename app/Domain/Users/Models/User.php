@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace App\Domain\Users\Models;
 
+use App\Contracts\CanResetPasswordContract;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 #[Fillable([
     'name',
@@ -25,8 +26,20 @@ use Spatie\Activitylog\Models\Concerns\LogsActivity;
     'password',
     'remember_token',
 ])]
-class User extends Authenticatable
+class User extends Authenticatable implements CanResetPasswordContract
 {
+    #[\Override]
+    public function updatePassword(string $newPassword): void
+    {
+        $this->forceFill(['password' => $newPassword])->save();
+    }
+
+    #[\Override]
+    public function getEmail(): string
+    {
+        return (string) $this->email;
+    }
+
     /** @use HasFactory<UserFactory> */
     use HasFactory;
     use Notifiable;

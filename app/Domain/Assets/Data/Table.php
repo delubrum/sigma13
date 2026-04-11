@@ -12,34 +12,106 @@ use Spatie\LaravelData\Data;
 final class Table extends Data
 {
     public function __construct(
+        #[Column(title: 'ID', width: 60, hozAlign: 'center')]
         public readonly int $id,
+
+        #[Column(title: 'Área', width: 120)]
         public readonly ?string $area,
+
+        #[Column(title: 'SAP', width: 100)]
         public readonly ?string $sap,
+
+        #[Column(title: 'Serial', width: 120)]
         public readonly ?string $serial,
+
+        #[Column(title: 'Responsable', width: 200)]
         public readonly ?string $assignee,
+
+        #[Column(title: 'Hostname', width: 150)]
         public readonly ?string $hostname,
+
+        #[Column(title: 'Marca', width: 100)]
         public readonly ?string $brand,
+
+        #[Column(title: 'Modelo', width: 150)]
         public readonly ?string $model,
+
+        #[Column(title: 'Tipo', width: 100)]
         public readonly ?string $kind,
+
+        #[Column(title: 'CPU', width: 120)]
         public readonly ?string $cpu,
+
+        #[Column(title: 'RAM', width: 80, hozAlign: 'center')]
         public readonly ?string $ram,
+
+        #[Column(title: 'SSD', width: 80, hozAlign: 'center')]
         public readonly ?string $ssd,
+
+        #[Column(title: 'HDD', width: 80, hozAlign: 'center')]
         public readonly ?string $hdd,
+
+        #[Column(title: 'S.O.', width: 120)]
         public readonly ?string $so,
+
+        #[Column(title: 'Precio', width: 100, hozAlign: 'right')]
         public readonly ?string $price,
+
+        #[Column(title: 'Fecha', width: 120, hozAlign: 'center')]
         public readonly ?string $date,
+
+        #[Column(title: 'Factura', width: 120)]
         public readonly ?string $invoice,
+
+        #[Column(title: 'Proveedor', width: 150)]
         public readonly ?string $supplier,
+
+        #[Column(title: 'Garantía', width: 120)]
         public readonly ?string $warranty,
+
+        #[Column(title: 'Modo Trabajo', width: 120, hozAlign: 'center')]
         public readonly ?string $work_mode,
+
+        #[Column(title: 'Ubicación', width: 150)]
         public readonly ?string $location,
+
+        #[Column(title: 'Teléfono', width: 120)]
         public readonly ?string $phone,
+
+        #[Column(title: 'Operador', width: 120)]
         public readonly ?string $operator,
+
+        #[Column(
+            title: 'Estado', 
+            width: 120, 
+            hozAlign: 'center', 
+            formatter: 'html', 
+            headerFilter: 'list', 
+            headerFilterParams: [
+                'values' => [
+                    'available' => 'Disponible', 
+                    'assigned' => 'Asignado', 
+                    'maintenance' => 'Mantenimiento', 
+                    'retired' => 'Retirado'
+                ], 
+                'clearable' => true
+            ]
+        )]
         public readonly ?string $status,
+
+        #[Column(title: 'Clasificación', width: 120)]
         public readonly ?string $classification,
+
+        #[Column(title: 'Conf.', width: 60, hozAlign: 'center')]
         public readonly ?int $confidentiality,
+
+        #[Column(title: 'Int.', width: 60, hozAlign: 'center')]
         public readonly ?int $integrity,
+
+        #[Column(title: 'Disp.', width: 60, hozAlign: 'center')]
         public readonly ?int $availability,
+
+        #[Column(title: 'Criticidad', width: 100, hozAlign: 'center', formatter: 'html')]
         public readonly ?string $criticality,
     ) {}
 
@@ -76,41 +148,5 @@ final class Table extends Data
             availability: $asset->availability,
             criticality: $asset->criticality ?? '',
         );
-    }
-
-    /** @return list<Column> */
-    public static function columns(): array
-    {
-        return [
-            Column::make(title: 'ID', field: 'id', width: 60, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Área', field: 'area', width: 120, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'SAP', field: 'sap', width: 100, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Serial', field: 'serial', width: 120, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Responsable', field: 'assignee', width: 200, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Hostname', field: 'hostname', width: 150, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Marca', field: 'brand', width: 100, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Modelo', field: 'model', width: 150, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Tipo', field: 'kind', width: 100, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'CPU', field: 'cpu', width: 120, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'RAM', field: 'ram', width: 80, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'SSD', field: 'ssd', width: 80, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'HDD', field: 'hdd', width: 80, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'S.O.', field: 'so', width: 120, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Precio', field: 'price', width: 100, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Fecha', field: 'date', width: 120, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Factura', field: 'invoice', width: 120, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Proveedor', field: 'supplier', width: 150, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Garantía', field: 'warranty', width: 120, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Modo Trabajo', field: 'work_mode', width: 120, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Ubicación', field: 'location', width: 150, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Teléfono', field: 'phone', width: 120, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Operador', field: 'operator', width: 120, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Estado', field: 'status', width: 120, formatter: 'html', headerHozAlign: 'center', hozAlign: 'center', headerFilter: 'list', headerFilterParams: ['values' => ['available' => 'Disponible', 'assigned' => 'Asignado', 'maintenance' => 'Mantenimiento', 'retired' => 'Retirado'], 'clearable' => true], headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Clasificación', field: 'classification', width: 120, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Conf.', field: 'confidentiality', width: 60, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Int.', field: 'integrity', width: 60, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Disp.', field: 'availability', width: 60, headerHozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Criticidad', field: 'criticality', width: 100, formatter: 'html', headerHozAlign: 'center', hozAlign: 'center', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-        ];
     }
 }

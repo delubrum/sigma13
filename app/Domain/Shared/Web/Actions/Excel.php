@@ -4,58 +4,131 @@ declare(strict_types=1);
 
 namespace App\Domain\Shared\Web\Actions;
 
-use App\Support\HtmxOrchestrator;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Spatie\LaravelData\Data;
+use Spatie\SimpleExcel\SimpleExcelWriter;
+use Symfony\Component\HttpFoundation\Response;
 
 final class Excel
 {
     use AsAction;
-    use HtmxOrchestrator;
 
-    public function handle(string $route, string $domain, string $modelName): StreamedResponse
+    /**
+     * @param  string  $route  Nombre del módulo/ruta (ej: 'assets')
+     * @param  string  $range  Rango de tiempo ('today', 'week', 'month', 'all')
+     */
+    public function handle(string $route, string $range): Response
     {
-        $class = "App\\Domain\\{$domain}\\Models\\{$modelName}";
-        if (! class_exists($class)) {
-            $class = "App\\Domain\\{$domain}\\Models\\{$domain}";
+        /** @var class-string<Model> $modelClass */
+        $modelClass = $this->resolveModel($route);
+
+        /** @var class-string<Data> $dataClass */
+        $dataClass = $this->resolveDataClass($route);
+
+        /** @var Builder<Model> $query */
+        $query = $modelClass::query();
+
+        // Aplicar filtro de rango si el modelo usa Timestamps
+        $query->when($range !== 'all', function (Builder $q) use ($range): void {
+            $date = match ($range) {
+                'today' => today(),
+                'week' => now()->startOfWeek(),
+                'month' => now()->startOfMonth(),
+                default => now()->subYears(100),
+            };
+            $q->where('created_at', '>=', $date);
+        });
+
+        $fileName = sprintf('export_%s_%s.xlsx', $route, now()->format('d-m-Y_His'));
+
+        // Creamos el stream para ahorrar memoria RAM
+        $writer = SimpleExcelWriter::streamDownload($fileName);
+
+        // BLINDAJE: Limpiar cualquier buffer previo para evitar ERR_INVALID_RESPONSE
+        if (ob_get_length()) {
+            ob_end_clean();
         }
 
-        if (! class_exists($class)) {
-            App::abort(404, "Modelo {$class} no encontrado.");
-        }
+        // Cursor para procesar registros uno a uno (eficiencia O(1) en memoria)
+        $query->cursor()->each(function (Model $model) use ($writer, $dataClass): void {
+            /** @var Data $dataInstance */
+            $dataInstance = $dataClass::from($model);
 
-        $filename = "export_{$route}_".Date::today()->format('Y-m-d').'.csv';
+            /** @var array<string, mixed> $rowData */
+            $rowData = $dataInstance->toArray();
 
-        return response()->streamDownload(function () use ($class): void {
-            $handle = fopen('php://output', 'w');
-            if ($handle === false) {
-                return;
-            }
-
-            // Headers
-            fputcsv($handle, ['ID', 'Created At'], escape: '\\');
-
-            $class::chunk(100, function ($rows) use ($handle): void {
-                foreach ($rows as $row) {
-                    fputcsv($handle, [$row->id, $row->created_at], escape: '\\');
+            // Limpieza de HTML y entidades para Excel
+            $cleanRow = array_map(function (mixed $value): mixed {
+                if (is_string($value)) {
+                    return html_entity_decode(strip_tags($value), ENT_QUOTES | ENT_HTML5, 'UTF-8');
                 }
-            });
 
-            fclose($handle);
-        }, $filename, [
-            'Content-Type' => 'text/csv',
-        ]);
+                return $value;
+            }, $rowData);
+
+            $writer->addRow($cleanRow);
+        });
+
+        /** @var Response $response */
+        $response = $writer->toBrowser();
+
+        return $response;
     }
 
-    public function asController(Request $request, string $route): StreamedResponse
+    /**
+     * Punto de entrada desde la ruta web.
+     */
+    public function asController(Request $request, string $route): Response
+    {
+        /** @var string $range */
+        $range = $request->query('range', 'all');
+
+        return $this->handle($route, $range);
+    }
+
+    /**
+     * Resuelve el nombre de la clase del Modelo basado en la ruta.
+     *
+     * @return class-string<Model>
+     */
+    private function resolveModel(string $route): string
     {
         $domain = Str::studly($route);
-        $modelName = Str::singular($domain);
+        $modelName = Str::studly(Str::singular($route));
+        /** @var class-string<Model> $class */
+        $class = "App\\Domain\\{$domain}\\Models\\{$modelName}";
 
-        return $this->handle($route, $domain, $modelName);
+        if (! class_exists($class)) {
+            // Reintentar sin plural/singular si falla (ej: MaintenanceP -> MaintenanceP)
+            /** @var class-string<Model> $class */
+            $class = "App\\Domain\\{$domain}\\Models\\{$domain}";
+            if (! class_exists($class)) {
+                abort(404, "El modelo [{$class}] no existe.");
+            }
+        }
+
+        return $class;
+    }
+
+    /**
+     * Resuelve el Data Object siguiendo la convención App\Data\{Folder}\Table.
+     *
+     * @return class-string<Data>
+     */
+    private function resolveDataClass(string $route): string
+    {
+        $domain = Str::studly($route);
+        /** @var class-string<Data> $class */
+        $class = "App\\Domain\\{$domain}\\Data\\Table";
+
+        if (! class_exists($class)) {
+            abort(500, "Data Object [{$class}] no definido.");
+        }
+
+        return $class;
     }
 }
