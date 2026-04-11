@@ -13,23 +13,21 @@ final class DocumentTable extends Data
 {
     public function __construct(
         public readonly int $id,
+
+        #[Column(title: 'Nombre', width: 400)]
         public readonly string $name,
+
+        #[Column(title: 'Código de Ref.')]
         public readonly string $code,
+
+        #[Column(title: 'Vencimiento')]
         public readonly string $expiry,
+
+        #[Column(title: 'Archivo', width: 150, hozAlign: 'center', formatter: 'html')]
         public readonly string $file,
+
         public readonly string $actions,
     ) {}
-
-    /** @return list<Column> */
-    public static function columns(): array
-    {
-        return [
-            Column::make(title: 'Nombre', field: 'name', width: 400, headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Código de Ref.', field: 'code', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Vencimiento', field: 'expiry', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Archivo', field: 'file', width: 150, hozAlign: 'center', formatter: 'html'),
-        ];
-    }
 
     public static function fromModel(AssetDocument $doc): self
     {

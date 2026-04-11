@@ -12,20 +12,16 @@ final class AutomationTable extends Data
 {
     public function __construct(
         public readonly int $id,
+
+        #[Column(title: 'Actividad')]
         public readonly string $activity,
+
+        #[Column(title: 'Frecuencia', width: 150)]
         public readonly string $frequency,
+
+        #[Column(title: 'Última Ejecución', width: 150)]
         public readonly string $last_performed_at,
     ) {}
-
-    /** @return list<Column> */
-    public static function columns(): array
-    {
-        return [
-            Column::make(title: 'Actividad', field: 'activity', headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Frecuencia', field: 'frequency', width: 150, headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-            Column::make(title: 'Última Ejecución', field: 'last_performed_at', width: 150, headerFilter: 'input', headerFilterPlaceholder: 'Filtro...'),
-        ];
-    }
 
     public static function fromModel(MntPreventiveForm $task): self
     {
