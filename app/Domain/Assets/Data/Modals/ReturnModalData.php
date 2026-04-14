@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace App\Domain\Assets\Data\Modals;
 
 use App\Domain\Shared\Data\Field;
-use Spatie\LaravelData\Data;
-use Spatie\LaravelData\Attributes\Validation\Required;
-use Spatie\LaravelData\Attributes\Validation\BooleanType;
 use Spatie\LaravelData\Attributes\Validation\ArrayType;
+use Spatie\LaravelData\Attributes\Validation\BooleanType;
+use Spatie\LaravelData\Attributes\Validation\Required;
+use Spatie\LaravelData\Data;
 
 final class ReturnModalData extends Data
 {

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Carbon;
 
 #[Fillable([
     'name',
@@ -24,6 +25,19 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
     'user_id',
 ])]
 #[Hidden(['user_id'])]
+/**
+ * @property int $id
+ * @property string $name
+ * @property string|null $profile
+ * @property string|null $email
+ * @property string|null $phone
+ * @property string|null $department
+ * @property string|null $position
+ * @property string|null $status
+ * @property Carbon|null $hire_date
+ * @property float|null $salary
+ * @property int|null $user_id
+ */
 class Employee extends Authenticatable
 {
     /** @return BelongsTo<User, $this> */

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Identity\Web\Adapters\Password;
 
-use App\Domain\Identity\Actions\Password\SendResetLink as SendTask;
+use App\Domain\Identity\Actions\InitiatePasswordReset as SendTask;
 use App\Domain\Identity\Data\LoginData;
 use App\Support\HtmxOrchestrator;
 use Illuminate\Http\JsonResponse;

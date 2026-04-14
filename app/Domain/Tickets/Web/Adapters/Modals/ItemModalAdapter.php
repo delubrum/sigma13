@@ -6,13 +6,13 @@ namespace App\Domain\Tickets\Web\Adapters\Modals;
 
 use App\Domain\Shared\Data\Config;
 use App\Domain\Shared\Services\SchemaGenerator;
+use App\Domain\Tickets\Actions\CreateActivityAction;
 use App\Domain\Tickets\Data\ItemUpsertData;
-use App\Domain\Tickets\Models\Ticket;
-use App\Domain\Tickets\Models\TicketItem;
 use App\Support\HtmxOrchestrator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 final class ItemModalAdapter
@@ -24,8 +24,8 @@ final class ItemModalAdapter
     {
         $config = new Config(
             title: 'New Activity',
-            subtitle: "Registrar avance para el Ticket #{$id}",
             icon: 'ri-add-line',
+            subtitle: "Registrar avance para el Ticket #{$id}",
             newButtonLabel: 'Guardar Avance',
             modalWidth: '40',
             columns: [],
@@ -39,9 +39,9 @@ final class ItemModalAdapter
         ]);
 
         return response()->view('shared::components.new-modal', [
-            'route'  => 'tickets.item',
+            'route' => 'tickets.item',
             'config' => $config,
-            'data'   => ['id' => $id],
+            'data' => ['id' => $id],
         ]);
     }
 
@@ -49,22 +49,24 @@ final class ItemModalAdapter
     {
         try {
             $data = ItemUpsertData::validateAndCreate($request->all());
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             $firstError = collect($e->errors())->flatten()->first();
-            $this->hxNotify('Error: ' . $firstError, 'error');
+            $errorMsg = is_string($firstError) ? $firstError : 'Validación fallida';
+            $this->hxNotify('Error: '.$errorMsg, 'error');
+
             return $this->hxResponse(['errors' => $e->errors()], 422);
         }
 
-        \App\Domain\Tickets\Actions\CreateActivityAction::run(
-            ticketId:      $data->id, 
-            data:          $data, 
+        CreateActivityAction::run(
+            ticketId: $data->id,
+            data: $data,
             currentUserId: auth()->id()
         );
 
         $this->hxNotify('Actividad registrada correctamente');
         $this->hxRefresh(['#tab-content', '#sidebar-summary']);
         $this->hxCloseModals(['modal-body-2']);
-        
+
         return $this->hxResponse();
     }
 }

@@ -30,26 +30,24 @@
     $btnClass = $newButtonClass ?? 'flex items-center gap-2 px-4 py-2 rounded-lg bg-sigma-ac text-sigma-ac-inv text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all';
     $btnStyle = $customCreateStyle ?? '';
 
+    $instanceId = 'dt_' . ($tableId ?? $jsFriendlyName);
+
     $tabulatorConfig = [
         'height' => "450px",
-        'stickyHeader' => false,
+        'index' => "id",
+        'ajaxURL' => route($route . '.data', $parentId),
+        'ajaxConfig' => 'GET',
         'pagination' => true,
         'paginationMode' => "remote",
         'paginationSize' => 15,
         'paginationSizeSelector' => [15, 50, 100, 500],
         'paginationButtonCount' => 5,
-        'layout' => "fitDataFill",
-        'columnDefaults' => [
-            'width' => 150,
-            'minWidth' => 100,
-        ],
-        'ajaxURL' => route($route . '.data', $parentId),
         'dataField' => "data",
-        'paginationDataReceived' => [
-            'last_page' => "last_page",
-        ],
+        'paginationDataReceived' => ['last_page' => "last_page"],
+        'layout' => "fitDataFill",
+        'movableColumns' => true,
+        'columnDefaults' => ['width' => 150, 'minWidth' => 100],
         'placeholder' => "No se encontraron registros",
-        'locale' => "es",
         'columns' => $columns,
     ];
 @endphp
@@ -88,8 +86,8 @@
     </div>
 
     <!-- Table Container for Tabulator Auto-Init -->
-    <div id="dt_{{ $tableId ?? $jsFriendlyName }}" 
-         data-widget="tabulator" 
+    <div id="{{ $instanceId }}"
+         data-widget="tabulator"
          data-config='@json($tabulatorConfig)'
          class="w-full text-xs bg-sigma-bg2 border border-sigma-b rounded-lg"></div>
 </div>

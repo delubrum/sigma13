@@ -14,8 +14,8 @@ final class GetTicketsDataAction
     use AsAction;
 
     /**
-     * @param array<string, mixed>  $filters
-     * @param array<string, string> $sorts
+     * @param  array<string, mixed>  $filters
+     * @param  array<string, string>  $sorts
      * @return PaginatedResult<TableData>
      */
     public function handle(array $filters = [], array $sorts = [], int $page = 1, int $size = 15): PaginatedResult
@@ -27,14 +27,14 @@ final class GetTicketsDataAction
         /** @var list<TableData> $items */
         $items = array_values(
             $paginator->getCollection()
-                ->map(fn (object $row): TableData => TableData::fromModel($row))
+                ->map(fn (mixed $row, int|string $key): TableData => TableData::fromModel($row))
                 ->all()
         );
 
         return new PaginatedResult(
-            items:    $items,
+            items: array_values($items),
             lastPage: $paginator->lastPage(),
-            total:    $paginator->total(),
+            total: $paginator->total(),
         );
     }
 }

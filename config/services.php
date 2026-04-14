@@ -39,6 +39,7 @@ return [
 
     'telegram' => [
         'bot_token' => env('TELEGRAM_BOT_TOKEN'),
+        'bot_name' => env('TELEGRAM_BOT_NAME', 'esmsigma_bot'),
         'group_id' => env('TELEGRAM_GROUP_ID'),
     ],
 

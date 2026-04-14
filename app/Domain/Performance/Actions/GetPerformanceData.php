@@ -11,6 +11,11 @@ final class GetPerformanceData
 {
     use AsAction;
 
+    /**
+     * @param  array<string, mixed>  $filters
+     * @param  array<string, string>  $sorts
+     * @return array{data: array<int, mixed>, total: int, last_page: int}
+     */
     public function handle(array $filters = [], array $sorts = [], int $page = 1, int $size = 15): array
     {
         $query = PerformanceEvaluation::query()
@@ -36,10 +41,14 @@ final class GetPerformanceData
         ];
 
         foreach ($filters as $field => $value) {
-            if (empty($value)) continue;
+            if (empty($value)) {
+                continue;
+            }
+
+            $valStr = (string) (is_scalar($value) ? $value : '');
 
             if (isset($fieldMap[$field])) {
-                $query->where($fieldMap[$field], 'LIKE', "%$value%");
+                $query->where($fieldMap[$field], 'LIKE', "%$valStr%");
             }
         }
 
@@ -49,14 +58,14 @@ final class GetPerformanceData
             }
         }
 
-        if (empty($sorts)) {
+        if ($sorts === []) {
             $query->orderBy('a.id', 'desc');
         }
 
         $paginator = $query->paginate($size, ['*'], 'page', $page);
 
         return [
-            'data' => $paginator->items(),
+            'data' => (array) $paginator->items(),
             'total' => $paginator->total(),
             'last_page' => $paginator->lastPage(),
         ];

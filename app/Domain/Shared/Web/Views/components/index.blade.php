@@ -7,11 +7,10 @@
     @php
         $jsFriendlyName = str_replace(['.', '-', '/'], '_', $route);
         $instanceId = 'dt_' . $jsFriendlyName;
-        $storageKey = $jsFriendlyName; 
+        $storageKey = $jsFriendlyName;
 
         $tabulatorConfig = [
             'height' => "100%",
-            'stickyHeader' => true,
             'index' => "id",
             'ajaxURL' => "/$route/data",
             'ajaxConfig' => 'GET',
@@ -68,6 +67,13 @@
                         table?.toggleColumn(field);
                         this.refresh();
                     },
+                    reset() {
+                        const el = document.getElementById('{{ $instanceId }}');
+                        if (!el) return;
+                        window.resetTabulatorEl(el, '{{ $storageKey }}');
+                        this.open = false;
+                        this.$nextTick(() => this.refresh());
+                    },
                 }" @click.outside="open = false">
                     <button @click="open = !open; if(open) refresh()"
                         class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-sigma-bg2 text-sigma-tx2 hover:text-sigma-tx hover:bg-sigma-b/30 transition-all text-[10px] font-bold uppercase tracking-widest outline-none">
@@ -95,8 +101,8 @@
                 </div>
 
                 {{-- Export Dropdown --}}
-                <div class="relative" x-data="{ open: false }" @click.outside="open = false">
-                    <button @click="open = !open"
+                <div class="relative" x-data="{ open: false, rangeMode: false }" @click.outside="open = false">
+                    <button @click="open = !open; rangeMode = false"
                         class="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-sigma-bg2 text-sigma-tx2 hover:text-sigma-tx hover:bg-sigma-b/30 transition-all text-[10px] font-bold uppercase tracking-widest outline-none">
                         <i class="ri-file-excel-2-line text-emerald-500 text-sm"></i>
                         <span class="hidden lg:inline">Exportar</span>
@@ -104,22 +110,93 @@
                     </button>
 
                     <div x-show="open" x-cloak x-transition
-                        class="absolute left-0 mt-2 w-48 bg-sigma-bg border border-sigma-b rounded-xl shadow-2xl z-50 p-2 overflow-hidden">                       
-                        <div class="flex flex-col gap-1">
-                            @foreach([
-                                'all'   => ['label' => 'Todo el historial', 'icon' => 'ri-database-line'],
-                                'today' => ['label' => 'Solo hoy', 'icon' => 'ri-calendar-event-line'],
-                                'week'  => ['label' => 'Esta semana', 'icon' => 'ri-calendar-todo-line'],
-                                'month' => ['label' => 'Este mes', 'icon' => 'ri-calendar-2-line']
-                            ] as $key => $item)
-                                <a href="/{{ $route }}/export?range={{ $key }}" target="_blank"
-                                   class="w-full px-3 py-2 text-[9px] font-bold uppercase text-sigma-tx2 hover:bg-sigma-bg2 hover:text-sigma-ac rounded-lg flex items-center gap-2 transition-all">
-                                    <i class="{{ $item['icon'] }} opacity-50 text-sm"></i>
-                                    {{ $item['label'] }}
-                                </a>
-                            @endforeach
+                        class="absolute left-0 mt-2 bg-sigma-bg border border-sigma-b rounded-xl shadow-2xl z-50 p-2 overflow-hidden transition-all duration-300"
+                        :class="rangeMode ? 'w-[310px]' : 'w-56'"
+                        @click.away="open = false; rangeMode = false">                       
+                        
+                        {{-- Quick Options View --}}
+                        <div x-show="!rangeMode" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-x-4" x-transition:enter-end="opacity-100 translate-x-0">
+                            <div class="flex flex-col gap-1">
+                                @foreach([
+                                    'all'   => ['label' => 'Todo el historial', 'icon' => 'ri-database-line'],
+                                    'today' => ['label' => 'Solo hoy', 'icon' => 'ri-calendar-event-line'],
+                                    'week'  => ['label' => 'Esta semana', 'icon' => 'ri-calendar-todo-line'],
+                                    'month' => ['label' => 'Este mes', 'icon' => 'ri-calendar-2-line']
+                                ] as $key => $item)
+                                    <a href="/{{ $route }}/export?range={{ $key }}" target="_blank"
+                                       class="w-full px-3 py-2 text-[9px] font-bold uppercase text-sigma-tx2 hover:bg-sigma-bg2 hover:text-sigma-ac rounded-lg flex items-center gap-2 transition-all">
+                                        <i class="{{ $item['icon'] }} opacity-50 text-sm"></i>
+                                        {{ $item['label'] }}
+                                    </a>
+                                @endforeach
+
+                                <hr class="border-sigma-b my-1">
+
+                                <button @click="rangeMode = true" type="button"
+                                    class="w-full px-3 py-2 text-[9px] font-bold uppercase text-sigma-tx2 hover:bg-sigma-bg2 hover:text-sigma-ac rounded-lg flex items-center justify-between transition-all group">
+                                    <div class="flex items-center gap-2">
+                                        <i class="ri-calendar-2-line opacity-50 text-sm group-hover:text-amber-500"></i>
+                                        <span>Rango Personalizado</span>
+                                    </div>
+                                    <i class="ri-arrow-right-s-line opacity-30"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Calendar View --}}
+                        <div x-show="rangeMode" x-cloak x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-x-4" x-transition:enter-end="opacity-100 translate-x-0">
+                            <div class="flex flex-col gap-3 p-1">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <button @click="rangeMode = false" class="p-1 hover:bg-sigma-bg2 rounded-lg transition-all">
+                                        <i class="ri-arrow-left-line text-sigma-tx2"></i>
+                                    </button>
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-sigma-ac">Seleccionar Rango</span>
+                                </div>
+                                
+                                <div class="sigma-calendar-container" @click.stop>
+                                    <input type="text" x-ref="inlinePicker" class="hidden">
+                                    <div id="inline-flatpickr-{{ $route }}" class="w-full min-h-[250px]"></div>
+                                </div>
+
+                                <div class="px-2 pb-1">
+                                    <p class="text-[8px] text-sigma-tx2 opacity-50 italic text-center leading-tight">
+                                        Elige la fecha de inicio y fin para generar el reporte.
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
+
+                    {{-- Logic for Inline Picker --}}
+                    <script>
+                        document.addEventListener('alpine:init', () => {
+                            // Este script se ejecuta una vez, pero necesitamos que Alpine maneje el estado
+                        });
+                    </script>
+
+                    <div x-init="$watch('rangeMode', value => {
+                        if (value) {
+                            $nextTick(() => {
+                                flatpickr('#inline-flatpickr-{{ $route }}', {
+                                    inline: true,
+                                    mode: 'range',
+                                    locale: 'es',
+                                    dateFormat: 'Y-m-d',
+                                    onChange: (selectedDates) => {
+                                        if (selectedDates.length === 2) {
+                                            const start = flatpickr.formatDate(selectedDates[0], 'Y-m-d');
+                                            const end = flatpickr.formatDate(selectedDates[1], 'Y-m-d');
+                                            setTimeout(() => {
+                                                window.open(`/{{ $route }}/export?range=custom&start=${start}&end=${end}`, '_blank');
+                                                rangeMode = false;
+                                                open = false;
+                                            }, 500);
+                                        }
+                                    }
+                                });
+                            });
+                        }
+                    })"></div>
                 </div>
 
                 @if($config->showKpi)

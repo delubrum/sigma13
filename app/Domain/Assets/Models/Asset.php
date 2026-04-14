@@ -9,12 +9,46 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
+/**
+ * @property int $id
+ * @property string|null $area
+ * @property string|null $hostname
+ * @property string|null $serial
+ * @property string|null $brand
+ * @property string|null $model
+ * @property string|null $kind
+ * @property string|null $cpu
+ * @property string|null $ram
+ * @property string|null $ssd
+ * @property string|null $hdd
+ * @property string|null $so
+ * @property string|null $sap
+ * @property float|null $price
+ * @property Carbon|null $acquisition_date
+ * @property string|null $invoice
+ * @property string|null $supplier
+ * @property string|null $status
+ * @property string|null $warranty
+ * @property string|null $classification
+ * @property int|null $confidentiality
+ * @property int|null $integrity
+ * @property int|null $availability
+ * @property string|null $location
+ * @property string|null $phone
+ * @property string|null $work_mode
+ * @property string|null $url
+ * @property string|null $operator
+ * @property-read int $criticalityScore
+ * @property-read string $profilePhotoUrl
+ * @property-read string $qrUrl
+ */
 #[Fillable([
     'area', 'hostname', 'serial', 'brand', 'model', 'kind', 'cpu', 'ram',
     'ssd', 'hdd', 'so', 'sap', 'price', 'acquisition_date', 'invoice', 'supplier',
@@ -25,8 +59,8 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class Asset extends Model implements HasMedia
 {
     use InteractsWithMedia;
-    use SoftDeletes;
     use LogsActivity;
+    use SoftDeletes;
 
     #[\Override]
     public $timestamps = false;
@@ -36,11 +70,11 @@ class Asset extends Model implements HasMedia
     {
         return [
             'acquisition_date' => 'date',
-            'price'            => 'float',
-            'confidentiality'  => 'integer',
-            'integrity'        => 'integer',
-            'availability'     => 'integer',
-            'deleted_at'       => 'datetime',
+            'price' => 'float',
+            'confidentiality' => 'integer',
+            'integrity' => 'integer',
+            'availability' => 'integer',
+            'deleted_at' => 'datetime',
         ];
     }
 
@@ -55,7 +89,8 @@ class Asset extends Model implements HasMedia
     public string $profilePhotoUrl {
         get {
             $media = $this->getFirstMedia('profile');
-            return $media ? $media->getUrl() : '';
+
+            return $media instanceof Media ? $media->getUrl() : '';
         }
     }
 

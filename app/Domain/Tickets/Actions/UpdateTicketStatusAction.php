@@ -17,9 +17,9 @@ final class UpdateTicketStatusAction
     {
         return DB::transaction(function () use ($id, $status, $reason, $userId) {
             $ticket = Ticket::query()->lockForUpdate()->findOrFail($id);
-            
+
             $updateData = ['status' => $status];
-            
+
             if ($status === 'Closed') {
                 $updateData['closed_at'] = now();
             }
@@ -29,13 +29,13 @@ final class UpdateTicketStatusAction
             if ($reason || $status === 'Closed' || $status === 'Rejected') {
                 TicketItem::create([
                     'ticket_id' => $id,
-                    'user_id'   => $userId,
-                    'notes'     => match($status) {
-                        'Closed'   => 'TICKET CERRADO.',
-                        'Rejected' => 'RECHAZADO: ' . ($reason ?? 'Sin motivo especificado.'),
-                        default    => $reason ?? "Estado actualizado a {$status}",
+                    'user_id' => $userId,
+                    'notes' => match ($status) {
+                        'Closed' => 'TICKET CERRADO.',
+                        'Rejected' => 'RECHAZADO: '.($reason ?? 'Sin motivo especificado.'),
+                        default => $reason ?? "Estado actualizado a {$status}",
                     },
-                    'date'      => now(),
+                    'date' => now(),
                 ]);
             }
 

@@ -17,7 +17,7 @@ final class DetailTabAdapter
     public function handle(int $id): Response
     {
         $user = User::findOrFail($id);
-        
+
         return $this->hxView('users::tabs.detail', [
             'user' => $user,
         ]);

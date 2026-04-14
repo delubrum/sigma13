@@ -8,6 +8,12 @@ use Spatie\LaravelData\Data;
 
 final class Config extends Data
 {
+    /**
+     * @param  list<Column>  $columns
+     * @param  list<Field>  $formFields
+     * @param  list<Tabs>  $tabs
+     * @param  list<ActionOption>  $options
+     */
     public function __construct(
         public readonly string $title,
         public readonly string $icon,
@@ -15,13 +21,9 @@ final class Config extends Data
         public readonly string $newButtonLabel = 'Nuevo',
         public readonly bool $showKpi = false,
         public readonly ?string $modalWidth = null,
-        /** @var list<Column> $columns */
         public readonly array $columns = [],
-        /** @var list<Field> */
         public readonly array $formFields = [],
-        /** @var list<Tabs> */
         public readonly array $tabs = [],
-        /** @var list<ActionOption> */
         public readonly array $options = [],
         public readonly bool $multipart = false,
     ) {}

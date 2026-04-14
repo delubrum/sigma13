@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Assets\Data\Tabs;
 
 use App\Domain\Shared\Data\Column;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Date;
 use Spatie\LaravelData\Data;
 
 final class AutomationsTableData extends Data
@@ -23,17 +23,17 @@ final class AutomationsTableData extends Data
         public readonly string $last_performed_at,
     ) {}
 
-    /** @param mixed $row stdClass (from DB::table) or any object with matching properties */
     public static function fromModel(mixed $row): self
     {
-        $lastDate = isset($row->last_performed_at) && $row->last_performed_at !== null
-            ? Carbon::parse((string) $row->last_performed_at)->format('d/m/Y')
+        /** @var \stdClass $row */
+        $lastDate = isset($row->last_performed_at)
+            ? Date::parse((string) $row->last_performed_at)->format('d/m/Y')
             : '---';
 
         return new self(
-            id:                (int) $row->id,
-            activity:          $row->activity ?? '---',
-            frequency:         $row->frequency ?? '---',
+            id: (int) ($row->id ?? 0),
+            activity: (string) ($row->activity ?? '---'),
+            frequency: (string) ($row->frequency ?? '---'),
             last_performed_at: $lastDate,
         );
     }

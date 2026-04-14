@@ -12,12 +12,12 @@ return new class extends Migration
         Schema::create('issues', function (Blueprint $table) {
             $table->id();
             // Discriminador: mnt, it, tickets, sst, hr, etc.
-            $table->string('module_type', 20)->index(); 
+            $table->string('module_type', 20)->index();
             $table->unsignedBigInteger('legacy_id')->index();
             $table->unsignedBigInteger('user_id')->index();
             $table->unsignedBigInteger('assignee_id')->nullable()->index();
             $table->unsignedBigInteger('asset_id')->nullable()->index();
-            
+
             $table->text('facility');
             $table->text('kind');
             $table->string('subtype', 50)->default('Corrective');
@@ -26,10 +26,10 @@ return new class extends Migration
             $table->string('status', 10)->default('Open');
             $table->integer('rating')->default(0);
             $table->text('root_cause')->nullable();
-            
+
             // Campo JSONB para flexibilidad total (industrial-grade)
             $table->jsonb('metadata')->nullable();
-            
+
             $table->timestampTz('created_at')->useCurrent();
             $table->timestampTz('started_at')->nullable();
             $table->timestampTz('closed_at')->nullable();
@@ -43,9 +43,9 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->string('attends', 20)->nullable();
             $table->string('complexity', 20)->nullable();
-            $table->integer('duration')->nullable(); 
+            $table->integer('duration')->nullable();
             $table->string('attendant', 100)->nullable();
-            
+
             $table->timestampTz('created_at')->useCurrent();
         });
     }

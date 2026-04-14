@@ -31,7 +31,7 @@ final class GetAssetMovementsAction
         /** @var list<MovementsTableData> $items */
         $items = array_values(
             $paginator->getCollection()
-                ->map(fn (AssetEvent $event): MovementsTableData => MovementsTableData::fromModel(
+                ->map(fn (AssetEvent $event, int|string $key): MovementsTableData => MovementsTableData::fromModel(
                     $event,
                     $event->id === $latestAssignmentId,
                 ))
@@ -39,9 +39,9 @@ final class GetAssetMovementsAction
         );
 
         return new PaginatedResult(
-            items:    $items,
+            items: array_values($items),
             lastPage: $paginator->lastPage(),
-            total:    $paginator->total(),
+            total: $paginator->total(),
         );
     }
 }

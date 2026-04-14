@@ -8,11 +8,22 @@ use App\Domain\Users\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
+/**
+ * @property int $id
+ * @property string $name
+ * @property Carbon|null $expiry
+ * @property string|null $code
+ * @property int $asset_id
+ * @property int $user_id
+ * @property string|null $url
+ * @property-read string|null $viewUrl
+ */
 #[Fillable([
     'name',
     'expiry',
@@ -32,9 +43,9 @@ class AssetDocument extends Model implements HasMedia
     protected function casts(): array
     {
         return [
-            'expiry'   => 'date',
+            'expiry' => 'date',
             'asset_id' => 'integer',
-            'user_id'  => 'integer',
+            'user_id' => 'integer',
         ];
     }
 
@@ -43,7 +54,7 @@ class AssetDocument extends Model implements HasMedia
      */
     public ?string $viewUrl {
         get {
-            if (!Auth::check()) {
+            if (! Auth::check()) {
                 return null;
             }
 

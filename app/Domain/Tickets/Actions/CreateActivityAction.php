@@ -30,10 +30,10 @@ final class CreateActivityAction
 
             return TicketItem::create([
                 'ticket_id' => $ticketId,
-                'user_id'   => $currentUserId,
-                'attends'   => $data->attends,
-                'notes'     => $data->notes,
-                'date'      => now(),
+                'user_id' => $currentUserId,
+                'attends' => $data->attends,
+                'notes' => $data->notes,
+                'date' => now(),
             ]);
         });
     }

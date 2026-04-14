@@ -41,7 +41,7 @@ final class DomainServiceProvider extends ServiceProvider
 
             $viewsPath = $module.'/Web/Views';
             if (File::isDirectory($viewsPath)) {
-                $domainName = strtolower(basename($module));
+                $domainName = strtolower(basename((string) $module));
                 $this->loadViewsFrom($viewsPath, $domainName);
             }
         }

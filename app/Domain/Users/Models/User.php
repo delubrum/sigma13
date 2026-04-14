@@ -8,9 +8,11 @@ use App\Contracts\CanResetPasswordContract;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
@@ -21,11 +23,28 @@ use Spatie\Activitylog\Support\LogOptions;
     'permissions',
     'document',
     'is_active',
+    'telegram_chat_id',
+    'telegram_link_token',
 ])]
 #[Hidden([
     'password',
     'remember_token',
 ])]
+/**
+ * @property int $id
+ * @property string $name
+ * @property string $username
+ * @property string $email
+ * @property string $password
+ * @property array|null $permissions
+ * @property string|null $document
+ * @property bool $is_active
+ * @property Carbon|null $email_verified_at
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property string|null $remember_token
+ * @property-read string $status_label
+ */
 class User extends Authenticatable implements CanResetPasswordContract
 {
     #[\Override]
@@ -42,9 +61,11 @@ class User extends Authenticatable implements CanResetPasswordContract
 
     /** @use HasFactory<UserFactory> */
     use HasFactory;
-    use Notifiable;
-    use LogsActivity;
 
+    use LogsActivity;
+    use Notifiable;
+
+    #[\Override]
     protected $appends = ['status_label'];
 
     public function getActivitylogOptions(): LogOptions
@@ -55,10 +76,10 @@ class User extends Authenticatable implements CanResetPasswordContract
             ->dontLogEmptyChanges();
     }
 
-    /** @return \Illuminate\Database\Eloquent\Casts\Attribute<string, never> */
-    protected function statusLabel(): \Illuminate\Database\Eloquent\Casts\Attribute
+    /** @return Attribute<string, never> */
+    protected function statusLabel(): Attribute
     {
-        return \Illuminate\Database\Eloquent\Casts\Attribute::make(
+        return Attribute::make(
             get: fn (): string => sprintf(
                 '<span class="px-2 py-0.5 rounded border %s font-bold uppercase text-[10px]">%s</span>',
                 $this->is_active ? 'border-green-500 text-green-500' : 'border-red-500 text-red-500',
@@ -72,11 +93,11 @@ class User extends Authenticatable implements CanResetPasswordContract
     {
         return [
             'email_verified_at' => 'datetime',
-            'password'          => 'hashed',
-            'permissions'       => 'array',
-            'is_active'         => 'boolean',
-            'created_at'        => 'datetime',
-            'updated_at'        => 'datetime',
+            'password' => 'hashed',
+            'permissions' => 'array',
+            'is_active' => 'boolean',
+            'created_at' => 'datetime',
+            'updated_at' => 'datetime',
         ];
     }
 }

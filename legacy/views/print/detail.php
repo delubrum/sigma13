@@ -62,8 +62,8 @@
     <!-- LOADER -->
     <div
         id="printLoader"
-        class="absolute inset-0 bg-white/80 backdrop-blur-sm z-[999]
-               hidden flex items-center justify-center">
+        class="absolute inset-0 bg-white/80 backdrop-blur-sm z-999
+               hidden items-center justify-center">
         <div class="flex flex-col items-center gap-3">
             <div class="w-10 h-10 border-4 border-gray-300 border-t-black rounded-full animate-spin"></div>
             <span class="text-xs font-bold tracking-widest text-gray-700 uppercase">

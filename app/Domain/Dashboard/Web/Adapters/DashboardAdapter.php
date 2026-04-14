@@ -15,6 +15,14 @@ final class DashboardAdapter
 
     public function handle(): Response
     {
+        $user = auth()->user();
+
+        if (! $user->telegram_chat_id && ! $user->telegram_link_token) {
+            $user->update([
+                'telegram_link_token' => \Illuminate\Support\Str::random(32),
+            ]);
+        }
+
         return $this->hxView('dashboard::index');
     }
 

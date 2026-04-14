@@ -45,12 +45,12 @@ final class TableData extends Data
         $label = $user->is_active ? 'Activo' : 'Inactivo';
 
         return new self(
-            id:        $user->id,
-            name:      $user->name,
-            document:  $user->document,
-            email:     $user->email,
-            isActive:  "<span class=\"px-2 py-0.5 rounded border {$color} font-bold uppercase text-[10px]\">{$label}</span>",
-            createdAt: $user->created_at->format('Y-m-d H:i'),
+            id: $user->id,
+            name: $user->name,
+            document: $user->document,
+            email: $user->email,
+            isActive: "<span class=\"px-2 py-0.5 rounded border {$color} font-bold uppercase text-[10px]\">{$label}</span>",
+            createdAt: $user->created_at?->format('Y-m-d H:i') ?? '',
         );
     }
 }

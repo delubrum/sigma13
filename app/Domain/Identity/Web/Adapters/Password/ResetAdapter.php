@@ -9,6 +9,7 @@ use App\Domain\Identity\Data\ResetData;
 use App\Support\HtmxOrchestrator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -19,11 +20,11 @@ final class ResetAdapter
     use HtmxOrchestrator;
 
     /** GET /password/reset/{token} */
-    public function handle(string $token, Request $request): \Illuminate\Http\Response
+    public function handle(string $token, Request $request): Response
     {
         return $this->hxView('auth::reset-password', [
             'token' => $token,
-            'email' => $request->email
+            'email' => $request->email,
         ]);
     }
 
@@ -34,7 +35,8 @@ final class ResetAdapter
             $data = ResetData::validateAndCreate($request->all());
         } catch (ValidationException $e) {
             $firstError = collect($e->errors())->flatten()->first();
-            return $this->hxNotify((string) $firstError, 'error')->hxResponse();
+
+            return $this->hxNotify(is_string($firstError) ? $firstError : 'Error de validación', 'error')->hxResponse();
         }
 
         // DELEGACIÓN: Llamamos a la Core Action

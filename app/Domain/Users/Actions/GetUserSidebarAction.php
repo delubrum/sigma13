@@ -16,6 +16,13 @@ final class GetUserSidebarAction
     {
         $user = User::findOrFail($id);
 
-        return SidebarData::from($user);
+        return new SidebarData(
+            id: $user->id,
+            name: $user->name,
+            email: $user->email,
+            document: $user->document,
+            isActive: $user->is_active,
+            fields: \App\Domain\Shared\Services\SchemaGenerator::toFields(\App\Domain\Users\Data\UpsertData::class)
+        );
     }
 }

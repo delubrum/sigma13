@@ -81,19 +81,19 @@ final class TableData extends Data
         public readonly ?string $operator,
 
         #[Column(
-            title: 'Estado', 
-            width: 120, 
-            hozAlign: 'center', 
-            formatter: 'html', 
-            headerFilter: 'list', 
+            title: 'Estado',
+            width: 120,
+            hozAlign: 'center',
+            formatter: 'html',
+            headerFilter: 'list',
             headerFilterParams: [
                 'values' => [
-                    'available' => 'Disponible', 
-                    'assigned' => 'Asignado', 
-                    'maintenance' => 'Mantenimiento', 
-                    'retired' => 'Retirado'
-                ], 
-                'clearable' => true
+                    'available' => 'Disponible',
+                    'assigned' => 'Asignado',
+                    'maintenance' => 'Mantenimiento',
+                    'retired' => 'Retirado',
+                ],
+                'clearable' => true,
             ]
         )]
         public readonly ?string $status,
@@ -114,14 +114,15 @@ final class TableData extends Data
         public readonly ?string $criticality,
     ) {}
 
-    public static function fromModel(Asset $asset): self
+    public static function fromModel(mixed $asset): self
     {
+        /** @var Asset $asset */
         return new self(
             id: $asset->id,
             area: $asset->area ?? '',
             sap: $asset->sap,
             serial: $asset->serial,
-            assignee: $asset->currentAssignment?->employee?->name ?? '—',
+            assignee: $asset->currentAssignment->employee->name ?? '—',
             hostname: $asset->hostname,
             brand: $asset->brand ?? '',
             model: $asset->model ?? '',
@@ -152,11 +153,11 @@ final class TableData extends Data
     private static function renderStatusBadge(?string $status): string
     {
         $color = match ($status) {
-            'available'   => 'border-green-500 text-green-500',
-            'assigned'    => 'border-blue-500 text-blue-500',
+            'available' => 'border-green-500 text-green-500',
+            'assigned' => 'border-blue-500 text-blue-500',
             'maintenance' => 'border-yellow-500 text-yellow-500',
-            'retired'     => 'border-red-500 text-red-500',
-            default       => 'border-sigma-b text-sigma-tx2',
+            'retired' => 'border-red-500 text-red-500',
+            default => 'border-sigma-b text-sigma-tx2',
         };
 
         $label = $status ?? 'available';
@@ -169,7 +170,7 @@ final class TableData extends Data
         $color = match (true) {
             $score >= 8 => 'border-red-500 text-red-500',
             $score >= 5 => 'border-orange-500 text-orange-500',
-            default     => 'border-sigma-b text-sigma-tx2',
+            default => 'border-sigma-b text-sigma-tx2',
         };
 
         return "<span class=\"px-2 py-0.5 rounded border {$color} font-bold text-[10px]\">{$score}</span>";

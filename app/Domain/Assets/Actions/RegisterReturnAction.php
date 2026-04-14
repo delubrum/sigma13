@@ -15,10 +15,6 @@ final class RegisterReturnAction
     use AsAction;
 
     /**
-     * @param int $assetId
-     * @param ReturnModalData $data
-     * @param int $userId
-     * @return AssetEvent
      * @throws \DomainException
      */
     public function handle(int $assetId, ReturnModalData $data, int $userId): AssetEvent
@@ -32,14 +28,14 @@ final class RegisterReturnAction
             }
 
             $event = AssetEvent::create([
-                'kind'        => 'return',
-                'asset_id'    => $assetId,
+                'kind' => 'return',
+                'asset_id' => $assetId,
                 'employee_id' => $asset->currentAssignment?->employee_id,
-                'hardware'    => $data->hardware,
-                'wipe'        => $data->wipe,
-                'notes'       => $data->notes,
-                'user_id'     => $userId,
-                'created_at'  => now(),
+                'hardware' => $data->hardware,
+                'wipe' => $data->wipe,
+                'notes' => $data->notes,
+                'user_id' => $userId,
+                'created_at' => now(),
             ]);
 
             $asset->update(['status' => 'available']);

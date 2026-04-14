@@ -19,6 +19,6 @@ final class GetAssetPreventiveAction
         return DB::table('mnt_preventive_form')
             ->where('asset_id', $assetId)
             ->get()
-            ->map(fn (object $row): PreventiveTaskResourceData => PreventiveTaskResourceData::fromStdClass($row));
+            ->map(fn (mixed $row, int|string $key): PreventiveTaskResourceData => PreventiveTaskResourceData::fromStdClass($row));
     }
 }

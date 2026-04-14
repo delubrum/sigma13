@@ -15,7 +15,7 @@ final class LoginAdapter
 
     public function handle(): Response
     {
-        return $this->hxView('identity::login');
+        return $this->hxView('identity::auth.login');
     }
 
     public function asController(): Response

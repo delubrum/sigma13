@@ -12,11 +12,11 @@ use Spatie\LaravelData\Data;
 final readonly class PaginatedResult
 {
     /**
-     * @param list<T> $items
+     * @param  list<T>  $items
      */
     public function __construct(
-        public readonly array $items,
-        public readonly int   $lastPage,
-        public readonly int   $total,
+        public array $items,
+        public int $lastPage,
+        public int $total,
     ) {}
 }

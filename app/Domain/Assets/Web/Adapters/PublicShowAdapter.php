@@ -16,6 +16,7 @@ final class PublicShowAdapter
 
     public function handle(string $serial): Response
     {
+        /** @var array<string, mixed> $payload */
         $payload = GetAssetPublicAction::run($serial);
 
         return $this->hxView('assets::public-show', $payload);

@@ -32,11 +32,11 @@ final class UpsertData extends Data
 
         #[Required]
         #[Field(
-            label: 'Usuario Activo', 
-            type: 'select', 
+            label: 'Usuario Activo',
+            type: 'select',
             options: [
-                ['value' => true, 'label' => 'Activo'],
-                ['value' => false, 'label' => 'Inactivo']
+                ['value' => '1', 'label' => 'Activo'],
+                ['value' => '0', 'label' => 'Inactivo'],
             ]
         )]
         public bool $is_active = true,

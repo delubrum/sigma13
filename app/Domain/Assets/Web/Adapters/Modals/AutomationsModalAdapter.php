@@ -23,9 +23,9 @@ final class AutomationsModalAdapter
     public function config(): Config
     {
         return new Config(
-            title:      'Programar Automatización',
-            subtitle:   'Configuración de tareas de mantenimiento preventivo',
-            icon:       'ri-settings-4-line',
+            title: 'Programar Automatización',
+            icon: 'ri-settings-4-line',
+            subtitle: 'Configuración de tareas de mantenimiento preventivo',
             modalWidth: '50',
             formFields: SchemaGenerator::toFields(AutomationModalData::class),
         );
@@ -37,12 +37,12 @@ final class AutomationsModalAdapter
         $this->hxModalWidth($config->modalWidth, '-2');
         $this->hxTriggers['open-modal-2'] = true;
 
-        return view('components.new-modal', [
-            'route'      => "assets/{$id}/automations",
-            'config'     => $config,
-            'target'     => '#modal-body-2',
+        return view('components::new-modal', [
+            'route' => "assets/{$id}/automations",
+            'config' => $config,
+            'target' => '#modal-body-2',
             'closeEvent' => 'close-modal-2',
-            'suffix'     => '-2',
+            'suffix' => '-2',
         ]);
     }
 
@@ -51,7 +51,7 @@ final class AutomationsModalAdapter
         return $this->hxView($this->handle($id));
     }
 
-    public function asStore(Request $request, int $id): JsonResponse|Response
+    public function asStore(Request $request, int $id): JsonResponse
     {
         $data = AutomationModalData::from($request->all());
 

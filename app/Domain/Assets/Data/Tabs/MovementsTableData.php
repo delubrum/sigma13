@@ -8,6 +8,7 @@ use App\Domain\Assets\Models\AssetEvent;
 use App\Domain\Shared\Data\Column;
 use Illuminate\Support\Carbon;
 use Spatie\LaravelData\Data;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 final class MovementsTableData extends Data
 {
@@ -17,16 +18,16 @@ final class MovementsTableData extends Data
         public readonly bool $is_latest,
 
         #[Column(
-            title: 'Tipo', 
-            width: 130, 
-            hozAlign: 'center', 
-            formatter: 'html', 
-            headerFilter: 'list', 
+            title: 'Tipo',
+            width: 130,
+            hozAlign: 'center',
+            formatter: 'html',
+            headerFilter: 'list',
             headerFilterParams: [
                 'values' => [
                     'assignment' => 'Asignación',
                     'return' => 'Devolución',
-                ]
+                ],
             ]
         )]
         public readonly string $kind,
@@ -57,19 +58,19 @@ final class MovementsTableData extends Data
             : '---';
 
         // Formateo de Hardware
-        $hardware = is_array($event->hardware) 
-            ? collect($event->hardware)->filter()->map(fn($v, $k) => is_numeric($k) ? $v : "$k: $v")->implode(', ')
-            : ($event->hardware ?: '---');
+        $hardware = is_array($event->hardware)
+            ? collect($event->hardware)->filter()->map(fn (mixed $v): string => $v)->implode(', ')
+            : ((string) ($event->hardware ?? '---'));
 
         // Formateo de Software
         $software = is_array($event->software)
-            ? collect($event->software)->filter()->map(fn($v, $k) => is_numeric($k) ? $v : "$k: $v")->implode(', ')
-            : ($event->software ?: '---');
+            ? collect($event->software)->filter()->map(fn (mixed $v): string => $v)->implode(', ')
+            : ((string) ($event->software ?? '---'));
 
-        $media     = $event->getFirstMedia('minute');
-        $minuteUrl = $media ? route('shared.media.download', $media->id) : null;
+        $media = $event->getFirstMedia('minute');
+        $minuteUrl = $media instanceof Media ? route('shared.media.download', $media->id) : null;
 
-        $minuteHtml = $minuteUrl 
+        $minuteHtml = $minuteUrl
             ? '<a href="'.$minuteUrl.'" target="_blank" class="text-indigo-600 font-bold hover:scale-110 inline-block transition-transform"><i class="ri-file-pdf-2-line text-lg"></i></a>'
             : '<span class="opacity-20">---</span>';
 

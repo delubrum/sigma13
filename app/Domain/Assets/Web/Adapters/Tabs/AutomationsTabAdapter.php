@@ -12,6 +12,7 @@ use App\Domain\Shared\Data\PaginatedResult;
 use App\Domain\Shared\Web\Actions\SubTableAdapter;
 use Lorisleiva\Actions\Concerns\AsAction;
 
+/** @extends SubTableAdapter<AutomationsTableData> */
 final class AutomationsTabAdapter extends SubTableAdapter
 {
     use AsAction;
@@ -31,10 +32,13 @@ final class AutomationsTabAdapter extends SubTableAdapter
     /** @return PaginatedResult<AutomationsTableData> */
     protected function tabData(int $parentId, int $page, int $size): PaginatedResult
     {
-        return GetAssetAutomationsAction::run(
+        /** @var PaginatedResult<AutomationsTableData> $result */
+        $result = GetAssetAutomationsAction::run(
             assetId: $parentId,
-            page:    $page,
-            size:    $size,
+            page: $page,
+            size: $size,
         );
+
+        return $result;
     }
 }

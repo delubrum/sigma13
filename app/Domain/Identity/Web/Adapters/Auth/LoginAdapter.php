@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Lorisleiva\Actions\Concerns\AsAction;
 use ReCaptcha\ReCaptcha;
 
-final class LoginAdapterAdapter
+final class LoginAdapter
 {
     use AsAction;
     use HtmxOrchestrator;
@@ -120,7 +120,7 @@ final class LoginAdapterAdapter
             return null;
         }
 
-        if (trim((string) ($token ?? '')) === '') {
+        if (trim($token ?? '') === '') {
             return $this
                 ->hxNotify('Verifica que no eres un robot.', 'error')
                 ->hxResponse(status: 200);

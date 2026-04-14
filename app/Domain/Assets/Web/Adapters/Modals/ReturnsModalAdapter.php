@@ -24,9 +24,9 @@ final class ReturnsModalAdapter
     public function config(): Config
     {
         return new Config(
-            title:      'Registrar Devolución',
-            subtitle:   'Verificación física y liberación de activo',
-            icon:       'ri-arrow-left-down-line',
+            title: 'Registrar Devolución',
+            icon: 'ri-arrow-left-down-line',
+            subtitle: 'Verificación física y liberación de activo',
             modalWidth: '50',
             formFields: SchemaGenerator::toFields(ReturnModalData::class),
         );
@@ -38,12 +38,12 @@ final class ReturnsModalAdapter
         $this->hxModalWidth($config->modalWidth, '-2');
         $this->hxTriggers['open-modal-2'] = true;
 
-        return view('components.new-modal', [
-            'route'      => "assets/{$id}/returns",
-            'config'     => $config,
-            'target'     => '#modal-body-2',
+        return view('components::new-modal', [
+            'route' => "assets/{$id}/returns",
+            'config' => $config,
+            'target' => '#modal-body-2',
             'closeEvent' => 'close-modal-2',
-            'suffix'     => '-2',
+            'suffix' => '-2',
         ]);
     }
 
@@ -52,7 +52,7 @@ final class ReturnsModalAdapter
         return $this->hxView($this->handle($id));
     }
 
-    public function asStore(Request $request, int $id): JsonResponse|Response
+    public function asStore(Request $request, int $id): JsonResponse
     {
         $data = ReturnModalData::from($request->all());
 

@@ -8,9 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 
 final class PerformanceEvaluation extends Model
 {
+    #[\Override]
     protected $table = 'test';
 
+    #[\Override]
     protected $guarded = [];
 
+    #[\Override]
     public $timestamps = false;
 }

@@ -18,14 +18,14 @@ final class GetAssetDetailsAction
 
         return new DetailsResourceData(
             acquisition_date: $asset->acquisition_date?->format('Y-m-d') ?? '---',
-            price:            number_format((float) ($asset->price ?? 0), 0, ',', '.'),
-            supplier:         $asset->supplier ? strtoupper($asset->supplier) : '---',
-            invoice:          $asset->invoice ?? '---',
-            cpu:              $asset->cpu ?? '---',
-            ram:              $asset->ram ?? '---',
-            ssd:              $asset->ssd ?? 'N/A',
-            hdd:              $asset->hdd ?? 'N/A',
-            so:               $asset->so ? ucwords($asset->so) : '---',
+            price: number_format((float) ($asset->price ?? 0), 0, ',', '.'),
+            supplier: $asset->supplier ? strtoupper((string) $asset->supplier) : '---',
+            invoice: $asset->invoice ?? '---',
+            cpu: $asset->cpu ?? '---',
+            ram: $asset->ram ?? '---',
+            ssd: $asset->ssd ?? 'N/A',
+            hdd: $asset->hdd ?? 'N/A',
+            so: $asset->so ? ucwords((string) $asset->so) : '---',
         );
     }
 }

@@ -153,7 +153,7 @@ final class UpsertData extends Data
             'Remote' => 'Remote',
             'Hybrid' => 'Hybrid',
         ], widget: 'slimselect', width: FieldWidth::Quarter)]
-        #[MapInputName('work_mode')] 
+        #[MapInputName('work_mode')]
         public ?string $work_mode = null,
 
         #[Max(255)]

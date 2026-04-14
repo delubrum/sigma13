@@ -23,9 +23,9 @@ final class DocumentsModalAdapter
     public function config(): Config
     {
         return new Config(
-            title:      'Agregar Documento',
-            subtitle:   'Certificados, manuales o facturas del activo',
-            icon:       'ri-file-add-line',
+            title: 'Agregar Documento',
+            icon: 'ri-file-add-line',
+            subtitle: 'Certificados, manuales o facturas del activo',
             modalWidth: '50',
             formFields: SchemaGenerator::toFields(DocumentModalData::class),
         );
@@ -37,12 +37,12 @@ final class DocumentsModalAdapter
         $this->hxModalWidth($config->modalWidth, '-2');
         $this->hxTriggers['open-modal-2'] = true;
 
-        return view('components.new-modal', [
-            'route'      => "assets/{$id}/documents",
-            'config'     => $config,
-            'target'     => '#modal-body-2',
+        return view('components::new-modal', [
+            'route' => "assets/{$id}/documents",
+            'config' => $config,
+            'target' => '#modal-body-2',
             'closeEvent' => 'close-modal-2',
-            'suffix'     => '-2',
+            'suffix' => '-2',
         ]);
     }
 
@@ -51,7 +51,7 @@ final class DocumentsModalAdapter
         return $this->hxView($this->handle($id));
     }
 
-    public function asStore(Request $request, int $id): JsonResponse|Response
+    public function asStore(Request $request, int $id): JsonResponse
     {
         $data = DocumentModalData::from($request->all());
 

@@ -27,7 +27,7 @@ final class MenuSeeder extends Seeder
         $ops = [
             ['name' => 'ops_ppe',        'title' => 'Operations', 'subtitle' => 'PPE',         'url' => '/operations/ppe'],
             ['name' => 'ops_equipment',  'title' => 'Operations', 'subtitle' => 'Equipment',   'url' => '/operations/equipment'],
-            ['name' => 'ops_inspections','title' => 'Operations', 'subtitle' => 'Inspections', 'url' => '/operations/inspections'],
+            ['name' => 'ops_inspections', 'title' => 'Operations', 'subtitle' => 'Inspections', 'url' => '/operations/inspections'],
         ];
 
         foreach ($ops as $item) {

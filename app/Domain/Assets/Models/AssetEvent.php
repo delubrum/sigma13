@@ -10,9 +10,23 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 
+/**
+ * @property int $id
+ * @property string $kind
+ * @property int $asset_id
+ * @property int|null $employee_id
+ * @property array<int, string>|null $software
+ * @property array<int, string>|null $hardware
+ * @property string|null $notes
+ * @property Carbon|null $created_at
+ * @property int $user_id
+ * @property bool $wipe
+ * @property Carbon|null $expiry
+ */
 #[Fillable([
     'kind',
     'asset_id',

@@ -25,21 +25,18 @@ final class AssignmentsModalAdapter
 
     public function config(): Config
     {
-        /** @var array<string, string> $employees */
-        $employees = once(fn (): array => DB::table('employees')
+        once(fn (): array => DB::table('employees')
             ->orderBy('name')
             ->get()
             ->mapWithKeys(fn (object $e): array => [(string) $e->id => "{$e->id} || {$e->name}"])
             ->all());
 
         return new Config(
-            title:      'Nueva Asignación',
-            subtitle:   'Registro de asignación de activo',
-            icon:       'ri-user-add-line',
+            title: 'Nueva Asignación',
+            icon: 'ri-user-add-line',
+            subtitle: 'Registro de asignación de activo',
             modalWidth: '50',
-            formFields: SchemaGenerator::toFields(AssignmentModalData::class, [
-                'employee_id' => ['options' => $employees],
-            ]),
+            formFields: SchemaGenerator::toFields(AssignmentModalData::class),
         );
     }
 
@@ -50,11 +47,11 @@ final class AssignmentsModalAdapter
         $this->hxTriggers['open-modal-2'] = true;
 
         return $this->hxView('components.new-modal', [
-            'route'      => "assets/{$id}/assignments",
-            'config'     => $config,
-            'target'     => '#modal-body-2',
+            'route' => "assets/{$id}/assignments",
+            'config' => $config,
+            'target' => '#modal-body-2',
             'closeEvent' => 'close-modal-2',
-            'suffix'     => '-2',
+            'suffix' => '-2',
         ]);
     }
 
@@ -63,7 +60,7 @@ final class AssignmentsModalAdapter
         return $this->handle($id);
     }
 
-    public function asStore(Request $request, int $id): JsonResponse|Response
+    public function asStore(Request $request, int $id): JsonResponse
     {
         $data = AssignmentModalData::from($request->all());
 
@@ -79,24 +76,24 @@ final class AssignmentsModalAdapter
 
     public function asEdit(int $event): Response
     {
-        $data   = GetAssignmentEventAction::run($event);
+        $data = GetAssignmentEventAction::run($event);
         $config = $this->config();
 
         $this->hxModalWidth($config->modalWidth, '-2');
         $this->hxTriggers['open-modal-2'] = true;
 
         return $this->hxView('components.new-modal', [
-            'route'      => "assets/assignments/{$event}",
-            'method'     => 'PATCH',
-            'config'     => $config,
-            'values'     => $data,
-            'target'     => '#modal-body-2',
+            'route' => "assets/assignments/{$event}",
+            'method' => 'PATCH',
+            'config' => $config,
+            'values' => $data,
+            'target' => '#modal-body-2',
             'closeEvent' => 'close-modal-2',
-            'suffix'     => '-2',
+            'suffix' => '-2',
         ]);
     }
 
-    public function asUpdate(Request $request, int $event): JsonResponse|Response
+    public function asUpdate(Request $request, int $event): JsonResponse
     {
         $data = AssignmentModalData::from($request->all());
 

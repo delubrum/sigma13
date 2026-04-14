@@ -8,13 +8,23 @@ use App\Domain\Users\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 #[Fillable([
-    'ticket_id', 'user_id', 'notes', 'date', 'attends'
+    'ticket_id', 'user_id', 'notes', 'date', 'attends',
 ])]
+/**
+ * @property int $id
+ * @property int $ticket_id
+ * @property int|null $user_id
+ * @property string|null $notes
+ * @property Carbon|null $date
+ * @property string|null $attends
+ */
 final class TicketItem extends Model
 {
     /** @var string */
+    #[\Override]
     protected $table = 'ticket_items';
 
     #[\Override]

@@ -15,8 +15,8 @@ final class GetAssetsDataAction
     use AsAction;
 
     /**
-     * @param array<string, mixed>  $filters
-     * @param array<string, string> $sorts
+     * @param  array<string, mixed>  $filters
+     * @param  array<string, string>  $sorts
      * @return PaginatedResult<TableData>
      */
     public function handle(array $filters = [], array $sorts = [], int $page = 1, int $size = 15): PaginatedResult
@@ -27,15 +27,13 @@ final class GetAssetsDataAction
 
         /** @var list<TableData> $items */
         $items = array_values(
-            $paginator->through(static fn (Asset $asset): TableData => TableData::fromModel($asset))
-                ->getCollection()
-                ->all()
+            $paginator->getCollection()->map(static fn (Asset $asset, int $key): TableData => TableData::fromModel($asset))->all()
         );
 
         return new PaginatedResult(
-            items:    $items,
+            items: array_values($items),
             lastPage: $paginator->lastPage(),
-            total:    $paginator->total(),
+            total: $paginator->total(),
         );
     }
 }

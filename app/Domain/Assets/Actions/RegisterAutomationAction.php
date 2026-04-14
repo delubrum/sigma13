@@ -15,12 +15,12 @@ final class RegisterAutomationAction
     public function handle(int $assetId, AutomationModalData $data): int
     {
         return DB::table('mnt_preventive_form')->insertGetId([
-            'asset_id'          => $assetId,
-            'activity'          => $data->activity,
-            'frequency'         => $data->frequency,
+            'asset_id' => $assetId,
+            'activity' => $data->activity,
+            'frequency' => $data->frequency,
             'last_performed_at' => $data->last_performed_at,
-            'status'            => $data->status,
-            'kind'              => 'it',
+            'status' => $data->status,
+            'kind' => 'it',
         ]);
     }
 }

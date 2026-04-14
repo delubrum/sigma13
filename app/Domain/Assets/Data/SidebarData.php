@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Assets\Data;
 
-use Spatie\LaravelData\Attributes\MapInputName;
+use App\Domain\Assets\Models\Asset;
 use Spatie\LaravelData\Data;
 
 final class SidebarData extends Data
@@ -24,7 +24,7 @@ final class SidebarData extends Data
         public readonly ?string $qrUrl,
     ) {}
 
-    public static function fromModel(\App\Domain\Assets\Models\Asset $asset): self
+    public static function fromModel(Asset $asset): self
     {
         return new self(
             id: $asset->id,

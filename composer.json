@@ -85,6 +85,11 @@
             "@pre-dev",
             "npx concurrently -c \"#9333ea,#c026d3,#2ecc71\" \"php artisan octane:start --watch\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names=server,queue,vite"
         ],
+        "dev-no-octane": [
+            "Composer\\Config::disableProcessTimeout",
+            "@pre-dev",
+            "npx concurrently -c \"#9333ea,#c026d3,#2ecc71\" \"php artisan serve --port=8000\" \"php artisan queue:listen --tries=1\" \"npm run dev\" --names=server,queue,vite"
+        ],
         "lint": "pint",
         "rector": "rector process",
         "stan": "phpstan analyse",

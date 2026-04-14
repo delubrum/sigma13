@@ -6,6 +6,7 @@ namespace App\Domain\Users\Actions;
 
 use App\Contracts\SidebarProviderContract;
 use App\Domain\Shared\Models\Permission;
+use App\Domain\Users\Models\User;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -15,16 +16,22 @@ final class GetSidebarMenu implements SidebarProviderContract
 
     /**
      * Implementation of the sidebar menu provider using the Permission model.
-     * Reuses the original logic but encapsulated within the Users domain.
+    /**
+     * @return array<int, array{title: string, icon: string, url: ?string, children: array<int, array{title: string, url: string}>}>
      */
     public function handle(Authenticatable $user): array
     {
+        /** @var User $user */
         return $this->getMenuItemsForUser($user);
     }
 
     #[\Override]
+    /**
+     * @return array<int, array{title: string, icon: string, url: ?string, children: array<int, array{title: string, url: string}>}>
+     */
     public function getMenuItemsForUser(Authenticatable $user): array
     {
+        /** @var User $user */
         $items = Permission::query()
             ->where('kind', 'menu')
             ->whereNotNull('title')

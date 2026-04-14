@@ -21,7 +21,7 @@ final class Delete
     public function handle(string $route, string $id, string $domain, string $modelName): JsonResponse
     {
         $class = "App\\Domain\\{$domain}\\Models\\{$modelName}";
-        
+
         // Intentar fallback si el nombre del modelo es igual al dominio
         if (! class_exists($class)) {
             $class = "App\\Domain\\{$domain}\\Models\\{$domain}";
@@ -35,7 +35,7 @@ final class Delete
         $model->delete();
 
         $this->hxNotify('Registro eliminado correctamente');
-        
+
         // Refrescamos tablas y áreas comunes
         $this->hxRefreshTables();
         $this->hxRefresh(['#media-content', '#gallery-content']);

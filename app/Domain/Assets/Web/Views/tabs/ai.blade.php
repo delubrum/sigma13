@@ -17,10 +17,10 @@
     </div>
 
     <!-- AI Results Container -->
-    <div class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden min-h-[500px] relative mt-4 shadow-inner">
+    <div class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden min-h-125 relative mt-4 shadow-inner">
         
         <!-- Loading State -->
-        <div id="ai-loading" class="htmx-indicator absolute inset-0 bg-white/70 dark:bg-slate-900/90 backdrop-blur-md flex flex-col items-center justify-center z-10">
+        <div id="ai-loading" class="htmx-indicator absolute inset-0 bg-white/80 dark:bg-slate-900/90 backdrop-blur-sm flex flex-col items-center justify-center z-50">
             <div class="relative w-16 h-16 mb-6">
                 <div class="absolute inset-0 rounded-full border-4 border-slate-200 dark:border-white/5"></div>
                 <div class="absolute inset-0 rounded-full border-4 border-emerald-500 border-t-transparent animate-spin"></div>
@@ -198,7 +198,7 @@
 
                     </div>
                 @else
-                    <div class="py-32 flex flex-col items-center justify-center text-center">
+                    <div class="h-full flex flex-col min-h-125 items-center justify-center text-center">
                         <i class="ri-robot-2-line text-8xl text-slate-200 dark:text-slate-700 mb-6 group-hover:-translate-y-4 transition-transform duration-500"></i>
                         <h3 class="text-xl font-black uppercase tracking-widest text-slate-950 dark:text-white">Sigma AI Ready</h3>
                         <p class="text-sm mt-4 font-bold text-slate-600 dark:text-slate-500 max-w-sm uppercase tracking-tighter">Motor de análisis RCM con clústeres Postgres nativos y normalización LLM.</p>

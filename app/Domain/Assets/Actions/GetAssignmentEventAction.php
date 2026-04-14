@@ -16,11 +16,16 @@ final class GetAssignmentEventAction
     {
         $event = AssetEvent::query()->findOrFail($eventId);
 
+        /** @var array<int, string> $hardware */
+        $hardware = is_array($event->hardware) ? $event->hardware : [];
+        /** @var array<int, string> $software */
+        $software = is_array($event->software) ? $event->software : [];
+
         return new AssignmentModalData(
-            employee_id: $event->employee_id,
-            hardware:    $event->hardware ?? [],
-            software:    $event->software ?? [],
-            notes:       $event->notes,
+            employee_id: (int) ($event->employee_id ?? 0),
+            hardware: $hardware,
+            software: $software,
+            notes: $event->notes,
         );
     }
 }

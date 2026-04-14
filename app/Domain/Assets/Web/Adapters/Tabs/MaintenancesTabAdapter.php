@@ -12,6 +12,7 @@ use App\Domain\Shared\Services\SchemaGenerator;
 use App\Domain\Shared\Web\Actions\SubTableAdapter;
 use Lorisleiva\Actions\Concerns\AsAction;
 
+/** @extends SubTableAdapter<MaintenancesTableData> */
 final class MaintenancesTabAdapter extends SubTableAdapter
 {
     use AsAction;
@@ -19,8 +20,8 @@ final class MaintenancesTabAdapter extends SubTableAdapter
     protected function tabConfig(): Config
     {
         return new Config(
-            title:   'Mantenimientos Correctivos',
-            icon:    'ri-tools-line',
+            title: 'Mantenimientos Correctivos',
+            icon: 'ri-tools-line',
             columns: SchemaGenerator::toColumns(MaintenancesTableData::class),
         );
     }
@@ -33,10 +34,13 @@ final class MaintenancesTabAdapter extends SubTableAdapter
     /** @return PaginatedResult<MaintenancesTableData> */
     protected function tabData(int $parentId, int $page, int $size): PaginatedResult
     {
-        return GetAssetMaintenancesAction::run(
+        /** @var PaginatedResult<MaintenancesTableData> $result */
+        $result = GetAssetMaintenancesAction::run(
             assetId: $parentId,
-            page:    $page,
-            size:    $size,
+            page: $page,
+            size: $size,
         );
+
+        return $result;
     }
 }

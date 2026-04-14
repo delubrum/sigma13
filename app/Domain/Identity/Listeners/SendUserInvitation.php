@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Identity\Listeners;
 
-use App\Domain\Identity\Actions\Password\SendResetLink;
+use App\Domain\Identity\Actions\InitiatePasswordReset as SendResetLink;
 use App\Domain\Shared\Events\PasswordResetRequested;
 use App\Domain\Shared\Events\UserCreated;
 

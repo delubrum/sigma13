@@ -25,14 +25,14 @@ final class RegisterAssignmentAction
             }
 
             $event = AssetEvent::create([
-                'kind'        => 'assignment',
-                'asset_id'    => $assetId,
+                'kind' => 'assignment',
+                'asset_id' => $assetId,
                 'employee_id' => $data->employee_id,
-                'hardware'    => $data->hardware,
-                'software'    => $data->software,
-                'notes'       => $data->notes,
-                'user_id'     => $userId,
-                'created_at'  => now(),
+                'hardware' => $data->hardware,
+                'software' => $data->software,
+                'notes' => $data->notes,
+                'user_id' => $userId,
+                'created_at' => now(),
             ]);
 
             $asset->update(['status' => 'assigned']);

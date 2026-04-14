@@ -30,9 +30,9 @@ final class GetAssetDocumentsAction
         );
 
         return new PaginatedResult(
-            items:    $items,
+            items: array_values($items),
             lastPage: $paginator->lastPage(),
-            total:    $paginator->total(),
+            total: $paginator->total(),
         );
     }
 }

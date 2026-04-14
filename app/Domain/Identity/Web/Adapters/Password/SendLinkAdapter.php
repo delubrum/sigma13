@@ -30,6 +30,8 @@ final class SendLinkAdapter
 
     public function asController(Request $request): JsonResponse
     {
-        return $this->handle((string) $request->input('email', ''));
+        $email = $request->input('email');
+
+        return $this->handle(is_scalar($email) ? (string) $email : '');
     }
 }

@@ -21,12 +21,12 @@ final class RegisterDocumentAction
         /** @var AssetDocument $doc */
         $doc = AssetDocument::create([
             'asset_id' => $assetId,
-            'name'     => $data->name,
-            'code'     => $data->code,
-            'expiry'   => $data->expiry,
+            'name' => $data->name,
+            'code' => $data->code,
+            'expiry' => $data->expiry,
         ]);
 
-        if ($file !== null) {
+        if ($file instanceof UploadedFile) {
             $doc->addMedia($file)->toMediaCollection('documents');
         }
 

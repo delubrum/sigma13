@@ -29,7 +29,7 @@ final class PatchAdapter
 
         $this->hxNotify('Ticket actualizado correctamente');
         $this->hxRefreshTables(['dt_tickets']);
-        
+
         return $this->hxResponse();
     }
 }

@@ -8,6 +8,7 @@ use App\Domain\Assets\Models\AssetDocument;
 use App\Domain\Shared\Data\Column;
 use Illuminate\Support\Carbon;
 use Spatie\LaravelData\Data;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 final class DocumentsTableData extends Data
 {
@@ -36,7 +37,7 @@ final class DocumentsTableData extends Data
             : '---';
 
         $media = $doc->getFirstMedia('documents');
-        $url = $media ? route('shared.media.download', $media->id) : null;
+        $url = $media instanceof Media ? route('shared.media.download', $media->id) : null;
 
         if (! $url && $doc->url) {
             $url = $doc->url;

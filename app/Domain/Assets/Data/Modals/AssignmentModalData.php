@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Assets\Data\Modals;
 
-use Spatie\LaravelData\Data;
+use App\Domain\Shared\Data\Field;
+use Spatie\LaravelData\Attributes\Validation\ArrayType;
 use Spatie\LaravelData\Attributes\Validation\Exists;
 use Spatie\LaravelData\Attributes\Validation\Required;
-use Spatie\LaravelData\Attributes\Validation\ArrayType;
-use App\Domain\Shared\Data\Field;
+use Spatie\LaravelData\Data;
 
 final class AssignmentModalData extends Data
 {

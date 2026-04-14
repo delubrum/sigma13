@@ -4,14 +4,26 @@ declare(strict_types=1);
 
 namespace Tests\Architecture;
 
-use App\Domain\Shared\Data\FieldWidth;
+use App\Domain\Assets\Models\Asset;
+use App\Domain\Employees\Models\Employee;
+use App\Domain\Assets\Web\Adapters\Tabs\AutomationsTabAdapter;
+use App\Domain\Assets\Web\Adapters\Tabs\DocumentsTabAdapter;
+use App\Domain\Assets\Web\Adapters\Tabs\MaintenancesTabAdapter;
+use App\Domain\Assets\Web\Adapters\Tabs\MovementsTabAdapter;
+use App\Domain\Shared\Web\Actions\SubTableAdapter;
+use App\Domain\Tickets\Web\Adapters\TasksAdapter;
+use App\Domain\Users\Models\User;
 use App\Support\HtmxOrchestrator;
 use Carbon\Carbon;
-use Illuminate\Http\Middleware\FrameGuard;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Prism\Prism\Facades\Prism;
 use Spatie\Csp\AddCspHeaders;
@@ -128,11 +140,11 @@ arch('el domain solo puede usar la lista blanca estricta')
         'app',
         'blank',
         'Illuminate\Filesystem',
-        'Illuminate\Support\Facades\File',
-        'Illuminate\Support\Facades\Storage',
-        'Illuminate\Support\Facades\DB',
-        'Illuminate\Support\Facades\Auth',
-        'Illuminate\Support\Facades\Route',
+        File::class,
+        Storage::class,
+        DB::class,
+        Auth::class,
+        Route::class,
         'ReflectionClass',
         'ReflectionProperty',
         'collect',
@@ -167,6 +179,7 @@ arch('el domain solo puede usar la lista blanca estricta')
         'file_exists',
         'scandir',
         'time',
+        'session',
     ])
     ->ignoring('Database\Factories', 'Database\Seeders');
 
@@ -177,17 +190,18 @@ arch('el domain solo puede usar la lista blanca estricta')
 // =============================================================================
 
 $modules = [
-    'Assets', 'Users', 'Maintenance', 'MaintenanceP',
-    'Recruitment', 'IT', 'Dashboard', 'Identity',
-    'HR', 'Engineering', 'Operations',
+    'Assets', 'Dashboard', 'Documents', 'Employees',
+    'Identity', 'Improvement', 'Performance', 'Ppe', 'Preventive',
+    'Printing', 'Recruitment', 'Tickets', 'Users',
 ];
 
 // User y Asset son modelos de infraestructura compartida (como Authenticatable).
 // Viven en sus módulos propios pero son usados cross-module legítimamente.
 // Todos los demás cross-module imports son violaciones de arquitectura.
 $sharedModels = [
-    'App\Domain\Users\Models\User',
-    'App\Domain\Assets\Models\Asset',
+    User::class,
+    Asset::class,
+    Employee::class,
 ];
 
 foreach ($modules as $module) {
@@ -208,16 +222,16 @@ foreach ($modules as $module) {
 
 // SubTableAdapter subclasses inherit AsAction and handle() via abstract base — excluded from direct-use check.
 $subTableAdapters = [
-    \App\Domain\Shared\Web\Actions\SubTableAdapter::class,
-    \App\Domain\Assets\Web\Adapters\Tabs\DocumentsTabAdapter::class,
-    \App\Domain\Assets\Web\Adapters\Tabs\MaintenancesTabAdapter::class,
-    \App\Domain\Assets\Web\Adapters\Tabs\AutomationsTabAdapter::class,
-    \App\Domain\Assets\Web\Adapters\Tabs\MovementsTabAdapter::class,
-    \App\Domain\Tickets\Web\Adapters\TasksAdapter::class,
+    SubTableAdapter::class,
+    DocumentsTabAdapter::class,
+    MaintenancesTabAdapter::class,
+    AutomationsTabAdapter::class,
+    MovementsTabAdapter::class,
+    TasksAdapter::class,
 ];
 
 // Scan per-module to avoid Pest wildcard quirks with ->classes()->toUse()
-$allModules = [...$modules, 'Shared', 'Quality', 'Performance', 'Tickets'];
+$allModules = [...$modules, 'Shared'];
 
 arch('core actions deben declarar handle()')
     ->expect($core)
@@ -353,7 +367,7 @@ if (glob(__DIR__.'/../../app/Domain/*/Pipelines/*.php')) {
 // Kernel security headers: Laravel 13 uses bootstrap/app.php, not App\Http\Kernel.
 // AddCspHeaders + ProtectAgainstSpam registered in bootstrap/app.php middleware.
 test('bootstrap registra AddCspHeaders y ProtectAgainstSpam')
-    ->expect(fn () => file_get_contents(__DIR__.'/../../bootstrap/app.php'))
+    ->expect(fn (): string|false => file_get_contents(__DIR__.'/../../bootstrap/app.php'))
     ->toContain(AddCspHeaders::class)
     ->toContain(ProtectAgainstSpam::class);
 

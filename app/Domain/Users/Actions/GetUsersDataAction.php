@@ -8,6 +8,7 @@ use App\Domain\Shared\Data\PaginatedResult;
 use App\Domain\Users\Data\TableData;
 use App\Domain\Users\Models\User;
 use App\Domain\Users\Queries\UserTableQuery;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 final class GetUsersDataAction
@@ -19,8 +20,8 @@ final class GetUsersDataAction
      *   $filters = [['field' => 'name', 'value' => 'foo'], ...]
      *   $sorts   = [['field' => 'name', 'dir' => 'asc'], ...]
      *
-     * @param array<int, array{field: string, value: mixed}>  $filters
-     * @param array<int, array{field: string, dir: string}>   $sorts
+     * @param  array<int, array{field: string, value: mixed}>  $filters
+     * @param  array<int, array{field: string, dir: string}>  $sorts
      * @return PaginatedResult<TableData>
      */
     public function handle(array $filters = [], array $sorts = [], int $page = 1, int $size = 15): PaginatedResult
@@ -29,17 +30,17 @@ final class GetUsersDataAction
             ->apply($filters, $sorts)
             ->paginate($page, $size);
 
-        /** @var list<TableData> $items */
+        /** @var LengthAwarePaginator<int, User> $paginator */
         $items = array_values(
-            $paginator->through(static fn (User $user): TableData => TableData::fromModel($user))
+            $paginator->through(static fn (mixed $user): TableData => TableData::fromModel($user))
                 ->getCollection()
                 ->all()
         );
 
         return new PaginatedResult(
-            items:    $items,
+            items: $items,
             lastPage: $paginator->lastPage(),
-            total:    $paginator->total(),
+            total: $paginator->total(),
         );
     }
 }

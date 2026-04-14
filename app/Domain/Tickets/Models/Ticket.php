@@ -9,21 +9,31 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
  * @property int $user_id
+ * @property string|null $facility
+ * @property string $priority
  * @property string $status
+ * @property string|null $description
  * @property string $kind
- * ... (añade el resto de propiedades para Larastan)
+ * @property Carbon|null $created_at
+ * @property Carbon|null $started_at
+ * @property Carbon|null $closed_at
+ * @property int|null $assignee_id
+ * @property int|null $asset_id
+ * @property string|null $sgc
+ * @property string|null $root_cause
  */
 #[Fillable([
-    'user_id', 'facility', 'priority', 'status', 'description', 'kind', 
-    'started_at', 'closed_at', 'assignee_id', 'asset_id', 'sgc', 'root_cause'
+    'user_id', 'facility', 'priority', 'status', 'description', 'kind',
+    'started_at', 'closed_at', 'assignee_id', 'asset_id', 'sgc', 'root_cause',
 ])]
 final class Ticket extends Model
 {
-    /** @var string */
+    #[\Override]
     protected $table = 'tickets';
 
     #[\Override]
@@ -33,9 +43,10 @@ final class Ticket extends Model
      * Lógica de Dominio para la creación de Tickets.
      * Esto evita errores de "Not null violation" en el Action Shared.
      */
+    #[\Override]
     protected static function booted(): void
     {
-        static::creating(function (self $ticket): void {
+        self::creating(function (self $ticket): void {
             // Asigna el usuario autenticado automáticamente
             if (auth()->check()) {
                 $ticket->user_id ??= (int) auth()->id();
@@ -43,7 +54,7 @@ final class Ticket extends Model
 
             // Define un estado inicial por defecto
             $ticket->status ??= 'open';
-            
+
             // Si no usas timestamps automáticos pero quieres la fecha de creación
             $ticket->created_at ??= now();
         });
@@ -55,7 +66,7 @@ final class Ticket extends Model
         return [
             'created_at' => 'datetime',
             'started_at' => 'datetime',
-            'closed_at'  => 'datetime',
+            'closed_at' => 'datetime',
         ];
     }
 

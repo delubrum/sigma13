@@ -22,12 +22,12 @@ final class TicketTableQuery
 
     public static function make(): self
     {
-        return new self();
+        return new self;
     }
 
     /**
-     * @param array<string, mixed> $filters
-     * @param array<string, string> $sorts
+     * @param  array<string, mixed>  $filters
+     * @param  array<string, string>  $sorts
      */
     public function apply(array $filters, array $sorts): self
     {
@@ -38,45 +38,58 @@ final class TicketTableQuery
     private function filter(array $filters): self
     {
         foreach ($filters as $field => $value) {
-            if (blank($value)) continue;
+            if (blank($value)) {
+                continue;
+            }
+
+            $valStr = (string) (is_scalar($value) ? $value : '');
 
             match ((string) $field) {
-                'id'       => $this->query->where('tickets.id', (int) $value),
-                'user'     => $this->query->whereHas('user', fn(Builder $q) => $q->where('name', 'ilike', "%$value%")),
-                'date'     => $this->applyDateFilter((string) $value, 'created_at'),
-                'started'  => $this->applyDateFilter((string) $value, 'started_at'),
-                'closed'   => $this->applyDateFilter((string) $value, 'closed_at'),
-                'type'     => $this->query->where('kind', 'ilike', "%$value%"),
-                default    => $this->query->where("tickets.$field", 'ilike', "%$value%"),
+                'id' => $this->query->where('tickets.id', is_numeric($value) ? (int) $value : 0),
+                'user' => $this->query->whereHas('user', fn (Builder $q) => $q->where('name', 'ilike', '%'.$valStr.'%')),
+                'date' => $this->applyDateFilter($valStr, 'created_at'),
+                'started' => $this->applyDateFilter($valStr, 'started_at'),
+                'closed' => $this->applyDateFilter($valStr, 'closed_at'),
+                'type' => $this->query->where('kind', 'ilike', '%'.$valStr.'%'),
+                default => $this->query->where('tickets.'.$field, 'ilike', '%'.$valStr.'%'),
             };
         }
+
         return $this;
     }
 
     /** @param array<string, string> $sorts */
     private function sort(array $sorts): self
     {
-        if (empty($sorts)) {
-            $this->query->orderByDesc('created_at');
+        if ($sorts === []) {
+            $this->query->latest();
+
             return $this;
         }
 
         foreach ($sorts as $field => $dir) {
             $this->query->orderBy((string) $field, $dir);
         }
+
         return $this;
     }
 
-    /** @return LengthAwarePaginator<Ticket> */
+    /** @return LengthAwarePaginator<int, Ticket> */
     public function paginate(int $page, int $size): LengthAwarePaginator
     {
-        return $this->query->paginate($size, ['*'], 'page', $page);
+        /** @var LengthAwarePaginator<int, Ticket> $paginator */
+        $paginator = $this->query->paginate($size, ['*'], 'page', $page);
+
+        return $paginator;
     }
 
-    private function applyDateFilter(string $value, string $column): void
+    private function applyDateFilter(mixed $value, string $column): void
     {
-        str_contains($value, ' to ')
-            ? $this->query->whereBetween($column, explode(' to ', $value))
-            : $this->query->whereDate($column, $value);
+        $valStr = (string) (is_scalar($value) ? $value : '');
+        if (str_contains($valStr, ' to ')) {
+            $this->query->whereBetween($column, explode(' to ', $valStr));
+        } else {
+            $this->query->whereDate($column, $valStr);
+        }
     }
 }

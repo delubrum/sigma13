@@ -14,8 +14,8 @@ Build   : Vite 8 · Tailwind v4 · Spatie CSP
 app/Domain/
   {Module}/
     Actions/        # Core — infra-agnostic. handle() → DTO/primitive ONLY
-    Web/Actions/    # HTMX adapters. asController() + HtmxOrchestrator ONLY here
-    Api/Actions/    # API adapters — same rules as Web/Actions except HtmxOrchestrator
+    Web/Adapters/   # HTMX adapters. asController() + HtmxOrchestrator ONLY here
+    Api/Actions/    # API adapters — same rules as Web/Adapters except HtmxOrchestrator
     Web/Views/      # ALL Blade templates — receives DTOs only, never Models
     Data/ Models/ Pipelines/ ValueObjects/ Enums/
   Shared/
@@ -23,10 +23,10 @@ app/Domain/
     Web/Actions/    # Shared HTMX adapters (Create, Detail, Upsert, Excel, Upload)
     Data/ Events/ Notifications/ ValueObjects/ Enums/
 Support/HtmxOrchestrator.php
-routes/modules/{module}.php
+app/Domain/{Module}/routes.php  # auto-discovered by DomainServiceProvider
 
 ## MODULES (exhaustive list)
-Assets · Users · Maintenance · MaintenanceP · Recruitment · IT · Dashboard · Identity · HR · Engineering · Operations
+Assets · Dashboard · Documents · Employees · Identity · Improvement · Performance · Ppe · Preventive · Printing · Recruitment · Tickets · Users
 
 ## DOMAIN WHITELIST — only these imports allowed inside App\Domain
 App\Domain · App\Support · App\Contracts
@@ -49,9 +49,9 @@ PHP stdlib: Override · Exception · RuntimeException · Error · InvalidArgumen
 - Core handle(): DTO/primitive — ❌ View ❌ Response ❌ asController() ❌ HtmxOrchestrator
 - Core extras : config() · sidebarData() · asData() (Tabulator JSON)
 - Web/Api Action: ✅ asController() ✅ HtmxOrchestrator (Web only) ❌ Models ❌ business logic
-- HtmxOrchestrator: ONLY in Web/Actions/ — forbidden in Core, Api, Pipelines, Models, Data, VOs, Enums
-- Web Actions MUST NOT set HX-* headers manually (use HtmxOrchestrator methods only)
-- Mutation Web Actions (Store/Upsert): MUST use ProtectAgainstSpam
+- HtmxOrchestrator: ONLY in Web/Adapters/ — forbidden in Core, Api, Pipelines, Models, Data, VOs, Enums
+- Web Adapters MUST NOT set HX-* headers manually (use HtmxOrchestrator methods only)
+- Mutation Web Adapters (Store/Upsert): MUST use ProtectAgainstSpam
 - Shared Web Actions: Shared/Web/Actions/ — ❌ never Shared/Actions/
 - Views: only receive DTOs — ❌ never Models directly
 
@@ -87,19 +87,15 @@ hxView(string $view, array $data = []): Response — dot-notation from registere
 Alpine: UI behavior only — no server calls, no business logic
 
 ## VIEW NAMESPACES (AppServiceProvider::boot)
+View::addNamespace('components',  app_path('Domain/Shared/Web/Views/components'));
+View::addNamespace('layouts',     app_path('Domain/Shared/Web/Views/components/layouts'));
 View::addNamespace('assets',      app_path('Domain/Assets/Web/Views'));
-View::addNamespace('maintenance', app_path('Domain/Maintenance/Web/Views'));
-View::addNamespace('maintenancep',app_path('Domain/MaintenanceP/Web/Views'));
 View::addNamespace('users',       app_path('Domain/Users/Web/Views'));
-View::addNamespace('recruitment', app_path('Domain/Recruitment/Web/Views'));
-View::addNamespace('it',          app_path('Domain/IT/Web/Views'));
 View::addNamespace('dashboard',   app_path('Domain/Dashboard/Web/Views'));
 View::addNamespace('identity',    app_path('Domain/Identity/Web/Views'));
-View::addNamespace('hr',          app_path('Domain/HR/Web/Views'));
-View::addNamespace('engineering', app_path('Domain/Engineering/Web/Views'));
-View::addNamespace('operations',  app_path('Domain/Operations/Web/Views'));
-View::addNamespace('components',  app_path('Domain/Shared/Web/Views/components'));
 View::addNamespace('auth',        app_path('Domain/Identity/Web/Views/auth'));
+View::addNamespace('recruitment', app_path('Domain/Recruitment/Web/Views'));
+View::addNamespace('printing',    app_path('Domain/Printing/Web/Views'));
 
 ## DYNAMIC FORMS
 UpsertData::fields() → Field[]  ·  FieldWidth: Full | Half | Quarter
@@ -130,7 +126,7 @@ Delivery: Email→Mailables(Domain/{Module}/Mail/) · Telegram→TelegramService
 ❌ Mix channels in one DTO · notify from Web Actions · sync HTTP in domain · block Octane workers
 
 ## SECURITY
-App\Http\Kernel MUST use AddCspHeaders (Spatie\Csp) + FrameGuard (Illuminate\Http\Middleware)
+bootstrap/app.php MUST register AddCspHeaders (Spatie\Csp) + ProtectAgainstSpam (Spatie\Honeypot)
 
 ## CHECKLIST (every file)
 [ ] declare(strict_types=1)

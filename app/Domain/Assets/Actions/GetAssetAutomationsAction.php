@@ -24,14 +24,14 @@ final class GetAssetAutomationsAction
         /** @var list<AutomationsTableData> $items */
         $items = array_values(
             $paginator->getCollection()
-                ->map(fn (object $row): AutomationsTableData => AutomationsTableData::fromModel($row))
+                ->map(fn (mixed $row): AutomationsTableData => AutomationsTableData::fromModel($row))
                 ->all()
         );
 
         return new PaginatedResult(
-            items:    $items,
+            items: array_values($items),
             lastPage: $paginator->lastPage(),
-            total:    $paginator->total(),
+            total: $paginator->total(),
         );
     }
 }

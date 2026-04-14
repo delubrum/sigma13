@@ -6,8 +6,7 @@ namespace App\Domain\Tickets\Web\Adapters\Modals;
 
 use App\Domain\Shared\Data\Config;
 use App\Domain\Shared\Data\Field;
-use App\Domain\Tickets\Models\Ticket;
-use App\Domain\Tickets\Models\TicketItem;
+use App\Domain\Tickets\Actions\UpdateTicketStatusAction;
 use App\Support\HtmxOrchestrator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,13 +22,13 @@ final class RejectModalAdapter
     {
         $config = new Config(
             title: 'Rechazar Ticket',
-            subtitle: "Indique la causa del rechazo para el Ticket #{$id}",
             icon: 'ri-close-circle-line',
+            subtitle: "Indique la causa del rechazo para el Ticket #{$id}",
             newButtonLabel: 'Confirmar Rechazo',
             modalWidth: '35',
             columns: [],
             formFields: [
-                new Field(label: 'Causa del Rechazo', name: 'reason', type: 'textarea', required: true, placeholder: 'Describa por qué se rechaza este requerimiento...')
+                new Field(name: 'reason', label: 'Causa del Rechazo', type: 'textarea', required: true, placeholder: 'Describa por qué se rechaza este requerimiento...'),
             ],
         );
 
@@ -40,9 +39,9 @@ final class RejectModalAdapter
         ]);
 
         return response()->view('shared::components.new-modal', [
-            'route'  => 'tickets.reject',
+            'route' => 'tickets.reject',
             'config' => $config,
-            'data'   => ['id' => $id],
+            'data' => ['id' => $id],
         ]);
     }
 
@@ -53,11 +52,12 @@ final class RejectModalAdapter
 
         if (empty($reason)) {
             $this->hxNotify('Debe indicar una causa de rechazo.', 'error');
+
             return $this->hxResponse();
         }
 
-        \App\Domain\Tickets\Actions\UpdateTicketStatusAction::run(
-            id:     $id,
+        UpdateTicketStatusAction::run(
+            id: $id,
             status: 'Rejected',
             reason: $reason,
             userId: auth()->id()
@@ -66,7 +66,7 @@ final class RejectModalAdapter
         $this->hxNotify('Ticket rechazado correctamente.');
         $this->hxRefreshTables(['dt_tickets']);
         $this->hxCloseModals(['modal-body', 'modal-body-2']);
-        
+
         return $this->hxResponse();
     }
 }

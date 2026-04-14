@@ -18,12 +18,12 @@ final class UpdateAssignmentAction
 
         $event->update([
             'employee_id' => $data->employee_id,
-            'hardware'    => $data->hardware,
-            'software'    => $data->software,
-            'notes'       => $data->notes,
-            'user_id'     => $userId,
+            'hardware' => $data->hardware,
+            'software' => $data->software,
+            'notes' => $data->notes,
+            'user_id' => $userId,
         ]);
 
-        return $event->fresh();
+        return $event->fresh() ?? $event;
     }
 }

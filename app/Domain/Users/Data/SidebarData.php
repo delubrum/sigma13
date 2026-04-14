@@ -16,6 +16,8 @@ final class SidebarData extends Data
         public readonly ?string $document,
         #[MapInputName('is_active')]
         public readonly bool $isActive,
+        /** @var \App\Domain\Shared\Data\Field[] */
+        public readonly array $fields = [],
     ) {}
 
 }

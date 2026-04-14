@@ -11,17 +11,12 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Lorisleiva\Actions\Concerns\AsAction;
+use Spatie\LaravelData\Data;
 
 /**
  * Abstract base for tab adapters that render a sub-table (components::tab-index).
  *
- * Concrete classes must implement:
- *  - tabConfig()  → column definitions, title, icon, optional formFields
- *  - tabRoute()   → named route prefix (e.g. 'assets.movements')
- *  - tabData()    → paginated data from a Core Action
- *
- * Larastan: all method bodies here reference only concrete types;
- * abstract return types are enforced by the inheritance chain.
+ * @template T of Data
  */
 abstract class SubTableAdapter
 {
@@ -34,16 +29,16 @@ abstract class SubTableAdapter
     abstract protected function tabRoute(): string;
 
     /**
-     * @return PaginatedResult<\Spatie\LaravelData\Data>
+     * @return PaginatedResult<T>
      */
     abstract protected function tabData(int $parentId, int $page, int $size): PaginatedResult;
 
     final public function handle(int $id): Response
     {
         return $this->hxView('components::tab-index', [
-            'config'   => $this->tabConfig(),
+            'config' => $this->tabConfig(),
             'parentId' => $id,
-            'route'    => $this->tabRoute(),
+            'route' => $this->tabRoute(),
         ]);
     }
 
@@ -56,14 +51,14 @@ abstract class SubTableAdapter
     {
         $result = $this->tabData(
             parentId: $id,
-            page:     $request->integer('page', 1),
-            size:     $request->integer('size', 25),
+            page: $request->integer('page', 1),
+            size: $request->integer('size', 25),
         );
 
         return response()->json([
-            'data'      => $result->items,
+            'data' => $result->items,
             'last_page' => $result->lastPage,
-            'last_row'  => $result->total,
+            'last_row' => $result->total,
         ]);
     }
 }

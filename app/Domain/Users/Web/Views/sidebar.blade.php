@@ -3,58 +3,26 @@
     {{-- Datos Básicos --}}
     <x-sidebar-section icon="ri-user-line" label="Perfil de Usuario">
         <div class="space-y-4">
-            {{-- Nombre --}}
-            <div class="relative">
-                <label class="text-[10px] uppercase font-black tracking-widest mb-1 block" style="color:var(--tx2)">Nombre completo</label>
-                <div class="relative">
-                    <input 
-                        type="text" 
-                        name="value" 
-                        value="{{ $data->name }}"
-                        hx-post="{{ route('users.field.update', $data->id) }}"
-                        hx-vals='{"field": "name"}'
+            @foreach($data->fields as $field)
+                @if(in_array($field->name, ['name', 'email', 'document']))
+                    <x-form-field 
+                        :field="$field" 
+                        :value="old($field->name, $data->{$field->name === 'is_active' ? 'isActive' : $field->name} ?? null)"
+                        :hx-post="route('users.field.update', $data->id)"
+                        :hx-vals="['field' => $field->name]"
                         hx-trigger="change"
-                        hx-swap="none"
-                        hx-indicator="#name-indicator"
-                        class="w-full bg-sigma-bg2 border border-sigma-b rounded-lg px-3 py-2 text-xs font-semibold focus:border-sigma-ac focus:ring-1 focus:ring-sigma-ac transition-all outline-none"
-                        style="color:var(--tx)"
-                        placeholder="Nombre completo..."
-                    >
-                    <div id="name-indicator" class="htmx-indicator absolute right-3 top-1/2 -translate-y-1/2">
-                        <i class="ri-loader-4-line animate-spin text-sigma-ac text-sm"></i>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Email --}}
-            <div class="relative">
-                <label class="text-[10px] uppercase font-black tracking-widest mb-1 block" style="color:var(--tx2)">Correo Electrónico</label>
-                <div class="relative">
-                    <input 
-                        type="email" 
-                        name="value" 
-                        value="{{ $data->email }}"
-                        hx-post="{{ route('users.field.update', $data->id) }}"
-                        hx-vals='{"field": "email"}'
-                        hx-trigger="change"
-                        hx-swap="none"
-                        hx-indicator="#email-indicator"
-                        class="w-full bg-sigma-bg2 border border-sigma-b rounded-lg px-3 py-2 text-xs font-semibold focus:border-sigma-ac focus:ring-1 focus:ring-sigma-ac transition-all outline-none"
-                        style="color:var(--tx)"
-                        placeholder="correo@ejemplo.com"
-                    >
-                    <div id="email-indicator" class="htmx-indicator absolute right-3 top-1/2 -translate-y-1/2">
-                        <i class="ri-loader-4-line animate-spin text-sigma-ac text-sm"></i>
-                    </div>
-                </div>
-            </div>
-
-            <x-sidebar-row label="Documento" :value="$data->document ?? '—'" />
+                    />
+                @endif
+            @endforeach
         </div>
     </x-sidebar-section>
 
     {{-- Estado del Usuario --}}
     <x-sidebar-section icon="ri-toggle-line" label="Configuración">
+        @php 
+            $isActiveField = collect($data->fields)->firstWhere('name', 'is_active');
+        @endphp
+        @if($isActiveField)
         <div 
             x-data="{ active: @js($data->isActive) }"
             class="flex items-center justify-between p-3 rounded-xl border border-sigma-b bg-sigma-bg2 shadow-sm transition-all"
@@ -87,6 +55,7 @@
         <div id="status-loader" class="htmx-indicator flex justify-center mt-2">
             <i class="ri-loader-4-line animate-spin text-sigma-ac"></i>
         </div>
+        @endif
     </x-sidebar-section>
 
     {{-- Seguridad --}}

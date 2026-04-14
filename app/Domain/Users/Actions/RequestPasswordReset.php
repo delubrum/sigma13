@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 namespace App\Domain\Users\Actions;
 
-use App\Domain\Users\Models\User;
 use App\Domain\Shared\Events\PasswordResetRequested;
+use App\Domain\Users\Models\User;
+use Illuminate\Support\Facades\Event;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 final class RequestPasswordReset
@@ -18,8 +19,8 @@ final class RequestPasswordReset
     public function handle(string $userId): User
     {
         $user = User::findOrFail($userId);
-        PasswordResetRequested::dispatch($user);
-        
+        Event::dispatch(new PasswordResetRequested($user));
+
         return $user;
     }
 }

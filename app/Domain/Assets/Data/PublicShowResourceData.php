@@ -10,7 +10,7 @@ use Spatie\LaravelData\Data;
 final class PublicShowResourceData extends Data
 {
     public function __construct(
-        public int     $id,
+        public int $id,
         public ?string $serial,
         public ?string $brand,
         public ?string $model,
@@ -32,23 +32,23 @@ final class PublicShowResourceData extends Data
     public static function fromModel(Asset $asset): self
     {
         return new self(
-            id:                $asset->id,
-            serial:            $asset->serial,
-            brand:             $asset->brand,
-            model:             $asset->model,
-            status:            $asset->status,
-            hostname:          $asset->hostname,
-            sap:               $asset->sap,
-            location:          $asset->location,
-            work_mode:         $asset->work_mode,
-            phone:             $asset->phone,
-            cpu:               $asset->cpu,
-            ram:               $asset->ram,
-            ssd:               $asset->ssd,
-            hdd:               $asset->hdd,
-            so:                $asset->so,
+            id: $asset->id,
+            serial: $asset->serial,
+            brand: $asset->brand,
+            model: $asset->model,
+            status: $asset->status,
+            hostname: $asset->hostname,
+            sap: $asset->sap,
+            location: $asset->location,
+            work_mode: $asset->work_mode,
+            phone: $asset->phone,
+            cpu: $asset->cpu,
+            ram: $asset->ram,
+            ssd: $asset->ssd,
+            hdd: $asset->hdd,
+            so: $asset->so,
             profile_photo_url: $asset->profilePhotoUrl,
-            assignee:          $asset->currentAssignment?->employee?->name,
+            assignee: $asset->currentAssignment?->employee?->name,
         );
     }
 }

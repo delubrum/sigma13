@@ -22,7 +22,7 @@ final class PerformanceAdapter
     public function handle(): Response
     {
         return $this->hxView('components::index', [
-            'route'  => 'performance',
+            'route' => 'performance',
             'config' => $this->config(),
         ]);
     }
@@ -30,12 +30,12 @@ final class PerformanceAdapter
     public function config(): Config
     {
         return new Config(
-            title:          'Performance Evaluation',
-            subtitle:       'Comprehensive employee performance tracking',
-            icon:           'ri-flashlight-line',
+            title: 'Performance Evaluation',
+            icon: 'ri-flashlight-line',
+            subtitle: 'Comprehensive employee performance tracking',
             newButtonLabel: 'New Evaluation',
-            modalWidth:     '80',
-            columns:        SchemaGenerator::toColumns(PerformanceTableData::class),
+            modalWidth: '80',
+            columns: SchemaGenerator::toColumns(PerformanceTableData::class),
         );
     }
 
@@ -47,19 +47,20 @@ final class PerformanceAdapter
     public function asData(Request $request): JsonResponse
     {
         $filters = $request->collect('filter')->pluck('value', 'field')->toArray();
-        $sorts   = $request->collect('sort')->pluck('dir', 'field')->toArray();
+        $sorts = $request->collect('sort')->pluck('dir', 'field')->toArray();
 
+        /** @var array{data: array<int, mixed>, total: int, last_page: int} $result */
         $result = GetPerformanceData::run(
             filters: $filters,
-            sorts:   $sorts,
-            page:    $request->integer('page', 1),
-            size:    $request->integer('size', 15)
+            sorts: $sorts,
+            page: $request->integer('page', 1),
+            size: $request->integer('size', 15)
         );
 
         return response()->json([
-            'data'      => $result['data'],
+            'data' => $result['data'],
             'last_page' => $result['last_page'],
-            'total'     => $result['total'],
+            'total' => $result['total'],
         ]);
     }
 }

@@ -21,20 +21,20 @@ final class GetAssetMaintenancesAction
             ->select('mnt.*', 'users.name as user_name')
             ->where('mnt.asset_id', $assetId)
             ->whereNotNull('mnt.ended_at')
-            ->orderByDesc('mnt.ended_at')
+            ->latest('mnt.ended_at')
             ->paginate($size, ['*'], 'page', $page);
 
         /** @var list<MaintenancesTableData> $items */
         $items = array_values(
             $paginator->getCollection()
-                ->map(fn (object $row): MaintenancesTableData => MaintenancesTableData::fromModel($row))
+                ->map(fn (mixed $row, int|string $key): MaintenancesTableData => MaintenancesTableData::fromModel($row))
                 ->all()
         );
 
         return new PaginatedResult(
-            items:    $items,
+            items: array_values($items),
             lastPage: $paginator->lastPage(),
-            total:    $paginator->total(),
+            total: $paginator->total(),
         );
     }
 }

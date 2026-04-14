@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Domain\Tickets\Data;
 
 use App\Domain\Tickets\Models\Ticket;
-use Spatie\LaravelData\Data;
 use Illuminate\Support\Collection;
+use Spatie\LaravelData\Data;
 
 final class SidebarData extends Data
 {
@@ -34,25 +34,29 @@ final class SidebarData extends Data
         public readonly array $assignees = [],
     ) {}
 
-    public static function fromModel(Ticket $ticket, Collection $assets = new Collection(), Collection $assignees = new Collection()): self
+    /**
+     * @param  Collection<int, mixed>  $assets
+     * @param  Collection<int, mixed>  $assignees
+     */
+    public static function fromModel(Ticket $ticket, Collection $assets = new Collection, Collection $assignees = new Collection): self
     {
         // Soporte para ambos directorios por la fusión de módulos
         $dirs = [
             "uploads/tickets/userpics/{$ticket->id}/",
-            "uploads/mnt/userpics/{$ticket->id}/"
+            "uploads/mnt/userpics/{$ticket->id}/",
         ];
-        
+
         $evidences = [];
         foreach ($dirs as $dir) {
             $fullPath = public_path($dir);
             if (is_dir($fullPath)) {
-                $files = glob($fullPath . '*');
+                $files = glob($fullPath.'*');
                 if ($files) {
                     foreach ($files as $file) {
                         if (is_file($file)) {
                             $evidences[] = [
                                 'name' => 'Evidence',
-                                'url'  => asset($dir . basename($file)),
+                                'url' => asset($dir.basename($file)),
                             ];
                         }
                     }
@@ -60,25 +64,31 @@ final class SidebarData extends Data
             }
         }
 
+        /** @var array<int, array{id: int, label: string}> $assetList */
+        $assetList = array_values($assets->toArray());
+
+        /** @var array<int, array{id: int, name: string}> $assigneeList */
+        $assigneeList = array_values($assignees->toArray());
+
         return new self(
-            id:          $ticket->id,
-            status:      $ticket->status ?? 'Open',
-            kind:        $ticket->kind ?? '-',
-            username:    $ticket->user?->name ?? 'Unknown',
-            createdAt:   $ticket->created_at?->format('Y-m-d H:i') ?? '-',
-            facility:    $ticket->facility,
-            startedAt:   $ticket->started_at?->format('Y-m-d H:i'),
-            closedAt:    $ticket->closed_at?->format('Y-m-d H:i'),
+            id: $ticket->id,
+            status: $ticket->status ?? 'Open',
+            kind: $ticket->kind ?? '-',
+            username: $ticket->user->name ?? 'Unknown',
+            createdAt: $ticket->created_at?->format('Y-m-d H:i') ?? '-',
+            facility: $ticket->facility,
+            startedAt: $ticket->started_at?->format('Y-m-d H:i'),
+            closedAt: $ticket->closed_at?->format('Y-m-d H:i'),
             description: $ticket->description,
-            priority:    $ticket->priority,
-            assetId:     $ticket->asset_id,
-            assigneeId:  $ticket->assignee_id,
-            sgc:         $ticket->sgc,
-            rootCause:   $ticket->root_cause,
-            rating:      (int) $ticket->rating,
-            evidences:   $evidences,
-            assets:      $assets->toArray(),
-            assignees:   $assignees->toArray(),
+            priority: $ticket->priority,
+            assetId: $ticket->asset_id,
+            assigneeId: $ticket->assignee_id,
+            sgc: $ticket->sgc,
+            rootCause: $ticket->root_cause,
+            rating: (int) $ticket->rating,
+            evidences: $evidences,
+            assets: $assetList,
+            assignees: $assigneeList,
         );
     }
 }

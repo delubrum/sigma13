@@ -15,7 +15,7 @@ final class GetAssetPublicAction
     use AsAction;
 
     /**
-     * @return array{asset: PublicShowResourceData, correctives: Collection<int, object>, preventives: Collection<int, object>}
+     * @return array{asset: PublicShowResourceData, correctives: Collection<int, \stdClass>, preventives: Collection<int, \stdClass>}
      */
     public function handle(string $serial): array
     {
@@ -32,19 +32,19 @@ final class GetAssetPublicAction
         $correctives = DB::table('mnt')
             ->where('asset_id', $asset->id)
             ->whereNotNull('ended_at')
-            ->orderByDesc('ended_at')
+            ->latest('ended_at')
             ->limit(3)
             ->get();
 
         $preventives = DB::table('mnt_preventive_form')
             ->where('asset_id', $asset->id)
             ->whereNotNull('last_performed_at')
-            ->orderByDesc('last_performed_at')
+            ->latest('last_performed_at')
             ->limit(3)
             ->get();
 
         return [
-            'asset'       => PublicShowResourceData::fromModel($asset),
+            'asset' => PublicShowResourceData::fromModel($asset),
             'correctives' => $correctives,
             'preventives' => $preventives,
         ];

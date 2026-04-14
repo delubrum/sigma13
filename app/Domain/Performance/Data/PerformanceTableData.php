@@ -10,7 +10,7 @@ use Spatie\LaravelData\Data;
 final class PerformanceTableData extends Data
 {
     public function __construct(
-        #[Column(title: 'ID', headerHozAlign: 'center', headerFilter: 'input', width: 70)]
+        #[Column(title: 'ID', width: 70, headerHozAlign: 'center', headerFilter: 'input')]
         public readonly int $id,
 
         #[Column(title: 'Period', field: 'created_at', headerHozAlign: 'center', headerFilter: 'input')]
@@ -31,7 +31,7 @@ final class PerformanceTableData extends Data
         #[Column(title: 'Peers', field: 'peer', headerHozAlign: 'center', headerFilter: 'input')]
         public readonly ?float $peer,
 
-        #[Column(title: 'Score', headerHozAlign: 'center', headerFilter: 'input', formatter: 'color')]
+        #[Column(title: 'Score', headerHozAlign: 'center', formatter: 'color', headerFilter: 'input')]
         public readonly float $score,
     ) {}
 }

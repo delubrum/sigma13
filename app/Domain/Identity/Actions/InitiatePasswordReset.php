@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Identity\Actions;
 
+use App\Domain\Notifications\Actions\SendGlobalNotificationAction;
+use App\Domain\Notifications\Data\EmailData;
 use App\Domain\Users\Models\User;
 use Illuminate\Support\Facades\Password;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -26,15 +28,15 @@ final class InitiatePasswordReset
 
         $token = Password::createToken($user);
 
-        \App\Domain\Shared\Actions\SendGlobalNotificationAction::dispatch(
-            new \App\Domain\Shared\Data\EmailData(
+        SendGlobalNotificationAction::dispatch(
+            new EmailData(
                 to: $email,
                 subject: 'Restablecer Contraseña',
-                template: 'identity::emails.reset-password',
+                template: 'notifications::emails.reset-password',
                 data: [
                     'token' => $token,
                     'email' => $email,
-                    'user' => $user
+                    'user' => $user,
                 ]
             )
         );

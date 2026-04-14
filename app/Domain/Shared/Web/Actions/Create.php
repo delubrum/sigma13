@@ -47,11 +47,11 @@ final class Create
 
         if ($id) {
             $singular = Str::singular($domain);
-            $modelClass = "App\\Domain\\{$domain}\\Models\\" . $singular;
+            $modelClass = "App\\Domain\\{$domain}\\Models\\".$singular;
             $model = $modelClass::findOrFail($id);
 
             $dtoClass = "App\\Domain\\{$domain}\\Data\\UpsertData";
-            
+
             if (! class_exists($dtoClass)) {
                 $dtoClass = "App\\Domain\\{$domain}\\Data\\{$singular}UpsertData";
             }
@@ -63,7 +63,7 @@ final class Create
 
         $this->hxModalHeader([
             'icon' => $config->icon,
-            'title' => ($id ? 'Edit ' : 'New ') . $config->title,
+            'title' => ($id ? 'Edit ' : 'New ').$config->title,
             'subtitle' => $config->subtitle ?: 'Registro',
         ]);
 
