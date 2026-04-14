@@ -55,7 +55,7 @@ class User extends Authenticatable implements CanResetPasswordContract
             ->dontLogEmptyChanges();
     }
 
-    /** @return Attribute<string, never> */
+    /** @return \Illuminate\Database\Eloquent\Casts\Attribute<string, never> */
     protected function statusLabel(): \Illuminate\Database\Eloquent\Casts\Attribute
     {
         return \Illuminate\Database\Eloquent\Casts\Attribute::make(
@@ -72,11 +72,11 @@ class User extends Authenticatable implements CanResetPasswordContract
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-            'permissions' => 'array',
-            'is_active' => 'boolean',
-            'created_at' => 'datetime',
-            'updated_at' => 'datetime',
+            'password'          => 'hashed',
+            'permissions'       => 'array',
+            'is_active'         => 'boolean',
+            'created_at'        => 'datetime',
+            'updated_at'        => 'datetime',
         ];
     }
 }

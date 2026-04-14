@@ -127,8 +127,8 @@ trait HtmxOrchestrator
 
             // Ancho inteligente (solo si no se ha definido manualmente y es una vista de tipo modal)
             if (!isset($this->hxTriggers['set-modal-width'.$suffix])) {
-                // Solo automatizar si el nombre de la vista contiene 'modal' o si el config tiene un ancho explícito
-                if ($isModalView || $config->modalWidth !== null) {
+                // Solo automatizar si es explícitamente una vista de tipo modal
+                if ($isModalView) {
                     $defaultWidth = str_contains($viewName, 'detail-modal') ? '98' : 'md';
                     $this->hxModalWidth($config->modalWidth ?? $defaultWidth, $suffix);
                 }

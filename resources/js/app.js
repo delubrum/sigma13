@@ -85,7 +85,7 @@ function sigmaInit(container = document) {
     container.querySelectorAll('[data-widget="tabulator"]').forEach(el => {
         if (!el.tabulator) {
             const config = JSON.parse(el.dataset.config || '{}');
-            
+
             // Hidratar formateadores (thawColumns)
             if (config.columns) {
                 config.columns = config.columns.map(col => {

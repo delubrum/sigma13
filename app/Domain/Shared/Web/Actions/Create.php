@@ -23,7 +23,15 @@ final class Create
         $indexAction = "App\\Domain\\{$domain}\\Actions\\Index";
 
         if (! class_exists($indexAction)) {
-            abort(404, 'Módulo no encontrado.');
+            $indexAction = "App\\Domain\\{$domain}\\Web\\Adapters\\IndexAdapter";
+        }
+
+        if (! class_exists($indexAction)) {
+            $indexAction = "App\\Domain\\{$domain}\\Web\\Adapters\\{$domain}IndexAdapter";
+        }
+
+        if (! class_exists($indexAction)) {
+            abort(404, "Módulo {$domain} no encontrado.");
         }
 
         /** @var HasModule $instance */
@@ -38,10 +46,16 @@ final class Create
         $data = [];
 
         if ($id) {
-            $modelClass = "App\\Domain\\{$domain}\\Models\\" . Str::singular($domain);
+            $singular = Str::singular($domain);
+            $modelClass = "App\\Domain\\{$domain}\\Models\\" . $singular;
             $model = $modelClass::findOrFail($id);
 
             $dtoClass = "App\\Domain\\{$domain}\\Data\\UpsertData";
+            
+            if (! class_exists($dtoClass)) {
+                $dtoClass = "App\\Domain\\{$domain}\\Data\\{$singular}UpsertData";
+            }
+
             if (class_exists($dtoClass)) {
                 $data = $dtoClass::from($model);
             }
@@ -55,7 +69,7 @@ final class Create
 
         $this->hxModalWidth($config->modalWidth);
 
-        return view('components.new-modal', [
+        return view('shared::components.new-modal', [
             'route' => $route,
             'config' => $config,
             'data' => $data,

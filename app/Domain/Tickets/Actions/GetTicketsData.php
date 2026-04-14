@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Tickets\Actions;
 
-use App\Domain\Tickets\Data\Table;
+use App\Domain\Tickets\Data\TableData;
 use App\Domain\Tickets\Queries\TicketTableQuery;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -24,15 +24,15 @@ final class GetTicketsData
             ->paginate($page, $size);
 
         return [
-            'data'      => $paginator->getCollection()->map(fn($t) => new Table(
+            'data'      => $paginator->getCollection()->map(fn($t) => new TableData(
                 id:          $t->id,
                 type:        $t->kind,
                 date:        $t->created_at?->format('Y-m-d') ?? '',
-                user:        $t->user?->username ?? 'Unknown',
+                user:        $t->user?->name ?? 'Unknown',
                 facility:    $t->facility,
                 priority:    $t->priority,
                 description: $t->description,
-                days:        $t->created_at?->diffInDays($t->closed_at ?? now()) ?? 0,
+                days:        (int) $t->created_at?->diffInDays($t->closed_at ?? now()) ?? 0,
                 started:     $t->started_at?->format('Y-m-d H:i') ?? '',
                 closed:      $t->closed_at?->format('Y-m-d H:i') ?? '',
                 status:      $this->renderStatusBadge($t->status),

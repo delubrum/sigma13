@@ -8,7 +8,7 @@
         <button
             class="px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider flex items-center space-x-1.5 transition-all outline-none active:scale-95"
             style="background:var(--ac); color:var(--ac-inv)"
-            hx-post="{{ route('assets.ai.generate', $asset->id) }}"
+            hx-post="{{ route('assets.ai.generate', $assetId) }}"
             hx-target="#ai-results"
             hx-indicator="#ai-loading">
             <i class="ri-magic-line text-sm"></i>

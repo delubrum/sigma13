@@ -4,73 +4,95 @@ declare(strict_types=1);
 
 namespace App\Domain\MaintenanceP\Actions;
 
-use App\Domain\MaintenanceP\Data\Table;
-use App\Domain\MaintenanceP\Queries\MntPreventiveTableQuery;
+use App\Domain\MaintenanceP\Models\MntPreventive;
+use Illuminate\Support\Facades\DB;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 final class GetMaintenancePData
 {
     use AsAction;
 
-    /**
-     * @param array<string, mixed> $filters
-     * @param array<string, string> $sorts
-     * @return array{data: array<int, Table>, total: int, last_page: int}
-     */
-    public function handle(array $filters = [], array $sorts = [], int $page = 1, int $size = 15): array
+    public function handle(array $filters = [], array $sorts = [], int $page = 1, int $size = 50): array
     {
-        $paginator = MntPreventiveTableQuery::make()
-            ->apply($filters, $sorts)
-            ->paginate($page, $size);
+        $query = MntPreventive::query()
+            ->from('mnt_preventive as a')
+            ->leftJoin('mnt_preventive_form as b', 'a.preventive_id', '=', 'b.id')
+            ->leftJoin('assets as c', DB::raw('c.id'), '=', DB::raw('COALESCE(NULLIF(a.asset_id, 0), b.asset_id)'))
+            ->select([
+                'a.id',
+                'a.scheduled_start',
+                'a.scheduled_end',
+                'a.started',
+                'a.attended',
+                'a.closed_at',
+                'a.status',
+                DB::raw("COALESCE(NULLIF(a.activity, ''), b.activity) AS activity_name"),
+                'b.frequency',
+                DB::raw("concat(c.hostname, ' | ', c.serial, ' | ', c.sap) as asset_full"),
+                DB::raw("DATEDIFF(a.scheduled_end, NOW()) as days_diff")
+            ])
+            ->where('a.kind', 'Machinery');
 
-        return [
-            'data'      => $paginator->getCollection()->map(fn($m) => new Table(
-                id:        $m->id,
-                start:     $m->scheduled_start?->format('Y-m-d') ?? '',
-                end:       $m->scheduled_end?->format('Y-m-d') ?? '',
-                asset:     $m->asset ? "{$m->asset->hostname} | {$m->asset->serial} | {$m->asset->sap}" : 'N/A',
-                status:    $this->renderStatusBadge($m->status),
-                days:      $this->renderDaysBadge($m->scheduled_end, $m->closed_at),
-                activity:  $m->activity ?: ($m->form?->activity ?? ''),
-                frequency: $m->form?->frequency ?? '',
-                started:   $m->started?->format('Y-m-d H:i') ?? '',
-                attended:  $m->attended?->format('Y-m-d H:i') ?? '',
-                closed:    $m->closed_at?->format('Y-m-d H:i') ?? '',
-            ))->toArray(),
-            'total'     => $paginator->total(),
-            'last_page' => $paginator->lastPage(),
+        $fieldMap = [
+            'id' => 'a.id',
+            'start' => 'a.scheduled_start',
+            'end' => 'a.scheduled_end',
+            'asset' => "concat(c.hostname, ' | ', c.serial, ' | ', c.sap)",
+            'activity' => "COALESCE(NULLIF(a.activity, ''), b.activity)",
+            'frequency' => 'b.frequency',
+            'status' => 'a.status',
+            'days' => 'DATEDIFF(a.scheduled_end, NOW())',
         ];
-    }
 
-    private function renderStatusBadge(?string $status): string
-    {
-        $color = match ($status) {
-            'Open'     => 'border-blue-500 text-blue-500',
-            'Started'  => 'border-yellow-500 text-yellow-500',
-            'Attended' => 'border-purple-500 text-purple-500',
-            'Closed'   => 'border-green-500 text-green-500',
-            default    => 'border-sigma-b text-sigma-tx2',
-        };
+        foreach ($filters as $field => $value) {
+            if (empty($value)) continue;
 
-        return sprintf(
-            '<span class="px-2 py-0.5 rounded border %s font-bold uppercase text-[10px]">%s</span>',
-            $color,
-            $status ?? 'Open'
-        );
-    }
-
-    private function renderDaysBadge(?\DateTimeInterface $end, ?\DateTimeInterface $closed): string
-    {
-        if (!$end) return '—';
-        
-        $target = $closed ?? now();
-        $days = (int) now()->diffInDays($end, false);
-        
-        $color = ($days >= 0) ? 'text-green-500' : 'text-red-500';
-        if ($closed) {
-            $color = 'text-gray-500';
+            if (($field === 'start' || $field === 'end') && strpos($value, ' to ') !== false) {
+                [$from, $to] = explode(' to ', $value);
+                $query->whereBetween(DB::raw("DATE({$fieldMap[$field]})"), [$from, $to]);
+            } elseif (isset($fieldMap[$field])) {
+                $query->where(DB::raw("CAST({$fieldMap[$field]} AS TEXT)"), 'LIKE', "%$value%");
+            }
         }
 
-        return sprintf('<span class="font-bold %s">%d</span>', $color, $days);
+        if (!empty($sorts)) {
+            foreach ($sorts as $field => $dir) {
+                if (isset($fieldMap[$field])) {
+                    $query->orderBy(DB::raw($fieldMap[$field]), $dir);
+                }
+            }
+        } else {
+            $query->orderByRaw("FIELD(a.status, 'Open', 'Started', 'Attended', 'Closed'), a.scheduled_end ASC");
+        }
+
+        $paginator = $query->paginate($size, ['*'], 'page', $page);
+
+        $data = collect($paginator->items())->map(function ($r) {
+            $days = (int) $r->days_diff;
+            $color = ($days >= 0) ? 'text-green-500' : 'text-red-500';
+            if (!empty($r->closed_at) && $r->closed_at != '0000-00-00 00:00:00') {
+                $color = 'text-gray-500';
+            }
+
+            return [
+                'id' => $r->id,
+                'start' => $r->scheduled_start,
+                'end' => $r->scheduled_end,
+                'asset' => $r->asset_full,
+                'activity' => $r->activity_name,
+                'frequency' => $r->frequency,
+                'status' => $r->status,
+                'days' => "<span class='font-bold $color'>$days</span>",
+                'started' => $r->started,
+                'attended' => $r->attended,
+                'closed' => $r->closed_at,
+            ];
+        });
+
+        return [
+            'data' => $data,
+            'total' => $paginator->total(),
+            'last_page' => $paginator->lastPage(),
+        ];
     }
 }

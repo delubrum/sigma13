@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Ppe\Models;
 
-use App\Domain\Employees\Models\Employee;
+use App\Domain\HR\Models\Employee;
 use App\Domain\Users\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;

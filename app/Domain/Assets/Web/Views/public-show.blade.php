@@ -99,7 +99,7 @@
                 </div>
                 <div class="p-4">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Responsable</span>
-                    <span class="text-xs font-bold text-indigo-600 truncate block">{{ $asset->currentAssignment->employee->name ?? 'Disponible' }}</span>
+                    <span class="text-xs font-bold text-indigo-600 truncate block">{{ $asset->assignee ?? 'Disponible' }}</span>
                 </div>
             </div>
         </div>

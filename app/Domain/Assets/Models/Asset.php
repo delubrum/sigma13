@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace App\Domain\Assets\Models;
 
-use App\Domain\Maintenance\Models\Mnt;
-use App\Domain\Maintenance\Models\MntPreventiveForm;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\Activitylog\Support\LogOptions;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -46,14 +44,14 @@ class Asset extends Model implements HasMedia
         ];
     }
 
-    // --- Property Hooks (PHP 8.5) ---
+    // --- PHP 8.5 Property Hooks ---
 
-    /** Score de criticidad (Suma pura de dimensiones) */
+    /** Criticality score: sum of CIA dimensions */
     public int $criticalityScore {
         get => ($this->confidentiality ?? 0) + ($this->integrity ?? 0) + ($this->availability ?? 0);
     }
 
-    /** URL pública de la foto (R2 Público) */
+    /** Public photo URL (R2) */
     public string $profilePhotoUrl {
         get {
             $media = $this->getFirstMedia('profile');
@@ -61,12 +59,12 @@ class Asset extends Model implements HasMedia
         }
     }
 
-    /** URL del QR para la vista pública */
+    /** Public QR URL */
     public string $qrUrl {
         get => route('assets.public', ['serial' => $this->serial ?: (string) $this->id]);
     }
 
-    // --- Relaciones ---
+    // --- Relations (same-module only) ---
 
     /** @return HasOne<AssetEvent, $this> */
     public function currentAssignment(): HasOne
@@ -75,22 +73,6 @@ class Asset extends Model implements HasMedia
             ->where('kind', 'assignment')
             ->latestOfMany()
             ->with('employee');
-    }
-
-    /** @return HasMany<Mnt, $this> */
-    public function correctives(): HasMany
-    {
-        return $this->hasMany(Mnt::class, 'asset_id')
-            ->whereNotNull('ended_at')
-            ->orderByDesc('ended_at');
-    }
-
-    /** @return HasMany<MntPreventiveForm, $this> */
-    public function preventives(): HasMany
-    {
-        return $this->hasMany(MntPreventiveForm::class, 'asset_id')
-            ->whereNotNull('last_performed_at')
-            ->orderByDesc('last_performed_at');
     }
 
     /** @return HasMany<AssetDocument, $this> */
@@ -105,7 +87,7 @@ class Asset extends Model implements HasMedia
         return $this->hasMany(AssetEvent::class, 'asset_id')->orderByDesc('id');
     }
 
-    // --- Configuración Spatie ---
+    // --- Spatie Config ---
 
     public function getActivitylogOptions(): LogOptions
     {

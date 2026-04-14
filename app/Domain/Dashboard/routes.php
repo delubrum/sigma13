@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Domain\Dashboard\Web\Actions\Index;
+use App\Domain\Dashboard\Web\Adapters\DashboardAdapter;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->group(function (): void {
-    Route::get('/home', Index::class)->name('home');
+    Route::get('/', DashboardAdapter::class)->name('dashboard');
 });

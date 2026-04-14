@@ -124,7 +124,6 @@
 .tabulator-row:hover {
     background: var(--hbg) !important;
     color: var(--htx) !important;
-    cursor: pointer;
 }
 
 .tabulator-row:hover .tabulator-cell {
@@ -250,6 +249,7 @@
 .dark::view-transition-old(root) {
     z-index: 9999;
 }
+
 /* Sigma Premium File Input */
 .sigma-file-wrapper {
     display: flex;
@@ -269,7 +269,7 @@
     border-color: var(--ac);
     background: color-mix(in srgb, var(--ac) 3%, var(--bg));
     transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .sigma-file-wrapper.has-file {
@@ -352,6 +352,13 @@
 }
 
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }

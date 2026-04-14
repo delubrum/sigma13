@@ -42,7 +42,7 @@ final class TicketTableQuery
 
             match ((string) $field) {
                 'id'       => $this->query->where('tickets.id', (int) $value),
-                'user'     => $this->query->whereHas('user', fn(Builder $q) => $q->where('username', 'ilike', "%$value%")),
+                'user'     => $this->query->whereHas('user', fn(Builder $q) => $q->where('name', 'ilike', "%$value%")),
                 'date'     => $this->applyDateFilter((string) $value, 'created_at'),
                 'started'  => $this->applyDateFilter((string) $value, 'started_at'),
                 'closed'   => $this->applyDateFilter((string) $value, 'closed_at'),

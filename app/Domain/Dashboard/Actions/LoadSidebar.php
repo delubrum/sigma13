@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Dashboard\Actions;
 
-use App\Domain\Users\Models\Permission;
+use App\Domain\Shared\Models\Permission;
 use Illuminate\Support\Facades\Auth;
 use Lorisleiva\Actions\Concerns\AsAction;
 

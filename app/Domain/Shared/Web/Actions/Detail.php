@@ -21,13 +21,13 @@ final class Detail
     public function handle(string $route, string $id): View
     {
         $domain = Str::studly($route);
-        $indexAction = "App\\Domain\\{$domain}\\Actions\\Index";
+        $indexAction = "App\\Domain\\{$domain}\\Web\\Adapters\\IndexAdapter";
 
         if (! class_exists($indexAction)) {
-            abort(404, 'Módulo no encontrado.');
+            abort(404, "Módulo {$domain} no encontrado.");
         }
 
-        /** @var HasModule&HasDetail $instance */
+        /** @var HasModule $instance */
         $instance = resolve($indexAction);
         $config = $instance->config();
 
@@ -35,7 +35,7 @@ final class Detail
         $sidebarData = null;
 
         if ($instance instanceof HasDetail) {
-            $sidebarView = "{$route}.sidebar";
+            $sidebarView = "{$route}::sidebar";
             $sidebarData = $instance->sidebarData((int) $id);
         }
 
@@ -59,9 +59,9 @@ final class Detail
             'subtitle' => $config->subtitle ?: '',
         ]);
 
-        $this->hxModalWidth('98%');
+        $this->hxModalWidth('98');
 
-        return view('components.detail-modal', [
+        return view('shared::components.detail-modal', [
             'route' => $route,
             'config' => $config,
             'id' => (int) $id,

@@ -10,16 +10,48 @@ use Spatie\LaravelData\Data;
 final class UpsertData extends Data
 {
     public function __construct(
-        #[Field(label: 'Tipo', type: 'select', options: ['HR' => 'HR', 'OHS' => 'OHS', 'Marketing' => 'Marketing'])]
-        public readonly string $kind,
+        public readonly ?int $id,
 
-        #[Field(label: 'Sede/Ubicación', type: 'text', placeholder: 'Ubicación')]
+        #[Field(
+            label: 'Facility', 
+            type: 'select', 
+            options: [
+                'ESM1' => 'ESM1', 
+                'ESM2' => 'ESM2', 
+                'ESM3' => 'ESM3', 
+                'Medellín' => 'Medellín', 
+                'Barranquilla' => 'Barranquilla'
+            ]
+        )]
         public readonly string $facility,
 
-        #[Field(label: 'Prioridad', type: 'select', options: ['Low' => 'Low', 'Medium' => 'Medium', 'High' => 'High', 'Critical' => 'Critical'])]
+        #[Field(
+            label: 'Type', 
+            type: 'select', 
+            options: [
+                'HR' => 'HR', 
+                'OHS' => 'OHS', 
+                'Marketing' => 'Marketing'
+            ]
+        )]
+        public readonly string $kind,
+
+        #[Field(
+            label: 'Priority', 
+            type: 'select', 
+            options: [
+                'High'   => 'Right Now. Locked',
+                'Medium' => 'Today. Need Attention',
+                'Low'    => 'Tomorrow. I Can Wait'
+            ]
+        )]
         public readonly string $priority,
 
-        #[Field(label: 'Descripción', type: 'textarea', placeholder: 'Detalle del ticket')]
+        #[Field(
+            label: 'Description', 
+            type: 'textarea', 
+            placeholder: 'Describe the issue in detail...'
+        )]
         public readonly string $description,
     ) {}
 }

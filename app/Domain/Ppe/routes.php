@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use App\Domain\Ppe\Web\Actions\DeliveriesIndex;
-use App\Domain\Ppe\Web\Actions\EntriesIndex;
-use App\Domain\Ppe\Web\Actions\ItemsIndex;
+use App\Domain\Ppe\Web\Adapters\DeliveriesIndexAdapter as DeliveriesIndex;
+use App\Domain\Ppe\Web\Adapters\EntriesIndexAdapter as EntriesIndex;
+use App\Domain\Ppe\Web\Adapters\ItemsIndexAdapter as ItemsIndex;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('web')->prefix('ppe')->name('ppe.')->group(function (): void {

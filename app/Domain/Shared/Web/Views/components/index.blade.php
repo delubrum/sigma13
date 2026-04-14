@@ -68,10 +68,6 @@
                         table?.toggleColumn(field);
                         this.refresh();
                     },
-                    reset() {
-                        localStorage.removeItem('tabulator-{{ $storageKey }}-columns');
-                        window.location.reload();
-                    }
                 }" @click.outside="open = false">
                     <button @click="open = !open; if(open) refresh()"
                         class="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-sigma-bg2 text-sigma-tx2 hover:text-sigma-tx hover:bg-sigma-b/30 transition-all text-[10px] font-bold uppercase tracking-widest outline-none">
