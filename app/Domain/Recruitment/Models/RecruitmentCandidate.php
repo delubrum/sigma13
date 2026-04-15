@@ -7,12 +7,13 @@ namespace App\Domain\Recruitment\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
 
 /**
- * @property int         $id
- * @property int         $recruitment_id
- * @property int|null    $user_id
- * @property int|null    $recruiter_id
+ * @property int $id
+ * @property int $recruitment_id
+ * @property int|null $user_id
+ * @property int|null $recruiter_id
  * @property string|null $kind
  * @property string|null $name
  * @property string|null $cc
@@ -53,8 +54,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property string|null $hired
  * @property string|null $candidate_list
  * @property array<mixed>|null $resources
- * @property \Illuminate\Support\Carbon|null $status_at
- * @property \Illuminate\Support\Carbon|null $created_at
+ * @property Carbon|null $status_at
+ * @property Carbon|null $created_at
  * @property string|null $data_consent
  */
 #[Fillable([
@@ -80,9 +81,9 @@ final class RecruitmentCandidate extends Model
     protected function casts(): array
     {
         return [
-            'resources'  => 'array',
+            'resources' => 'array',
             'created_at' => 'datetime',
-            'status_at'  => 'datetime',
+            'status_at' => 'datetime',
         ];
     }
 
@@ -90,7 +91,7 @@ final class RecruitmentCandidate extends Model
     protected static function booted(): void
     {
         self::creating(function (self $candidate): void {
-            $candidate->status     ??= 'appointment';
+            $candidate->status ??= 'appointment';
             $candidate->created_at ??= now();
         });
     }

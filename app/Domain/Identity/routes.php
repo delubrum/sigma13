@@ -19,5 +19,3 @@ Route::get('/forgot-password', LoginAdapter::class)->name('password.request');
 Route::post('/forgot-password', SendResetLinkAdapter::class)->name('password.email');
 Route::get('/reset-password/{token}', ShowAdapter::class)->name('password.reset');
 Route::post('/reset-password', ResetAdapter::class)->name('password.update');
-
-

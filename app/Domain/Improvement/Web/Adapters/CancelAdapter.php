@@ -26,7 +26,7 @@ final class CancelAdapter
         }
 
         Improvement::findOrFail($id)->update([
-            'status'           => 'Canceled',
+            'status' => 'Canceled',
             'rejection_reason' => $reason,
         ]);
 

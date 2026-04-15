@@ -30,7 +30,7 @@ final class IndexAdapter implements HasDetail, HasModule
     public function handle(): Response
     {
         return $this->hxView('components::index', [
-            'route'  => 'improvement',
+            'route' => 'improvement',
             'config' => $this->config(),
         ]);
     }
@@ -38,40 +38,40 @@ final class IndexAdapter implements HasDetail, HasModule
     public function config(): Config
     {
         return new Config(
-            title:          'Mejoras Continuas',
-            icon:           'ri-lightbulb-line',
-            subtitle:       'Gestión de acciones de mejora y correctivas',
+            title: 'Mejoras Continuas',
+            icon: 'ri-lightbulb-line',
+            subtitle: 'Gestión de acciones de mejora y correctivas',
             newButtonLabel: 'Nueva Mejora',
-            modalWidth:     '70',
-            columns:        SchemaGenerator::toColumns(TableData::class),
-            formFields:     SchemaGenerator::toFields(UpsertData::class),
+            modalWidth: '70',
+            columns: SchemaGenerator::toColumns(TableData::class),
+            formFields: SchemaGenerator::toFields(UpsertData::class),
             tabs: [
-                new Tabs(key: 'causes',     label: 'Causas',      icon: 'ri-search-eye-line',  route: 'improvement.causes',     default: true),
-                new Tabs(key: 'activities', label: 'Actividades',  icon: 'ri-task-line',        route: 'improvement.activities', default: false),
+                new Tabs(key: 'causes', label: 'Causas', icon: 'ri-search-eye-line', route: 'improvement.causes', default: true),
+                new Tabs(key: 'activities', label: 'Actividades', icon: 'ri-task-line', route: 'improvement.activities', default: false),
             ],
             options: [
                 new ActionOption(
-                    label:  'Rechazar',
-                    icon:   'ri-close-circle-line',
-                    route:  'improvement/reject',
+                    label: 'Rechazar',
+                    icon: 'ri-close-circle-line',
+                    route: 'improvement/reject',
                     target: '#modal-body-2',
-                    level:  2,
+                    level: 2,
                     method: 'GET',
                 ),
                 new ActionOption(
-                    label:  'Cancelar',
-                    icon:   'ri-forbid-line',
-                    route:  'improvement/cancel',
+                    label: 'Cancelar',
+                    icon: 'ri-forbid-line',
+                    route: 'improvement/cancel',
                     target: '#modal-body-2',
-                    level:  2,
+                    level: 2,
                     method: 'GET',
                 ),
                 new ActionOption(
-                    label:  'Cerrar Mejora',
-                    icon:   'ri-checkbox-circle-line',
-                    route:  'improvement/close',
+                    label: 'Cerrar Mejora',
+                    icon: 'ri-checkbox-circle-line',
+                    route: 'improvement/close',
                     target: '#modal-body-2',
-                    level:  2,
+                    level: 2,
                     method: 'GET',
                 ),
             ],
@@ -94,20 +94,20 @@ final class IndexAdapter implements HasDetail, HasModule
     public function asData(Request $request): JsonResponse
     {
         $filters = $request->collect('filter')->pluck('value', 'field')->toArray();
-        $sorts   = $request->collect('sort')->pluck('dir', 'field')->toArray();
+        $sorts = $request->collect('sort')->pluck('dir', 'field')->toArray();
 
         /** @var PaginatedResult<TableData> $result */
         $result = GetImprovementDataAction::run(
             filters: $filters,
-            sorts:   $sorts,
-            page:    $request->integer('page', 1),
-            size:    $request->integer('size', 15),
+            sorts: $sorts,
+            page: $request->integer('page', 1),
+            size: $request->integer('size', 15),
         );
 
         return response()->json([
-            'data'      => $result->items,
+            'data' => $result->items,
             'last_page' => $result->lastPage,
-            'last_row'  => $result->total,
+            'last_row' => $result->total,
         ]);
     }
 }

@@ -10,8 +10,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 final class SupplierEvaluation extends Model
 {
+    #[\Override]
     protected $table = 'suppliers_evaluation';
 
+    #[\Override]
     protected $fillable = [
         'user_id',
         'nit',
@@ -20,6 +22,7 @@ final class SupplierEvaluation extends Model
         'answers',
     ];
 
+    #[\Override]
     protected $casts = [
         'answers' => 'json',
     ];

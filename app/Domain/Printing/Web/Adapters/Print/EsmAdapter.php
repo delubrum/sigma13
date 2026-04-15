@@ -20,7 +20,7 @@ final class EsmAdapter
         /** @var list<string> $itemCodes */
         $itemCodes = array_filter((array) $request->input('id', []));
         /** @var list<int> $quantities */
-        $quantities = array_map('intval', (array) $request->input('val', []));
+        $quantities = array_map(intval(...), (array) $request->input('val', []));
 
         if (empty($itemCodes)) {
             abort(400, 'No items selected.');
@@ -51,9 +51,9 @@ final class EsmAdapter
 
         return response(
             view('printing::print.esm', [
-                'wo'     => $wo,
+                'wo' => $wo,
                 'labels' => $labels,
-                'qrUrl'  => $qrUrl,
+                'qrUrl' => $qrUrl,
             ])->render()
         )->header('Content-Type', 'text/html; charset=utf-8');
     }

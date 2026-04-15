@@ -34,7 +34,7 @@ final class CandidateTableQuery
 
     /**
      * @param  array<string, mixed>  $filters
-     * @param  array<string, string> $sorts
+     * @param  array<string, string>  $sorts
      */
     public function apply(array $filters, array $sorts, int $recruitmentId): self
     {
@@ -54,13 +54,13 @@ final class CandidateTableQuery
             $v = (string) (is_scalar($value) ? $value : '');
 
             match ((string) $field) {
-                'id'     => $this->query->where('recruitment_candidates.id', is_numeric($v) ? (int) $v : 0),
+                'id' => $this->query->where('recruitment_candidates.id', is_numeric($v) ? (int) $v : 0),
                 'status' => $this->query->where('recruitment_candidates.status', $v),
-                'name'   => $this->query->where('recruitment_candidates.name', 'ilike', "%$v%"),
-                'email'  => $this->query->where('recruitment_candidates.email', 'ilike', "%$v%"),
-                'cc'     => $this->query->where('recruitment_candidates.cc', 'ilike', "%$v%"),
-                'kind'   => $this->query->where('recruitment_candidates.kind', 'ilike', "%$v%"),
-                default  => null,
+                'name' => $this->query->where('recruitment_candidates.name', 'ilike', "%$v%"),
+                'email' => $this->query->where('recruitment_candidates.email', 'ilike', "%$v%"),
+                'cc' => $this->query->where('recruitment_candidates.cc', 'ilike', "%$v%"),
+                'kind' => $this->query->where('recruitment_candidates.kind', 'ilike', "%$v%"),
+                default => null,
             };
         }
 

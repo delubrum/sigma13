@@ -19,8 +19,8 @@ final class ImprovementTableQuery
         /** @var Builder<Improvement> $q */
         $q = Improvement::query()->select(
             'improvements.*',
-            DB::raw("(SELECT username FROM users WHERE id = improvements.user_id LIMIT 1) as creator_name"),
-            DB::raw("(SELECT username FROM users WHERE id = improvements.responsible_id LIMIT 1) as responsible_name"),
+            DB::raw('(SELECT username FROM users WHERE id = improvements.user_id LIMIT 1) as creator_name'),
+            DB::raw('(SELECT username FROM users WHERE id = improvements.responsible_id LIMIT 1) as responsible_name'),
         );
         $this->query = $q;
     }
@@ -32,7 +32,7 @@ final class ImprovementTableQuery
 
     /**
      * @param  array<string, mixed>  $filters
-     * @param  array<string, string> $sorts
+     * @param  array<string, string>  $sorts
      */
     public function apply(array $filters, array $sorts): self
     {
@@ -49,21 +49,21 @@ final class ImprovementTableQuery
             $val = (string) (is_scalar($value) ? $value : '');
 
             match ((string) $field) {
-                'id'          => $this->query->where('code', 'ilike', "%{$val}%"),
-                'status'      => $this->query->where('status', 'ilike', "%{$val}%"),
-                'process'     => $this->query->where('process', 'ilike', "%{$val}%"),
-                'type'        => $this->query->where('type', 'ilike', "%{$val}%"),
-                'source'      => $this->query->where('source', 'ilike', "%{$val}%"),
-                'creator'     => $this->query->whereRaw(
-                    "EXISTS (SELECT 1 FROM users WHERE id = improvements.user_id AND username ILIKE ?)",
+                'id' => $this->query->where('code', 'ilike', "%{$val}%"),
+                'status' => $this->query->where('status', 'ilike', "%{$val}%"),
+                'process' => $this->query->where('process', 'ilike', "%{$val}%"),
+                'type' => $this->query->where('type', 'ilike', "%{$val}%"),
+                'source' => $this->query->where('source', 'ilike', "%{$val}%"),
+                'creator' => $this->query->whereRaw(
+                    'EXISTS (SELECT 1 FROM users WHERE id = improvements.user_id AND username ILIKE ?)',
                     ["%{$val}%"]
                 ),
                 'responsible' => $this->query->whereRaw(
-                    "EXISTS (SELECT 1 FROM users WHERE id = improvements.responsible_id AND username ILIKE ?)",
+                    'EXISTS (SELECT 1 FROM users WHERE id = improvements.responsible_id AND username ILIKE ?)',
                     ["%{$val}%"]
                 ),
-                'date'        => $this->applyDateFilter($value),
-                default       => null,
+                'date' => $this->applyDateFilter($value),
+                default => null,
             };
         }
 

@@ -18,7 +18,7 @@ final class WoTableQuery
     {
         /** @var Builder<Wo> $q */
         $q = Wo::query()
-            ->select('wo.*', DB::raw("(SELECT username FROM users WHERE id = wo.user_id LIMIT 1) as username"));
+            ->select('wo.*', DB::raw('(SELECT username FROM users WHERE id = wo.user_id LIMIT 1) as username'));
         $this->query = $q;
     }
 
@@ -46,12 +46,12 @@ final class WoTableQuery
             $val = (string) (is_scalar($value) ? $value : '');
 
             match ((string) $field) {
-                'id'      => $this->query->where('code', 'ilike', "%{$val}%"),
+                'id' => $this->query->where('code', 'ilike', "%{$val}%"),
                 'project' => $this->query->where('project', 'ilike', "%{$val}%"),
-                'es'      => $this->query->where('es_id', 'ilike', "%{$val}%"),
-                'user'    => $this->query->whereRaw("EXISTS (SELECT 1 FROM users WHERE id = wo.user_id AND username ILIKE ?)", ["%{$val}%"]),
-                'date'    => $this->applyDateFilter($value),
-                default   => null,
+                'es' => $this->query->where('es_id', 'ilike', "%{$val}%"),
+                'user' => $this->query->whereRaw('EXISTS (SELECT 1 FROM users WHERE id = wo.user_id AND username ILIKE ?)', ["%{$val}%"]),
+                'date' => $this->applyDateFilter($value),
+                default => null,
             };
         }
 

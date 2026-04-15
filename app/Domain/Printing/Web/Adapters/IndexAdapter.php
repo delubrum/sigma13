@@ -25,7 +25,7 @@ final class IndexAdapter implements HasModule
     public function handle(): Response
     {
         return $this->hxView('components::index', [
-            'route'  => 'printing',
+            'route' => 'printing',
             'config' => $this->config(),
         ]);
     }
@@ -52,7 +52,7 @@ final class IndexAdapter implements HasModule
     public function asData(Request $request): JsonResponse
     {
         $filters = $request->collect('filter')->pluck('value', 'field')->toArray();
-        $sorts   = $request->collect('sort')->pluck('dir', 'field')->toArray();
+        $sorts = $request->collect('sort')->pluck('dir', 'field')->toArray();
 
         /** @var PaginatedResult<TableData> $result */
         $result = GetWoDataAction::run(
@@ -63,9 +63,9 @@ final class IndexAdapter implements HasModule
         );
 
         return response()->json([
-            'data'      => $result->items,
+            'data' => $result->items,
             'last_page' => $result->lastPage,
-            'last_row'  => $result->total,
+            'last_row' => $result->total,
         ]);
     }
 }

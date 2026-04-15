@@ -16,15 +16,15 @@ final class RecruitmentTableQuery
 
     public function __construct()
     {
-        $hiredSub    = "COALESCE((SELECT COUNT(id) FROM recruitment_candidates WHERE recruitment_id = recruitment.id AND status = 'hired'),0)";
-        $convSub     = "CASE WHEN recruitment.qty > 0 THEN ROUND(($hiredSub::numeric / recruitment.qty) * 100) ELSE 0 END";
-        $profileSub  = '(SELECT name FROM job_profiles WHERE id = recruitment.profile_id LIMIT 1)';
+        $hiredSub = "COALESCE((SELECT COUNT(id) FROM recruitment_candidates WHERE recruitment_id = recruitment.id AND status = 'hired'),0)";
+        $convSub = "CASE WHEN recruitment.qty > 0 THEN ROUND(($hiredSub::numeric / recruitment.qty) * 100) ELSE 0 END";
+        $profileSub = '(SELECT name FROM job_profiles WHERE id = recruitment.profile_id LIMIT 1)';
         $divisionSub = '(SELECT name FROM hr_db WHERE id = (SELECT division_id FROM job_profiles WHERE id = recruitment.profile_id LIMIT 1) LIMIT 1)';
-        $areaSub     = '(SELECT area FROM hr_db WHERE id = (SELECT division_id FROM job_profiles WHERE id = recruitment.profile_id LIMIT 1) LIMIT 1)';
-        $creatorSub  = '(SELECT username FROM users WHERE id = recruitment.user_id LIMIT 1)';
+        $areaSub = '(SELECT area FROM hr_db WHERE id = (SELECT division_id FROM job_profiles WHERE id = recruitment.profile_id LIMIT 1) LIMIT 1)';
+        $creatorSub = '(SELECT username FROM users WHERE id = recruitment.user_id LIMIT 1)';
         $assigneeSub = '(SELECT username FROM users WHERE id = recruitment.assignee_id LIMIT 1)';
         $approverSub = '(SELECT username FROM users WHERE email = recruitment.approver LIMIT 1)';
-        $daysSub     = "EXTRACT(DAY FROM (COALESCE(recruitment.closed_at, NOW()) - recruitment.created_at))::int";
+        $daysSub = 'EXTRACT(DAY FROM (COALESCE(recruitment.closed_at, NOW()) - recruitment.created_at))::int';
         $hiredQtySub = "($hiredSub || '/' || recruitment.qty)";
 
         /** @var Builder<Recruitment> $q */
@@ -51,7 +51,7 @@ final class RecruitmentTableQuery
 
     /**
      * @param  array<string, mixed>  $filters
-     * @param  array<string, string> $sorts
+     * @param  array<string, string>  $sorts
      */
     public function apply(array $filters, array $sorts): self
     {
@@ -69,14 +69,14 @@ final class RecruitmentTableQuery
             $v = (string) (is_scalar($value) ? $value : '');
 
             match ((string) $field) {
-                'id'       => $this->query->where('recruitment.id', is_numeric($v) ? (int) $v : 0),
-                'date'     => $this->applyDateFilter($v, 'recruitment.created_at'),
-                'status'   => $this->query->where('recruitment.status', $v),
-                'profile'  => $this->query->whereRaw('(SELECT name FROM job_profiles WHERE id = recruitment.profile_id LIMIT 1) ILIKE ?', ["%$v%"]),
+                'id' => $this->query->where('recruitment.id', is_numeric($v) ? (int) $v : 0),
+                'date' => $this->applyDateFilter($v, 'recruitment.created_at'),
+                'status' => $this->query->where('recruitment.status', $v),
+                'profile' => $this->query->whereRaw('(SELECT name FROM job_profiles WHERE id = recruitment.profile_id LIMIT 1) ILIKE ?', ["%$v%"]),
                 'division' => $this->query->whereRaw('(SELECT name FROM hr_db WHERE id = (SELECT division_id FROM job_profiles WHERE id = recruitment.profile_id LIMIT 1) LIMIT 1) ILIKE ?', ["%$v%"]),
-                'creator'  => $this->query->whereRaw('(SELECT username FROM users WHERE id = recruitment.user_id LIMIT 1) ILIKE ?', ["%$v%"]),
+                'creator' => $this->query->whereRaw('(SELECT username FROM users WHERE id = recruitment.user_id LIMIT 1) ILIKE ?', ["%$v%"]),
                 'assignee' => $this->query->whereRaw('(SELECT username FROM users WHERE id = recruitment.assignee_id LIMIT 1) ILIKE ?', ["%$v%"]),
-                default    => null,
+                default => null,
             };
         }
 
@@ -94,9 +94,9 @@ final class RecruitmentTableQuery
 
         foreach ($sorts as $field => $dir) {
             match ((string) $field) {
-                'date'    => $this->query->orderBy('recruitment.created_at', $dir),
-                'status'  => $this->query->orderBy('recruitment.status', $dir),
-                default   => $this->query->orderBy('recruitment.id', $dir),
+                'date' => $this->query->orderBy('recruitment.created_at', $dir),
+                'status' => $this->query->orderBy('recruitment.status', $dir),
+                default => $this->query->orderBy('recruitment.id', $dir),
             };
         }
 

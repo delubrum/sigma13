@@ -34,12 +34,12 @@ final class GetDocsAction
             }
 
             $path = $file->getPathname();
-            $relativeToDir = str_replace('\\', '/', substr($path, strlen($basePath) + 1));
+            $relativeToDir = str_replace('\\', '/', substr((string) $path, strlen($basePath) + 1));
 
             $category = '';
             $type = '';
             $dirName = dirname($relativeToDir);
-            
+
             if ($dirName !== '.') {
                 $parts = explode('/', $dirName);
                 $category = $parts[0] ?? '';
@@ -47,10 +47,10 @@ final class GetDocsAction
             }
 
             $fileName = $file->getFilename();
-            $fileDisplay = ucfirst(str_replace(['-', '_'], ' ', pathinfo($fileName, PATHINFO_FILENAME)));
-            $ext = pathinfo($fileName, PATHINFO_EXTENSION);
-            if ($ext) {
-                $fileDisplay .= '.' . $ext;
+            $fileDisplay = ucfirst(str_replace(['-', '_'], ' ', pathinfo((string) $fileName, PATHINFO_FILENAME)));
+            $ext = pathinfo((string) $fileName, PATHINFO_EXTENSION);
+            if ($ext !== '' && $ext !== '0') {
+                $fileDisplay .= '.'.$ext;
             }
 
             $files[] = DocsTableData::from([
@@ -59,7 +59,7 @@ final class GetDocsAction
                 'name' => $fileDisplay,
                 'date' => date('Y-m-d H:i:s', $file->getMTime()),
                 'size' => $this->formatBytes($file->getSize()),
-                'url' => asset($directory . '/' . $relativeToDir),
+                'url' => asset($directory.'/'.$relativeToDir),
                 'raw_name' => $fileDisplay,
                 'raw_size' => $file->getSize(),
                 'raw_date' => $file->getMTime(),
@@ -68,7 +68,7 @@ final class GetDocsAction
 
         $totalCount = count($files);
         $size = 15; // Default size
-        
+
         return new PaginatedResult(
             items: $files,
             lastPage: (int) ceil($totalCount / $size),
@@ -84,6 +84,6 @@ final class GetDocsAction
         $pow = min($pow, count($units) - 1);
         $bytes /= (1 << (10 * $pow));
 
-        return round($bytes, $precision) . ' ' . $units[$pow];
+        return round($bytes, $precision).' '.$units[$pow];
     }
 }

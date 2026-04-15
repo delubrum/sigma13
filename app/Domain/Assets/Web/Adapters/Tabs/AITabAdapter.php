@@ -133,16 +133,16 @@ final class AITabAdapter
             $metrics = ['total_events' => 0, 'total_minutes' => 0, 'high_complexity' => 0, 'med_complexity' => 0];
             $corpusString = '';
             foreach ($results as $row) {
-                $metrics['total_events']    += (int) $row->qty;
-                $metrics['total_minutes']   += (int) $row->total_min;
+                $metrics['total_events'] += (int) $row->qty;
+                $metrics['total_minutes'] += (int) $row->total_min;
                 $metrics['high_complexity'] += (int) $row->high_complexity;
-                $metrics['med_complexity']  += (int) $row->med_complexity;
+                $metrics['med_complexity'] += (int) $row->med_complexity;
 
                 $complexityTag = '';
                 if ((int) $row->high_complexity > 0) {
-                    $complexityTag = ' [HIGH:' . $row->high_complexity . ']';
+                    $complexityTag = ' [HIGH:'.$row->high_complexity.']';
                 } elseif ((int) $row->med_complexity > 0) {
-                    $complexityTag = ' [MED:' . $row->med_complexity . ']';
+                    $complexityTag = ' [MED:'.$row->med_complexity.']';
                 }
 
                 $corpusString .= "- ({$row->qty}x, {$row->total_min}min{$complexityTag}) {$row->cluster_label}\n";
@@ -201,16 +201,16 @@ final class AITabAdapter
 
             // Merge any catch-all categories into the top real technical category
             $catchAll = ['OTROS', 'OTHER', 'GESTIÓN', 'ADMINISTRATIVO', 'MISCELÁNEOS', 'SIN CLASIFICAR', 'DESCONOCIDO'];
-            $isCatchAll = fn(string $term): bool => in_array(strtoupper(trim($term)), $catchAll, true)
+            $isCatchAll = fn (string $term): bool => in_array(strtoupper(trim($term)), $catchAll, true)
                 || str_contains(strtoupper($term), 'OTRO')
                 || str_contains(strtoupper($term), 'OTHER');
 
             foreach (['failures_by_frequency' => 'qty', 'failures_by_impact' => 'total_min'] as $key => $field) {
-                $real    = array_filter($analysis[$key], fn(array $f): bool => !$isCatchAll($f['term']));
-                $garbage = array_filter($analysis[$key], fn(array $f): bool =>  $isCatchAll($f['term']));
+                $real = array_filter($analysis[$key], fn (array $f): bool => ! $isCatchAll($f['term']));
+                $garbage = array_filter($analysis[$key], fn (array $f): bool => $isCatchAll($f['term']));
                 if ($garbage && $real) {
                     $extra = array_sum(array_column(array_values($garbage), $field));
-                    usort($real, fn(array $a, array $b): int => $b[$field] <=> $a[$field]);
+                    usort($real, fn (array $a, array $b): int => $b[$field] <=> $a[$field]);
                     $real = array_values($real);
                     $real[0][$field] += $extra;
                     $analysis[$key] = $real;
@@ -239,16 +239,16 @@ final class AITabAdapter
 
             return response(
                 view('assets::tabs.ai', [
-                    'asset'      => $asset,
-                    'assetId'    => $asset->id,
-                    'metrics'    => $metrics,
+                    'asset' => $asset,
+                    'assetId' => $asset->id,
+                    'metrics' => $metrics,
                     'globalMttr' => $globalMttr,
-                    'analysis'   => $analysis,
+                    'analysis' => $analysis,
                 ])->fragment('report')
             );
 
         } catch (Exception $e) {
-            return response('<div class="p-4 bg-red-600 text-white font-black text-xs">Engine Error: ' . e($e->getMessage()) . '</div>');
+            return response('<div class="p-4 bg-red-600 text-white font-black text-xs">Engine Error: '.e($e->getMessage()).'</div>');
         }
     }
 }

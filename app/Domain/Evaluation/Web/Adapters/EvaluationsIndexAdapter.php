@@ -45,7 +45,8 @@ final class EvaluationsIndexAdapter implements HasDetail, HasModule
     {
         // En una implementación real aquí llamaríamos a un Action específico
         // Por ahora devolvemos un objeto anónimo compatible para no romper la interfaz
-        return new class extends Data {
+        return new class extends Data
+        {
             public string $title = 'Detalle de Evaluación';
         };
     }

@@ -30,7 +30,7 @@ final class EvaluationController
         );
 
         return view('evaluation::index', [
-            'config' => $config
+            'config' => $config,
         ]);
     }
 

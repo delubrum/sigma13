@@ -9,10 +9,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 final class WoItem extends Model
 {
+    #[\Override]
     public $timestamps = false;
 
+    #[\Override]
     protected $table = 'wo_items';
 
+    #[\Override]
     protected $fillable = ['wo_code', 'code', 'description', 'fuc', 'qty'];
 
     /** @return BelongsTo<Wo, $this> */

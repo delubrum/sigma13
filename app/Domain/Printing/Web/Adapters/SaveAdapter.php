@@ -26,13 +26,13 @@ final class SaveAdapter
     {
         $request->validate([
             'excel_file' => ['required', 'file', 'mimes:xlsx'],
-            'qr_image'   => ['required', 'file', 'image'],
+            'qr_image' => ['required', 'file', 'image'],
         ]);
 
         try {
             $parsed = ParseWoExcelAction::run($request->file('excel_file'));
         } catch (Throwable $e) {
-            $this->hxNotify('Error al leer Excel: ' . $e->getMessage(), 'error');
+            $this->hxNotify('Error al leer Excel: '.$e->getMessage(), 'error');
 
             return $this->hxResponse([], 422);
         }
@@ -47,19 +47,19 @@ final class SaveAdapter
 
         DB::transaction(function () use ($parsed, $code, $request): void {
             $wo = Wo::create([
-                'code'    => $code,
+                'code' => $code,
                 'project' => $parsed['project'],
-                'es_id'   => $request->input('es_id'),
+                'es_id' => $request->input('es_id'),
                 'user_id' => Auth::id(),
             ]);
 
             foreach ($parsed['items'] as $item) {
                 WoItem::create([
-                    'wo_code'     => $code,
-                    'code'        => $item['code'],
+                    'wo_code' => $code,
+                    'code' => $item['code'],
                     'description' => $item['description'],
-                    'fuc'         => $item['fuc'],
-                    'qty'         => $item['qty'],
+                    'fuc' => $item['fuc'],
+                    'qty' => $item['qty'],
                 ]);
             }
 

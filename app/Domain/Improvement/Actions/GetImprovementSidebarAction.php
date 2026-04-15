@@ -19,8 +19,8 @@ final class GetImprovementSidebarAction
         $improvement = Improvement::query()
             ->select(
                 'improvements.*',
-                DB::raw("(SELECT username FROM users WHERE id = improvements.user_id LIMIT 1) as creator_name"),
-                DB::raw("(SELECT username FROM users WHERE id = improvements.responsible_id LIMIT 1) as responsible_name"),
+                DB::raw('(SELECT username FROM users WHERE id = improvements.user_id LIMIT 1) as creator_name'),
+                DB::raw('(SELECT username FROM users WHERE id = improvements.responsible_id LIMIT 1) as responsible_name'),
             )
             ->findOrFail($id);
 

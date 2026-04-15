@@ -22,9 +22,9 @@ final class UpsertData extends Data
                 label: '* Excel File (.xlsx)',
                 type: 'file',
                 required: true,
-                accept: '.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
                 widget: 'sigma-file',
                 width: FieldWidth::Full,
+                accept: '.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             )),
 
             (new Field(
@@ -32,9 +32,9 @@ final class UpsertData extends Data
                 label: '* QR Image',
                 type: 'file',
                 required: true,
-                accept: 'image/*',
                 widget: 'sigma-file',
                 width: FieldWidth::Full,
+                accept: 'image/*',
             )),
         ];
     }

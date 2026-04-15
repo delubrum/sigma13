@@ -41,7 +41,10 @@ final class AppServiceProvider extends ServiceProvider
         View::addNamespace('recruitment', app_path('Domain/Recruitment/Web/Views'));
         View::addNamespace('it', app_path('Domain/IT/Web/Views'));
         View::addNamespace('engineering', app_path('Domain/Engineering/Web/Views'));
-        View::addNamespace('printing',     app_path('Domain/Printing/Web/Views'));
+        View::addNamespace('printing', app_path('Domain/Printing/Web/Views'));
         View::addNamespace('improvement', app_path('Domain/Improvement/Web/Views'));
+        View::addNamespace('job-profiles', app_path('Domain/JobProfiles/Web/Views'));
+        View::addNamespace('ppe',       app_path('Domain/Ppe/Web/Views'));
+        View::addNamespace('extrusion', app_path('Domain/Extrusion/Web/Views'));
     }
 }

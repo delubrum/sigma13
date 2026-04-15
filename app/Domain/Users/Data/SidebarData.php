@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Users\Data;
 
+use App\Domain\Shared\Data\Field;
 use Spatie\LaravelData\Attributes\MapInputName;
 use Spatie\LaravelData\Data;
 
@@ -16,7 +17,7 @@ final class SidebarData extends Data
         public readonly ?string $document,
         #[MapInputName('is_active')]
         public readonly bool $isActive,
-        /** @var \App\Domain\Shared\Data\Field[] */
+        /** @var Field[] */
         public readonly array $fields = [],
     ) {}
 

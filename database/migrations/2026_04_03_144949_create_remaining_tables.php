@@ -271,33 +271,6 @@ return new class extends Migration
             $table->tinyInteger('method_id')->nullable();
         });
 
-        Schema::create('infraimprovement', function (Blueprint $table) {
-            $table->id();
-            $table->timestamp('created_at')->useCurrent();
-            $table->string('kind', 100)->nullable();
-            $table->string('priority', 100)->nullable();
-            $table->text('description')->nullable();
-            $table->integer('user_id')->nullable();
-            $table->integer('responsible_id')->nullable();
-            $table->string('status', 100)->nullable();
-            $table->timestamp('status_at')->nullable();
-        });
-
-        Schema::create('infraimprovement_events', function (Blueprint $table) {
-            $table->id();
-            $table->timestamp('created_at')->useCurrent();
-            $table->integer('infraimprovement_id');
-            $table->integer('user_id');
-            $table->string('kind', 20);
-            $table->text('description');
-            $table->date('started_at')->nullable();
-            $table->date('ended_at')->nullable();
-            $table->integer('responsible_id')->nullable();
-            $table->integer('plan_id')->nullable();
-            $table->text('rating')->nullable();
-            $table->timestamp('closed_at')->nullable();
-        });
-
         Schema::create('inspection_activities', function (Blueprint $table) {
             $table->id();
             $table->integer('asset_id')->nullable();
@@ -558,32 +531,6 @@ return new class extends Migration
             $table->string('photo_path', 255)->nullable()->comment('Ruta del archivo de la foto cargado');
             $table->text('hijos_json')->nullable();
             $table->text('ultimo_estudio_json')->nullable();
-        });
-
-        Schema::create('preop', function (Blueprint $table) {
-            $table->id();
-            $table->timestamp('created_at')->useCurrent();
-            $table->integer('user_id')->nullable();
-            $table->integer('vehicle_id')->nullable();
-            $table->integer('km')->nullable();
-            $table->string('status', 20)->nullable();
-            $table->timestamp('updated_at')->nullable();
-        });
-
-        Schema::create('preop_items', function (Blueprint $table) {
-            $table->id();
-            $table->integer('preop_id')->nullable();
-            $table->string('question_id', 50)->nullable();
-            $table->text('answer')->nullable();
-            $table->text('obs')->nullable();
-            $table->text('url')->nullable();
-        });
-
-        Schema::create('preop_questions', function (Blueprint $table) {
-            $table->id();
-            $table->string('kind', 10)->nullable();
-            $table->string('category', 50)->nullable();
-            $table->text('question')->nullable();
         });
 
         Schema::create('preoperational', function (Blueprint $table) {
@@ -886,17 +833,6 @@ return new class extends Migration
             $table->string('url', 100)->nullable();
         });
 
-        Schema::create('token_auth', function (Blueprint $table) {
-            $table->id();
-            $table->string('email');
-            $table->string('user_agent', 255)->nullable();
-            $table->string('ip_address', 45)->nullable();
-            $table->string('password_hash', 255);
-            $table->string('selector_hash', 255);
-            $table->boolean('is_expired')->default(false);
-            $table->timestamp('expiry_date')->useCurrent()->useCurrentOnUpdate();
-        });
-
         Schema::create('wo', function (Blueprint $table) {
             $table->id();
             $table->string('code', 50);
@@ -921,7 +857,6 @@ return new class extends Migration
     {
         Schema::dropIfExists('wo_items');
         Schema::dropIfExists('wo');
-        Schema::dropIfExists('token_auth');
         Schema::dropIfExists('tickets');
         Schema::dropIfExists('ticket_items');
         Schema::dropIfExists('test_questions');
@@ -942,9 +877,6 @@ return new class extends Migration
         Schema::dropIfExists('preoperational_items');
         Schema::dropIfExists('preoperational_activities');
         Schema::dropIfExists('preoperational');
-        Schema::dropIfExists('preop_questions');
-        Schema::dropIfExists('preop_items');
-        Schema::dropIfExists('preop');
         Schema::dropIfExists('personal_data_updates');
         Schema::dropIfExists('mntp_items');
         Schema::dropIfExists('mnt_preventive_form');
@@ -953,7 +885,6 @@ return new class extends Migration
         Schema::dropIfExists('mnt');
         Schema::dropIfExists('matrices_db');
         Schema::dropIfExists('matrices');
-        Schema::dropIfExists('log');
         Schema::dropIfExists('job_profile_items');
         Schema::dropIfExists('job_profiles');
         Schema::dropIfExists('it_items');
@@ -962,8 +893,6 @@ return new class extends Migration
         Schema::dropIfExists('inspection_items');
         Schema::dropIfExists('inspection_automations');
         Schema::dropIfExists('inspection_activities');
-        Schema::dropIfExists('infraimprovement_events');
-        Schema::dropIfExists('infraimprovement');
         Schema::dropIfExists('improvement_causes');
         Schema::dropIfExists('improvement_activities');
         Schema::dropIfExists('improvement');

@@ -34,9 +34,9 @@ final class TableData extends Data
             headerFilterParams: [
                 'values' => [
                     'Analysis' => 'Analysis',
-                    'Plan'     => 'Plan',
-                    'Closure'  => 'Closure',
-                    'Closed'   => 'Closed',
+                    'Plan' => 'Plan',
+                    'Closure' => 'Closure',
+                    'Closed' => 'Closed',
                     'Rejected' => 'Rejected',
                     'Canceled' => 'Canceled',
                 ],
@@ -61,21 +61,21 @@ final class TableData extends Data
         $status = (string) ($row->status ?? 'Analysis');
         $color = match ($status) {
             'Analysis' => 'border-blue-500 text-blue-500',
-            'Plan'     => 'border-yellow-500 text-yellow-500',
-            'Closure'  => 'border-orange-500 text-orange-500',
-            'Closed'   => 'border-green-500 text-green-500',
-            default    => 'border-red-500 text-red-500',
+            'Plan' => 'border-yellow-500 text-yellow-500',
+            'Closure' => 'border-orange-500 text-orange-500',
+            'Closed' => 'border-green-500 text-green-500',
+            default => 'border-red-500 text-red-500',
         };
 
         return new self(
-            id:          (string) ($row->code ?? $row->id ?? ''),
-            date:        isset($row->created_at) ? (string) $row->created_at : '',
-            creator:     (string) ($row->creator_name ?? ''),
+            id: (string) ($row->code ?? $row->id ?? ''),
+            date: isset($row->created_at) ? (string) $row->created_at : '',
+            creator: (string) ($row->creator_name ?? ''),
             responsible: (string) ($row->responsible_name ?? ''),
-            process:     (string) ($row->process ?? ''),
-            status:      "<span class=\"px-2 py-0.5 rounded border {$color} font-bold uppercase text-[10px]\">{$status}</span>",
-            type:        (string) ($row->type ?? ''),
-            source:      (string) ($row->source ?? ''),
+            process: (string) ($row->process ?? ''),
+            status: "<span class=\"px-2 py-0.5 rounded border {$color} font-bold uppercase text-[10px]\">{$status}</span>",
+            type: (string) ($row->type ?? ''),
+            source: (string) ($row->source ?? ''),
             description: (string) ($row->description ?? ''),
         );
     }

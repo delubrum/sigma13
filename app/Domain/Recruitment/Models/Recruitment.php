@@ -7,16 +7,17 @@ namespace App\Domain\Recruitment\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
- * @property int         $id
- * @property int         $user_id
- * @property int|null    $profile_id
- * @property int|null    $assignee_id
+ * @property int $id
+ * @property int $user_id
+ * @property int|null $profile_id
+ * @property int|null $assignee_id
  * @property string|null $approver
- * @property int         $qty
- * @property int         $complexity
- * @property string      $status
+ * @property int $qty
+ * @property int $complexity
+ * @property string $status
  * @property string|null $city
  * @property string|null $contract
  * @property string|null $srange
@@ -26,9 +27,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $others
  * @property array<mixed>|null $resources
  * @property string|null $rejection
- * @property \Illuminate\Support\Carbon|null $approved_at
- * @property \Illuminate\Support\Carbon|null $closed_at
- * @property \Illuminate\Support\Carbon|null $created_at
+ * @property Carbon|null $approved_at
+ * @property Carbon|null $closed_at
+ * @property Carbon|null $created_at
  */
 #[Fillable([
     'user_id', 'profile_id', 'assignee_id', 'approver', 'qty', 'complexity',
@@ -47,10 +48,10 @@ final class Recruitment extends Model
     protected function casts(): array
     {
         return [
-            'resources'   => 'array',
-            'created_at'  => 'datetime',
+            'resources' => 'array',
+            'created_at' => 'datetime',
             'approved_at' => 'datetime',
-            'closed_at'   => 'datetime',
+            'closed_at' => 'datetime',
         ];
     }
 
@@ -61,7 +62,7 @@ final class Recruitment extends Model
             if (auth()->check()) {
                 $recruitment->user_id ??= (int) auth()->id();
             }
-            $recruitment->status     ??= 'approval';
+            $recruitment->status ??= 'approval';
             $recruitment->complexity ??= 15;
             $recruitment->created_at ??= now();
         });

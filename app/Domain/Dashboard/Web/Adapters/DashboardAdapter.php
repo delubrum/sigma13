@@ -6,6 +6,7 @@ namespace App\Domain\Dashboard\Web\Adapters;
 
 use App\Support\HtmxOrchestrator;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
 final class DashboardAdapter
@@ -19,7 +20,7 @@ final class DashboardAdapter
 
         if (! $user->telegram_chat_id && ! $user->telegram_link_token) {
             $user->update([
-                'telegram_link_token' => \Illuminate\Support\Str::random(32),
+                'telegram_link_token' => Str::random(32),
             ]);
         }
 

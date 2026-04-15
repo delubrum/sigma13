@@ -16,17 +16,17 @@ final class DetailAdapter
 
     public function handle(Wo $wo): Response
     {
-        $items = $wo->items()->get()->map(fn (object $item) => [
-            'id'          => $item->code,
+        $items = $wo->items()->get()->map(fn (object $item): array => [
+            'id' => $item->code,
             'description' => stripslashes((string) $item->description),
-            'fuc'         => (string) $item->fuc,
-            'qty'         => (int) $item->qty,
-            'print_val'   => 0,
+            'fuc' => (string) $item->fuc,
+            'qty' => (int) $item->qty,
+            'print_val' => 0,
         ])->values()->all();
 
         return $this->hxView('printing::detail', [
-            'wo'     => $wo,
-            'items'  => $items,
+            'wo' => $wo,
+            'items' => $items,
             'isEsId' => ! empty($wo->es_id),
         ]);
     }

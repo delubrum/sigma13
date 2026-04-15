@@ -30,7 +30,7 @@ final class ImprovementCause extends Model
     protected function casts(): array
     {
         return [
-            'whys'   => 'array',
+            'whys' => 'array',
             'method' => 'integer',
         ];
     }

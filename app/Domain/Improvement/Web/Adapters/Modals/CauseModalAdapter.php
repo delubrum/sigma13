@@ -23,15 +23,15 @@ final class CauseModalAdapter
     public function asCreate(int $id): Response
     {
         $this->hxModalHeader([
-            'icon'     => 'ri-search-eye-line',
-            'title'    => 'Registrar Causa',
+            'icon' => 'ri-search-eye-line',
+            'title' => 'Registrar Causa',
             'subtitle' => "Mejora #{$id}",
         ]);
         $this->hxModalWidth('50');
 
         return $this->hxView('improvement::modals.cause', [
             'improvementId' => $id,
-            'cause'         => null,
+            'cause' => null,
         ]);
     }
 
@@ -40,33 +40,33 @@ final class CauseModalAdapter
         $cause = ImprovementCause::findOrFail($causeId);
 
         $this->hxModalHeader([
-            'icon'     => 'ri-search-eye-line',
-            'title'    => 'Causa Registrada',
+            'icon' => 'ri-search-eye-line',
+            'title' => 'Causa Registrada',
             'subtitle' => "Mejora #{$id}",
         ]);
         $this->hxModalWidth('50');
 
         return $this->hxView('improvement::modals.cause', [
             'improvementId' => $id,
-            'cause'         => $cause,
+            'cause' => $cause,
         ]);
     }
 
     public function upsert(Request $request): JsonResponse
     {
         $improvementId = $request->integer('improvement_id');
-        $method        = $request->integer('method');
+        $method = $request->integer('method');
 
         $request->validate([
             'improvement_id' => ['required', 'integer'],
-            'reason'         => ['required', 'string'],
-            'method'         => ['required', 'in:1,2'],
-            'probable'       => ['required', 'string'],
+            'reason' => ['required', 'string'],
+            'method' => ['required', 'in:1,2'],
+            'probable' => ['required', 'string'],
         ]);
 
         $filePath = null;
         if ($method === 2 && $request->hasFile('file')) {
-            $file     = $request->file('file');
+            $file = $request->file('file');
             $filePath = Storage::disk('public')->putFileAs(
                 "improvement/other/{$improvementId}",
                 $file,
@@ -76,27 +76,27 @@ final class CauseModalAdapter
 
         $whys = null;
         if ($method === 1) {
-            $whys = array_values(array_filter($request->input('whys', []), fn (mixed $v): bool => ! blank($v)));
+            $whys = array_values(array_filter($request->input('whys', []), static fn ($v) => ! blank($v)));
         }
 
         $id = $request->integer('id') ?: null;
 
         if ($id) {
             ImprovementCause::findOrFail($id)->update([
-                'reason'   => $request->string('reason')->toString(),
-                'method'   => $method,
+                'reason' => $request->string('reason')->toString(),
+                'method' => $method,
                 'probable' => $request->string('probable')->toString(),
-                'whys'     => $whys ? json_encode($whys) : null,
-                'file'     => $filePath,
+                'whys' => $whys ? json_encode($whys) : null,
+                'file' => $filePath,
             ]);
         } else {
             ImprovementCause::create([
                 'improvement_id' => $improvementId,
-                'reason'         => $request->string('reason')->toString(),
-                'method'         => $method,
-                'probable'       => $request->string('probable')->toString(),
-                'whys'           => $whys ? json_encode($whys) : null,
-                'file'           => $filePath,
+                'reason' => $request->string('reason')->toString(),
+                'method' => $method,
+                'probable' => $request->string('probable')->toString(),
+                'whys' => $whys ? json_encode($whys) : null,
+                'file' => $filePath,
             ]);
 
             Improvement::findOrFail($improvementId)->update(['status' => 'Plan']);
@@ -136,22 +136,22 @@ final class CauseModalAdapter
                 default => '-',
             };
 
-            $actions = "<button class=\"btn-icon\" hx-get=\"".route('improvement.causes.show', [$c->improvement_id, $c->id])."\" hx-target=\"#modal-body-2\" hx-swap=\"innerHTML\"><i class=\"ri-eye-line\"></i></button> ";
-            $actions .= "<button class=\"btn-icon text-red-500\" hx-delete=\"".route('improvement.causes.delete', $c->id)."\" hx-confirm=\"¿Eliminar esta causa?\"><i class=\"ri-delete-bin-line\"></i></button>";
+            $actions = '<button class="btn-icon" hx-get="'.route('improvement.causes.show', [$c->improvement_id, $c->id]).'" hx-target="#modal-body-2" hx-swap="innerHTML"><i class="ri-eye-line"></i></button> ';
+            $actions .= '<button class="btn-icon text-red-500" hx-delete="'.route('improvement.causes.delete', $c->id).'" hx-confirm="¿Eliminar esta causa?"><i class="ri-delete-bin-line"></i></button>';
 
             return [
-                'id'       => $c->id,
-                'reason'   => $c->reason,
-                'method'   => $method,
+                'id' => $c->id,
+                'reason' => $c->reason,
+                'method' => $method,
                 'probable' => $c->probable,
-                'actions'  => $actions,
+                'actions' => $actions,
             ];
         })->values()->all();
 
         return response()->json([
-            'data'      => $items,
+            'data' => $items,
             'last_page' => $paginator->lastPage(),
-            'last_row'  => $paginator->total(),
+            'last_row' => $paginator->total(),
         ]);
     }
 }

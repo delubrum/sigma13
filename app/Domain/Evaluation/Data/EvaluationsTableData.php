@@ -29,10 +29,10 @@ final class EvaluationsTableData extends Data
         public readonly string $type,
 
         #[Column(
-            title: 'Resultado', 
-            width: 120, 
-            hozAlign: 'center', 
-            formatter: 'progress', 
+            title: 'Resultado',
+            width: 120,
+            hozAlign: 'center',
+            formatter: 'progress',
             formatterParams: ['min' => 0, 'max' => 100, 'legend' => true, 'color' => ['#ef4444', '#f59e0b', '#10b981']]
         )]
         public readonly float $result,

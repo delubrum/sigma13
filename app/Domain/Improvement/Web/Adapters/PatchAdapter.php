@@ -18,15 +18,15 @@ final class PatchAdapter
     public function handle(int $id, Request $request): JsonResponse
     {
         $improvement = Improvement::findOrFail($id);
-        $field       = $request->string('field')->toString();
-        $value       = $request->input($field);
+        $field = $request->string('field')->toString();
+        $value = $request->input($field);
 
         if (! in_array($field, ['aim', 'goal', 'user_ids'], true)) {
             abort(403, 'Campo no permitido.');
         }
 
         if ($field === 'user_ids' && is_array($value)) {
-            $value = array_map('intval', $value);
+            $value = array_map(intval(...), $value);
         }
 
         $improvement->update([$field => $value]);

@@ -1,0 +1,162 @@
+ ------ ----------------------------------------------------------------------- 
+  Line   Actions/SaveAnswersAction.php                                          
+ ------ ----------------------------------------------------------------------- 
+  14     Method App\Domain\Preoperational\Actions\SaveAnswersAction::handle()   
+         has parameter $data with no value type specified in iterable type      
+         array.                                                                 
+         🪪  missingType.iterableValue                                          
+         💡  See:                                                               
+         https://phpstan.org/blog/solving-phpstan-no-value-type-specified-in-i  
+         terable-type                                                           
+  25     Parameter #2 $array of function implode expects array<string>, array<  
+         mixed> given.                                                          
+         🪪  argument.type                                                      
+ ------ ----------------------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------------------- 
+  Line   Data/TableData.php                                                     
+ ------ ----------------------------------------------------------------------- 
+  48     Using nullsafe method call on non-nullable type Carbon\Carbon. Use ->  
+         instead.                                                               
+         🪪  nullsafe.neverNull                                                 
+  61     Cannot access property $hostname on mixed.                             
+         🪪  property.nonObject                                                 
+  61     Cannot access property $sap on mixed.                                  
+         🪪  property.nonObject                                                 
+  61     Cannot access property $serial on mixed.                               
+         🪪  property.nonObject                                                 
+ ------ ----------------------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------------------- 
+  Line   Web/Adapters/ChecklistAdapter.php                                     
+ ------ ---------------------------------------------------------------------- 
+  41     Cannot access property $kind on App\Domain\Assets\Models\Asset|null.  
+         🪪  property.nonObject                                                
+  51     Parameter #2 $values of method Illuminate\Http\Response::header()     
+         expects array|string, string|false given.                             
+         🪪  argument.type                                                     
+  59     Cannot cast mixed to int.                                             
+         🪪  cast.int                                                          
+ ------ ---------------------------------------------------------------------- 
+
+ ------ --------------------------------------------------------------- 
+  Line   Web/Adapters/DetailAdapter.php                                 
+ ------ --------------------------------------------------------------- 
+  31     Cannot access property $question on                            
+         App\Domain\Preoperational\Models\PreoperationalQuestion|null.  
+         🪪  property.nonObject                                         
+  56     Cannot cast mixed to int.                                      
+         🪪  cast.int                                                   
+ ------ --------------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------------------- 
+  Line   Web/Adapters/FinalizeAdapter.php                                       
+ ------ ----------------------------------------------------------------------- 
+  22     Method                                                                 
+         App\Domain\Preoperational\Web\Adapters\FinalizeAdapter::handle() has   
+         parameter $data with no value type specified in iterable type array.   
+         🪪  missingType.iterableValue                                          
+         💡  See:                                                               
+         https://phpstan.org/blog/solving-phpstan-no-value-type-specified-in-i  
+         terable-type                                                           
+  46     Parameter #2 $values of method Illuminate\Http\Response::header()      
+         expects array|string, string|false given.                              
+         🪪  argument.type                                                      
+  58     Cannot cast mixed to int.                                              
+         🪪  cast.int                                                           
+ ------ ----------------------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------------------- 
+  Line   Web/Adapters/IndexAdapter.php                                         
+ ------ ---------------------------------------------------------------------- 
+  46     Unknown parameter $newRoute in call to App\Domain\Shared\Data\Config  
+         constructor.                                                          
+         🪪  argument.unknown                                                  
+ ------ ---------------------------------------------------------------------- 
+
+ ------ ------------------------------------------------------------------- 
+  Line   Web/Adapters/SaveAdapter.php                                       
+ ------ ------------------------------------------------------------------- 
+  19     Cannot cast mixed to int.                                          
+         🪪  cast.int                                                       
+  27     Parameter #2 $values of method Illuminate\Http\Response::header()  
+         expects array|string, string|false given.                          
+         🪪  argument.type                                                  
+ ------ ------------------------------------------------------------------- 
+
+ ------ ----------------------------------------------------------------------- 
+  Line   Web/Adapters/UploadPhotoAdapter.php                                    
+ ------ ----------------------------------------------------------------------- 
+  20     Cannot cast mixed to int.                                              
+         🪪  cast.int                                                           
+  21     Cannot cast mixed to int.                                              
+         🪪  cast.int                                                           
+  45     Instantiated class thiagoalessio\TesseractOCR\TesseractOCR not found.  
+         🪪  class.notFound                                                     
+         💡  Learn more at https://phpstan.org/user-guide/discovering-symbols   
+  47     Call to method executable() on an unknown class                        
+         thiagoalessio\TesseractOCR\TesseractOCR.                               
+         🪪  class.notFound                                                     
+         💡  Learn more at https://phpstan.org/user-guide/discovering-symbols   
+  49     Call to method psm() on an unknown class                               
+         thiagoalessio\TesseractOCR\TesseractOCR.                               
+         🪪  class.notFound                                                     
+         💡  Learn more at https://phpstan.org/user-guide/discovering-symbols   
+ ------ ----------------------------------------------------------------------- 
+
+ ------ -------------------------------------------------------------- 
+  Line   Web/Views/checklist.blade.php                                 
+ ------ -------------------------------------------------------------- 
+  5      Cannot cast mixed to string.                                  
+         🪪  cast.string                                               
+  10     Variable $id_preop might not be defined.                      
+         🪪  variable.undefined                                        
+  12     Variable $checklist_data might not be defined.                
+         🪪  variable.undefined                                        
+  79     Argument of an invalid type mixed supplied for foreach, only  
+         iterables are supported.                                      
+         🪪  foreach.nonIterable                                       
+ ------ -------------------------------------------------------------- 
+
+ ------ ---------------------------------------------------------------------- 
+  Line   Web/Views/detail.blade.php                                            
+ ------ ---------------------------------------------------------------------- 
+  5      Cannot cast mixed to string.                                          
+         🪪  cast.string                                                       
+  11     Variable $this might not be defined.                                  
+         🪪  variable.undefined                                                
+  14     Variable $id might not be defined.                                    
+         🪪  variable.undefined                                                
+  31     Variable $id might not be defined.                                    
+         🪪  variable.undefined                                                
+  33     Variable $id might not be defined.                                    
+         🪪  variable.undefined                                                
+  50     Variable $id might not be defined.                                    
+         🪪  variable.undefined                                                
+  59     Variable $id might not be defined.                                    
+         🪪  variable.undefined                                                
+  59     Variable $id might not be defined.                                    
+         🪪  variable.undefined                                                
+  68     Variable $id might not be defined.                                    
+         🪪  variable.undefined                                                
+  113    Cannot access offset string on mixed.                                 
+         🪪  offsetAccess.nonOffsetAccessible                                  
+  115    Parameter #1 $value of function count expects array|Countable, mixed  
+         given.                                                                
+         🪪  argument.type                                                     
+  116    Parameter #1 $array of function reset expects array|object, mixed     
+         given.                                                                
+         🪪  argument.type                                                     
+  123    Parameter #1 (mixed) of echo cannot be converted to string.           
+         🪪  echo.nonString                                                    
+ ------ ---------------------------------------------------------------------- 
+
+ ------ ------------------------------------------- 
+  Line   Web/Views/new.blade.php                    
+ ------ ------------------------------------------- 
+  30     Variable $vehiculos might not be defined.  
+         🪪  variable.undefined                     
+ ------ ------------------------------------------- 
+
+ [ERROR] Found 40 errors                                                        
+

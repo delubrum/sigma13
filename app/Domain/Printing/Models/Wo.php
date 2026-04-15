@@ -9,16 +9,21 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 final class Wo extends Model
 {
+    #[\Override]
     public $timestamps = false;
 
+    #[\Override]
     protected $table = 'wo';
 
+    #[\Override]
     protected $fillable = ['code', 'project', 'user_id', 'es_id', 'created_at'];
 
+    #[\Override]
     protected $casts = [
         'created_at' => 'datetime',
     ];
 
+    #[\Override]
     public function getRouteKeyName(): string
     {
         return 'code';

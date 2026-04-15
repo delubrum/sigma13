@@ -15,7 +15,7 @@ final class GetImprovementDataAction
 
     /**
      * @param  array<string, mixed>  $filters
-     * @param  array<string, string> $sorts
+     * @param  array<string, string>  $sorts
      * @return PaginatedResult<TableData>
      */
     public function handle(array $filters, array $sorts, int $page, int $size): PaginatedResult
@@ -27,9 +27,9 @@ final class GetImprovementDataAction
         $items = $paginator->map(fn (mixed $row): TableData => TableData::fromModel($row))->values()->all();
 
         return new PaginatedResult(
-            items:    $items,
+            items: $items,
             lastPage: $paginator->lastPage(),
-            total:    $paginator->total(),
+            total: $paginator->total(),
         );
     }
 }

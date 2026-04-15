@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Recruitment\Data;
 
 use App\Domain\Shared\Data\Column;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Date;
 use Spatie\LaravelData\Data;
 
 final class TableData extends Data
@@ -57,12 +57,12 @@ final class TableData extends Data
             formatter: 'html',
             headerFilter: 'list',
             headerFilterParams: [
-                'values'    => [
+                'values' => [
                     'approval' => 'Approval',
                     'approved' => 'Approved',
-                    'closed'   => 'Closed',
+                    'closed' => 'Closed',
                     'rejected' => 'Rejected',
-                    'review'   => 'Review',
+                    'review' => 'Review',
                 ],
                 'clearable' => true,
             ]
@@ -74,13 +74,13 @@ final class TableData extends Data
     {
         /** @var object $row */
         $status = (string) ($row->status ?? 'approval');
-        $color  = match ($status) {
+        $color = match ($status) {
             'approved' => 'border-green-500 text-green-500',
             'approval' => 'border-yellow-500 text-yellow-500',
-            'review'   => 'border-blue-500 text-blue-500',
-            'closed'   => 'border-sigma-b text-sigma-tx2',
+            'review' => 'border-blue-500 text-blue-500',
+            'closed' => 'border-sigma-b text-sigma-tx2',
             'rejected' => 'border-red-500 text-red-500',
-            default    => 'border-sigma-b text-sigma-tx2',
+            default => 'border-sigma-b text-sigma-tx2',
         };
 
         $pct = (int) ($row->conversion_pct ?? 0);
@@ -90,22 +90,22 @@ final class TableData extends Data
         </div>";
 
         $createdAt = isset($row->created_at)
-            ? Carbon::parse((string) $row->created_at)
+            ? Date::parse((string) $row->created_at)
             : now();
 
         return new self(
-            id:         (int) ($row->id ?? 0),
-            date:       $createdAt->format('Y-m-d'),
-            creator:    (string) ($row->creator_name ?? ''),
-            approver:   (string) ($row->approver_name ?? ($row->approver ?? '')),
-            assignee:   isset($row->assignee_name) ? (string) $row->assignee_name : null,
-            profile:    isset($row->profile_name)  ? (string) $row->profile_name  : null,
-            division:   isset($row->division_name) ? (string) $row->division_name : null,
-            area:       isset($row->area_name)     ? (string) $row->area_name     : null,
-            qty:        (string) ($row->hired_qty ?? ($row->qty ?? '0')),
+            id: (int) ($row->id ?? 0),
+            date: $createdAt->format('Y-m-d'),
+            creator: (string) ($row->creator_name ?? ''),
+            approver: (string) ($row->approver_name ?? ($row->approver ?? '')),
+            assignee: isset($row->assignee_name) ? (string) $row->assignee_name : null,
+            profile: isset($row->profile_name) ? (string) $row->profile_name : null,
+            division: isset($row->division_name) ? (string) $row->division_name : null,
+            area: isset($row->area_name) ? (string) $row->area_name : null,
+            qty: (string) ($row->hired_qty ?? ($row->qty ?? '0')),
             conversion: $convHtml,
-            days:       (int) ($row->days_open ?? 0),
-            status:     "<span class=\"px-2 py-0.5 rounded border {$color} font-bold uppercase text-[10px]\">{$status}</span>",
+            days: (int) ($row->days_open ?? 0),
+            status: "<span class=\"px-2 py-0.5 rounded border {$color} font-bold uppercase text-[10px]\">{$status}</span>",
         );
     }
 }

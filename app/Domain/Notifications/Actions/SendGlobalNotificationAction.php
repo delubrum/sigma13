@@ -9,7 +9,7 @@ use App\Domain\Notifications\Data\EmailData;
 use App\Domain\Notifications\Data\TelegramData;
 use App\Domain\Notifications\Data\WebPushData;
 use App\Domain\Notifications\Mail\GenericMailable;
-use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -44,6 +44,7 @@ final class SendGlobalNotificationAction
 
         if (! $token) {
             Log::error('Telegram Bot Token not set in services configuration.');
+
             return;
         }
 
@@ -60,7 +61,7 @@ final class SendGlobalNotificationAction
             $payload['text'] = str_replace('\n', "\n", $data->text);
         }
 
-        \Illuminate\Support\Facades\Http::post("https://api.telegram.org/bot{$token}/{$endpoint}", $payload)->throw();
+        Http::post("https://api.telegram.org/bot{$token}/{$endpoint}", $payload)->throw();
     }
 
     private function deliverWebPush(WebPushData $data): void

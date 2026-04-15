@@ -26,7 +26,7 @@ final class RejectAdapter
         }
 
         Improvement::findOrFail($id)->update([
-            'status'           => 'Rejected',
+            'status' => 'Rejected',
             'rejection_reason' => $reason,
         ]);
 

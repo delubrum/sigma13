@@ -41,13 +41,13 @@ final class ParseWoExcelAction
             }
 
             $items[] = [
-                'code'        => $itemCode,
+                'code' => $itemCode,
                 'description' => isset($sheet[$i][5]) ? trim((string) $sheet[$i][5]) : '',
-                'fuc'         => isset($sheet[$i][8]) ? trim((string) $sheet[$i][8]) : '',
-                'qty'         => isset($sheet[$i][9]) ? (int) $sheet[$i][9] : 0,
+                'fuc' => isset($sheet[$i][8]) ? trim((string) $sheet[$i][8]) : '',
+                'qty' => isset($sheet[$i][9]) ? (int) $sheet[$i][9] : 0,
             ];
         }
 
-        return compact('code', 'project', 'items');
+        return ['code' => $code, 'project' => $project, 'items' => $items];
     }
 }

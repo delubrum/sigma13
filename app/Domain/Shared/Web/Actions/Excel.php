@@ -45,7 +45,6 @@ final class Excel
 
         $fileName = sprintf('export_%s_%s.xlsx', $route, now()->format('d-m-Y_His'));
 
-
         // Creamos el stream para ahorrar memoria RAM
         $writer = SimpleExcelWriter::streamDownload($fileName);
 

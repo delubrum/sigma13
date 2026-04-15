@@ -7,6 +7,7 @@ namespace App\Domain\Improvement\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 
 /**
  * @property int $id
@@ -31,8 +32,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string|null $adequacy
  * @property string|null $effectiveness
  * @property string|null $rejection_reason
- * @property \Illuminate\Support\Carbon|null $closed_at
- * @property \Illuminate\Support\Carbon|null $created_at
+ * @property Carbon|null $closed_at
+ * @property Carbon|null $created_at
  */
 #[Fillable([
     'code', 'user_id', 'responsible_id', 'process', 'perspective',
@@ -53,10 +54,10 @@ final class Improvement extends Model
     protected function casts(): array
     {
         return [
-            'user_ids'   => 'array',
+            'user_ids' => 'array',
             'created_at' => 'datetime',
-            'closed_at'  => 'datetime',
-            'repeated'   => 'boolean',
+            'closed_at' => 'datetime',
+            'repeated' => 'boolean',
         ];
     }
 

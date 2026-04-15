@@ -20,10 +20,10 @@ final class FetchEsDataAction
         $response = Http::withHeaders(['Content-Type' => 'application/json'])
             ->withoutVerifying()
             ->post('https://portalnova.eswllc.net/sv/api/fussion/OrderDetailESMetals', [
-                'text'    => '',
+                'text' => '',
                 'idOrden' => $esId,
-                'mcdId'   => 1,
-                'token'   => config('services.es_metals.token'),
+                'mcdId' => 1,
+                'token' => config('services.es_metals.token'),
             ]);
 
         if ($response->failed()) {

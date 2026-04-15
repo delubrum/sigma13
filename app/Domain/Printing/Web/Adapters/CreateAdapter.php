@@ -15,21 +15,21 @@ final class CreateAdapter
 
     public function handle(): Response
     {
-        $index  = new IndexAdapter;
+        $index = new IndexAdapter;
         $config = $index->config();
 
         $this->hxModalHeader([
-            'icon'     => $config->icon,
-            'title'    => 'New Work Order',
+            'icon' => $config->icon,
+            'title' => 'New Work Order',
             'subtitle' => $config->subtitle ?? '',
         ]);
         $this->hxModalWidth($config->modalWidth);
 
         return $this->hxView('components::new-modal', [
-            'route'            => 'printing',
-            'config'           => $config,
-            'data'             => [],
-            'customPostRoute'  => route('printing.save'),
+            'route' => 'printing',
+            'config' => $config,
+            'data' => [],
+            'customPostRoute' => route('printing.save'),
         ]);
     }
 

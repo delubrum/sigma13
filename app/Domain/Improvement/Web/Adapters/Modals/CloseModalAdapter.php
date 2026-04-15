@@ -18,21 +18,21 @@ final class CloseModalAdapter
     public function handle(int $id, Request $request): JsonResponse
     {
         $data = $request->validate([
-            'cdate'         => ['required', 'date'],
-            'convenience'   => ['required', 'string'],
-            'adequacy'      => ['required', 'string'],
+            'cdate' => ['required', 'date'],
+            'convenience' => ['required', 'string'],
+            'adequacy' => ['required', 'string'],
             'effectiveness' => ['required', 'string'],
-            'notes'         => ['nullable', 'string'],
+            'notes' => ['nullable', 'string'],
         ]);
 
         Improvement::findOrFail($id)->update([
-            'cdate'         => $data['cdate'],
-            'convenience'   => $data['convenience'],
-            'adequacy'      => $data['adequacy'],
+            'cdate' => $data['cdate'],
+            'convenience' => $data['convenience'],
+            'adequacy' => $data['adequacy'],
             'effectiveness' => $data['effectiveness'],
-            'notes'         => $data['notes'] ?? null,
-            'status'        => 'Closed',
-            'closed_at'     => now(),
+            'notes' => $data['notes'] ?? null,
+            'status' => 'Closed',
+            'closed_at' => now(),
         ]);
 
         $this->hxNotify('Mejora cerrada correctamente.');

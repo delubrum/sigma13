@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace Tests\Architecture;
 
 use App\Domain\Assets\Models\Asset;
-use App\Domain\Employees\Models\Employee;
 use App\Domain\Assets\Web\Adapters\Tabs\AutomationsTabAdapter;
 use App\Domain\Assets\Web\Adapters\Tabs\DocumentsTabAdapter;
 use App\Domain\Assets\Web\Adapters\Tabs\MaintenancesTabAdapter;
 use App\Domain\Assets\Web\Adapters\Tabs\MovementsTabAdapter;
+use App\Domain\Employees\Models\Employee;
 use App\Domain\Shared\Web\Actions\SubTableAdapter;
 use App\Domain\Tickets\Web\Adapters\TasksAdapter;
 use App\Domain\Users\Models\User;
@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\View\View;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Prism\Prism\Facades\Prism;
 use Spatie\Csp\AddCspHeaders;
@@ -101,6 +102,8 @@ arch('el domain solo puede usar la lista blanca estricta')
         'Illuminate\Pagination',            // LengthAwarePaginator in data actions
         'Illuminate\Contracts\Pagination',  // LengthAwarePaginator contract
         'Illuminate\Contracts\View',        // View return type in Web Actions
+        View::class,             // View instance used in HtmxOrchestrator hxView()
+        'Illuminate\Mail',                  // Mailable base class for domain mail
         'Illuminate\Validation',            // ValidationException in Upsert
         'Symfony\Component\HttpFoundation', // Response constants used by Laravel HTTP layer
         // Third-party
@@ -190,8 +193,8 @@ arch('el domain solo puede usar la lista blanca estricta')
 // =============================================================================
 
 $modules = [
-    'Assets', 'Dashboard', 'Documents', 'Employees',
-    'Identity', 'Improvement', 'Performance', 'Ppe', 'Preventive',
+    'Assets', 'Dashboard', 'Documents', 'Employees', 'Extrusion',
+    'Identity', 'Improvement', 'JobProfiles', 'Performance', 'Ppe', 'Preventive',
     'Printing', 'Recruitment', 'Tickets', 'Users',
 ];
 

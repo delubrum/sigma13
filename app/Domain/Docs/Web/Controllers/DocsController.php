@@ -29,32 +29,31 @@ final class DocsController
         );
 
         return view('docs::index', [
-            'config' => $config
+            'config' => $config,
         ]);
     }
 
     public function data(Request $request): JsonResponse
     {
         $docs = GetDocsAction::run();
-        
+
         // Sorting
         if ($sort = $request->get('sort')) {
             $field = $sort[0]['field'];
             $direction = $sort[0]['dir'];
-            
-            $docs = $docs->sortBy(function($doc) use ($field) {
-                return $doc->{"raw_$field"} ?? $doc->{$field};
-            }, SORT_REGULAR, $direction === 'desc');
+
+            $docs = $docs->sortBy(fn ($doc) => $doc->{"raw_$field"} ?? $doc->{$field}, SORT_REGULAR, $direction === 'desc');
         }
 
         // Filtering
         if ($filters = $request->get('filter')) {
             foreach ($filters as $f) {
                 $field = $f['field'];
-                $value = strtolower($f['value']);
-                
-                $docs = $docs->filter(function($doc) use ($field, $value) {
-                    $target = strtolower((string)($doc->{"raw_$field"} ?? $doc->{$field} ?? ''));
+                $value = strtolower((string) $f['value']);
+
+                $docs = $docs->filter(function ($doc) use ($field, $value): bool {
+                    $target = strtolower((string) ($doc->{"raw_$field"} ?? $doc->{$field} ?? ''));
+
                     return str_contains($target, $value);
                 });
             }

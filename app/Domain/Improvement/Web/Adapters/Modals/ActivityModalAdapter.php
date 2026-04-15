@@ -25,35 +25,35 @@ final class ActivityModalAdapter
         $users = DB::table('users')->where('is_active', true)->orderBy('username')->get(['id', 'username as name']);
 
         $this->hxModalHeader([
-            'icon'     => 'ri-task-line',
-            'title'    => 'Nueva Actividad',
+            'icon' => 'ri-task-line',
+            'title' => 'Nueva Actividad',
             'subtitle' => "Mejora #{$id}",
         ]);
         $this->hxModalWidth('50');
 
         return $this->hxView('improvement::modals.activity', [
             'improvementId' => $id,
-            'activity'      => null,
-            'users'         => $users,
+            'activity' => null,
+            'users' => $users,
         ]);
     }
 
     public function asEdit(int $id, int $activityId): Response
     {
         $activity = ImprovementActivity::findOrFail($activityId);
-        $users    = DB::table('users')->where('is_active', true)->orderBy('username')->get(['id', 'username as name']);
+        $users = DB::table('users')->where('is_active', true)->orderBy('username')->get(['id', 'username as name']);
 
         $this->hxModalHeader([
-            'icon'     => 'ri-task-line',
-            'title'    => 'Editar Actividad',
+            'icon' => 'ri-task-line',
+            'title' => 'Editar Actividad',
             'subtitle' => "Mejora #{$id}",
         ]);
         $this->hxModalWidth('50');
 
         return $this->hxView('improvement::modals.activity', [
             'improvementId' => $id,
-            'activity'      => $activity,
-            'users'         => $users,
+            'activity' => $activity,
+            'users' => $users,
         ]);
     }
 
@@ -62,38 +62,38 @@ final class ActivityModalAdapter
         $activity = ImprovementActivity::findOrFail($activityId);
 
         $this->hxModalHeader([
-            'icon'     => 'ri-clipboard-check-line',
-            'title'    => 'Registrar Resultado',
+            'icon' => 'ri-clipboard-check-line',
+            'title' => 'Registrar Resultado',
             'subtitle' => "Actividad #{$activityId}",
         ]);
         $this->hxModalWidth('45');
 
         return $this->hxView('improvement::modals.activity-close', [
             'improvementId' => $id,
-            'activity'      => $activity,
+            'activity' => $activity,
         ]);
     }
 
     public function upsert(Request $request): JsonResponse
     {
-        $id             = $request->integer('id') ?: null;
-        $improvementId  = $request->integer('improvement_id');
-        $isClose        = $request->boolean('is_close');
+        $id = $request->integer('id') ?: null;
+        $improvementId = $request->integer('improvement_id');
+        $isClose = $request->boolean('is_close');
 
         if ($isClose) {
             $request->validate([
                 'activity_id' => ['required', 'integer'],
-                'done_date'   => ['required', 'date'],
-                'results'     => ['required', 'string'],
-                'fulfill'     => ['required', 'boolean'],
+                'done_date' => ['required', 'date'],
+                'results' => ['required', 'string'],
+                'fulfill' => ['required', 'boolean'],
             ]);
 
             $activityId = $request->integer('activity_id');
-            $activity   = ImprovementActivity::findOrFail($activityId);
+            $activity = ImprovementActivity::findOrFail($activityId);
 
             $filePath = null;
             if ($request->hasFile('file')) {
-                $file     = $request->file('file');
+                $file = $request->file('file');
                 $filePath = Storage::disk('public')->putFileAs(
                     "improvement/result/{$improvementId}",
                     $file,
@@ -112,7 +112,7 @@ final class ActivityModalAdapter
 
             $activity->update([
                 'results' => json_encode($existing),
-                'done'    => $fulfill ? now() : null,
+                'done' => $fulfill ? now() : null,
                 'fulfill' => $fulfill,
             ]);
 
@@ -120,18 +120,18 @@ final class ActivityModalAdapter
         } else {
             $request->validate([
                 'improvement_id' => ['required', 'integer'],
-                'action'         => ['required', 'string'],
-                'how_to'         => ['required', 'string'],
-                'whenn'          => ['nullable', 'date'],
+                'action' => ['required', 'string'],
+                'how_to' => ['required', 'string'],
+                'whenn' => ['nullable', 'date'],
             ]);
 
             $attrs = [
                 'improvement_id' => $improvementId,
-                'action'         => $request->string('action')->toString(),
-                'how_to'         => $request->string('how_to')->toString(),
+                'action' => $request->string('action')->toString(),
+                'how_to' => $request->string('how_to')->toString(),
                 'responsible_id' => $request->integer('responsible_id') ?: null,
-                'whenn'          => $request->input('whenn') ?: null,
-                'user_id'        => auth()->id(),
+                'whenn' => $request->input('whenn') ?: null,
+                'user_id' => auth()->id(),
             ];
 
             if ($id) {
@@ -179,7 +179,7 @@ final class ActivityModalAdapter
                 }
             }
 
-            $editRoute  = route('improvement.activities.edit',  [$a->improvement_id, $a->id]);
+            $editRoute = route('improvement.activities.edit', [$a->improvement_id, $a->id]);
             $closeRoute = route('improvement.activities.close', [$a->improvement_id, $a->id]);
             $deleteRoute = route('improvement.activities.delete', $a->id);
 
@@ -190,20 +190,20 @@ final class ActivityModalAdapter
             $actions .= "<button class=\"btn-icon text-red-500\" hx-delete=\"{$deleteRoute}\" hx-confirm=\"¿Eliminar esta actividad?\"><i class=\"ri-delete-bin-line\"></i></button>";
 
             return [
-                'id'          => $a->id,
-                'action'      => $a->action,
-                'how_to'      => $a->how_to,
-                'whenn'       => $a->whenn?->format('Y-m-d'),
-                'done'        => $a->done?->format('Y-m-d'),
-                'results'     => $results,
-                'actions'     => $actions,
+                'id' => $a->id,
+                'action' => $a->action,
+                'how_to' => $a->how_to,
+                'whenn' => $a->whenn?->format('Y-m-d'),
+                'done' => $a->done?->format('Y-m-d'),
+                'results' => $results,
+                'actions' => $actions,
             ];
         })->values()->all();
 
         return response()->json([
-            'data'      => $items,
+            'data' => $items,
             'last_page' => $paginator->lastPage(),
-            'last_row'  => $paginator->total(),
+            'last_row' => $paginator->total(),
         ]);
     }
 }

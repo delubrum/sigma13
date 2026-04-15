@@ -38,11 +38,11 @@ final class ImprovementActivity extends Model
     protected function casts(): array
     {
         return [
-            'results'    => 'array',
-            'whenn'      => 'datetime',
-            'done'       => 'datetime',
+            'results' => 'array',
+            'whenn' => 'datetime',
+            'done' => 'datetime',
             'created_at' => 'datetime',
-            'fulfill'    => 'boolean',
+            'fulfill' => 'boolean',
         ];
     }
 

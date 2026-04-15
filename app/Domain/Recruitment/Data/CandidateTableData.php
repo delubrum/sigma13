@@ -43,16 +43,16 @@ final class CandidateTableData extends Data
             headerFilterParams: [
                 'values' => [
                     'appointment' => 'Cita',
-                    'screening'   => 'Entrevista',
-                    'hired'       => 'Contratado',
-                    'active'      => 'Activo',
-                    'qualified'   => 'Calificado',
-                    'list'        => 'Lista',
-                    'discarded'   => 'Descartado',
-                    'polygraph'   => 'Polígrafía',
-                    'security'    => 'Seguridad',
-                    'medical'     => 'Médico',
-                    'home'        => 'Domicilio',
+                    'screening' => 'Entrevista',
+                    'hired' => 'Contratado',
+                    'active' => 'Activo',
+                    'qualified' => 'Calificado',
+                    'list' => 'Lista',
+                    'discarded' => 'Descartado',
+                    'polygraph' => 'Polígrafía',
+                    'security' => 'Seguridad',
+                    'medical' => 'Médico',
+                    'home' => 'Domicilio',
                 ],
                 'clearable' => true,
             ]
@@ -64,25 +64,25 @@ final class CandidateTableData extends Data
     {
         /** @var object $row */
         $status = (string) ($row->status ?? 'appointment');
-        $color  = match ($status) {
+        $color = match ($status) {
             'hired', 'active' => 'border-green-500 text-green-500',
-            'screening'       => 'border-blue-500 text-blue-500',
-            'appointment'     => 'border-yellow-500 text-yellow-500',
-            'qualified'       => 'border-purple-500 text-purple-500',
-            'discarded'       => 'border-red-500 text-red-500',
-            default           => 'border-sigma-b text-sigma-tx2',
+            'screening' => 'border-blue-500 text-blue-500',
+            'appointment' => 'border-yellow-500 text-yellow-500',
+            'qualified' => 'border-purple-500 text-purple-500',
+            'discarded' => 'border-red-500 text-red-500',
+            default => 'border-sigma-b text-sigma-tx2',
         };
 
         return new self(
-            id:          (int) ($row->id ?? 0),
-            kind:        isset($row->kind)        ? (string) $row->kind        : null,
-            name:        isset($row->name)        ? (string) $row->name        : null,
-            cc:          isset($row->cc)          ? (string) $row->cc          : null,
-            email:       isset($row->email)       ? (string) $row->email       : null,
-            phone:       isset($row->phone)       ? (string) $row->phone       : null,
+            id: (int) ($row->id ?? 0),
+            kind: isset($row->kind) ? (string) $row->kind : null,
+            name: isset($row->name) ? (string) $row->name : null,
+            cc: isset($row->cc) ? (string) $row->cc : null,
+            email: isset($row->email) ? (string) $row->email : null,
+            phone: isset($row->phone) ? (string) $row->phone : null,
             appointment: isset($row->appointment) ? (string) $row->appointment : null,
-            recruiter:   isset($row->recruiter_name) ? (string) $row->recruiter_name : null,
-            status:      "<span class=\"px-2 py-0.5 rounded border {$color} font-bold uppercase text-[10px]\">{$status}</span>",
+            recruiter: isset($row->recruiter_name) ? (string) $row->recruiter_name : null,
+            status: "<span class=\"px-2 py-0.5 rounded border {$color} font-bold uppercase text-[10px]\">{$status}</span>",
         );
     }
 }

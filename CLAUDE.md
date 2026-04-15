@@ -26,7 +26,7 @@ Support/HtmxOrchestrator.php
 app/Domain/{Module}/routes.php  # auto-discovered by DomainServiceProvider
 
 ## MODULES (exhaustive list)
-Assets · Dashboard · Documents · Employees · Identity · Improvement · Performance · Ppe · Preventive · Printing · Recruitment · Tickets · Users
+Assets · Dashboard · Documents · Employees · Extrusion · Identity · Improvement · JobProfiles · Performance · Ppe · Preventive · Printing · Recruitment · Tickets · Users
 
 ## DOMAIN WHITELIST — only these imports allowed inside App\Domain
 App\Domain · App\Support · App\Contracts

@@ -13,15 +13,7 @@ final class UpsertData extends Data
     public function __construct(
         public readonly ?int $id,
 
-        #[Field(
-            label: 'Perfil de Cargo',
-            type: 'select',
-            widget: 'slimselect',
-            route: 'global.options',
-            routeParams: ['model' => 'job_profiles'],
-            placeholder: 'Seleccionar perfil...',
-            width: FieldWidth::Half,
-        )]
+        #[Field(label: 'Perfil de Cargo', type: 'select', placeholder: 'Seleccionar perfil...', widget: 'slimselect', width: FieldWidth::Half, route: 'global.options', routeParams: ['model' => 'job_profiles'])]
         public readonly int $profile_id,
 
         #[Field(
@@ -36,10 +28,10 @@ final class UpsertData extends Data
             label: 'Ciudad',
             type: 'select',
             options: [
-                'ESM1'          => 'ESM1 - Barranquilla',
-                'ESM2'          => 'ESM2 - Barranquilla',
-                'Medellín'      => 'Medellín',
-                'Barranquilla'  => 'Barranquilla',
+                'ESM1' => 'ESM1 - Barranquilla',
+                'ESM2' => 'ESM2 - Barranquilla',
+                'Medellín' => 'Medellín',
+                'Barranquilla' => 'Barranquilla',
             ],
             width: FieldWidth::Half,
         )]
@@ -57,10 +49,10 @@ final class UpsertData extends Data
             label: 'Tipo de Contrato',
             type: 'select',
             options: [
-                'Indefinido'  => 'Indefinido',
-                'Fijo'        => 'Fijo',
-                'Obra Labor'  => 'Obra Labor',
-                'Temporal'    => 'Temporal',
+                'Indefinido' => 'Indefinido',
+                'Fijo' => 'Fijo',
+                'Obra Labor' => 'Obra Labor',
+                'Temporal' => 'Temporal',
                 'Aprendizaje' => 'Aprendizaje',
             ],
             width: FieldWidth::Half,
@@ -87,25 +79,16 @@ final class UpsertData extends Data
             label: 'Causa de la Vacante',
             type: 'select',
             options: [
-                'Expansión'    => 'Expansión / Nueva vacante',
-                'Reemplazo'    => 'Reemplazo',
-                'Rotación'     => 'Rotación',
-                'Otro'         => 'Otro',
+                'Expansión' => 'Expansión / Nueva vacante',
+                'Reemplazo' => 'Reemplazo',
+                'Rotación' => 'Rotación',
+                'Otro' => 'Otro',
             ],
             width: FieldWidth::Half,
         )]
         public readonly ?string $cause,
 
-        #[Field(
-            label: 'Recursos requeridos (Stage 1)',
-            type: 'select',
-            widget: 'slimselect',
-            route: 'global.options',
-            routeParams: ['model' => 'recruitment_resources', 'filter' => ['stage' => '1']],
-            placeholder: 'Seleccionar recursos...',
-            multiple: true,
-            width: FieldWidth::Full,
-        )]
+        #[Field(label: 'Recursos requeridos (Stage 1)', type: 'select', placeholder: 'Seleccionar recursos...', widget: 'slimselect', width: FieldWidth::Full, multiple: true, route: 'global.options', routeParams: ['model' => 'recruitment_resources', 'filter' => ['stage' => '1']])]
         public readonly ?string $resources,
     ) {}
 }

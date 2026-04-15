@@ -48,25 +48,24 @@ final class DocsIndexAdapter implements HasModule
     {
         $result = GetDocsAction::run();
         $items = collect($result->items);
-        
+
         // Sorting
         if ($sort = $request->get('sort')) {
             $field = $sort[0]['field'];
             $direction = $sort[0]['dir'];
-            
-            $items = $items->sortBy(function($doc) use ($field) {
-                return $doc->{"raw_$field"} ?? $doc->{$field};
-            }, SORT_REGULAR, $direction === 'desc');
+
+            $items = $items->sortBy(fn ($doc) => $doc->{"raw_$field"} ?? $doc->{$field}, SORT_REGULAR, $direction === 'desc');
         }
 
         // Filtering
         if ($filters = $request->get('filter')) {
             foreach ($filters as $f) {
                 $field = $f['field'];
-                $value = strtolower($f['value']);
-                
-                $items = $items->filter(function($doc) use ($field, $value) {
-                    $target = strtolower((string)($doc->{"raw_$field"} ?? $doc->{$field} ?? ''));
+                $value = strtolower((string) $f['value']);
+
+                $items = $items->filter(function ($doc) use ($field, $value): bool {
+                    $target = strtolower((string) ($doc->{"raw_$field"} ?? $doc->{$field} ?? ''));
+
                     return str_contains($target, $value);
                 });
             }

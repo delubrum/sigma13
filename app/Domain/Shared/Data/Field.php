@@ -39,6 +39,8 @@ final class Field extends Data
         public ?string $pattern = null,
         public ?string $autocomplete = null,
         public ?string $route = null,
+        /** @var array<string, mixed> */
+        public array $routeParams = [],
     ) {}
 
     public static function make(string $name, ?string $label = null): self
@@ -71,6 +73,14 @@ final class Field extends Data
     public function route(string $route): self
     {
         $this->route = $route;
+
+        return $this;
+    }
+
+    /** @param array<string, mixed> $routeParams */
+    public function routeParams(array $routeParams): self
+    {
+        $this->routeParams = $routeParams;
 
         return $this;
     }

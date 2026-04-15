@@ -23,6 +23,10 @@ htmx.on('htmx:configRequest', (evt) => {
 import { TabulatorFull as Tabulator } from 'tabulator-tables';
 window.Tabulator = Tabulator;
 
+import jspreadsheet from 'jspreadsheet-ce';
+import 'jspreadsheet-ce/dist/jspreadsheet.css';
+window.jspreadsheet = jspreadsheet;
+
 import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 window.flatpickr = flatpickr;

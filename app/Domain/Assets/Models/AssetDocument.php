@@ -12,7 +12,6 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * @property int $id
@@ -58,7 +57,6 @@ class AssetDocument extends Model implements HasMedia
                 return null;
             }
 
-            /** @var Media|null $media */
             $media = $this->getFirstMedia('documents');
 
             if (! $media) {

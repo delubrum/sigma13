@@ -32,11 +32,11 @@ final class GetEvaluationsAction
                         COUNT(*) FILTER (WHERE value = '2') * 0.5
                     ) / 12.0) * 100)
                     FROM jsonb_each_text(COALESCE(NULLIF(a.answers, '')::jsonb, '{}'::jsonb))
-                ) as result")
+                ) as result"),
             ]);
 
         // Filtering
-        if (! empty($filters)) {
+        if ($filters !== null && $filters !== []) {
             $fieldMap = [
                 'date' => 'a.created_at',
                 'user' => 'b.name',
@@ -47,19 +47,19 @@ final class GetEvaluationsAction
 
             foreach ($filters as $f) {
                 if ($dbField = ($fieldMap[$f['field']] ?? null)) {
-                    $query->where($dbField, 'like', '%' . $f['value'] . '%');
+                    $query->where($dbField, 'like', '%'.$f['value'].'%');
                 }
             }
         }
 
-        $totalCount = DB::table('suppliers_evaluation')->count(); 
-        
-        $rows = $query->orderBy('a.created_at', 'desc')
+        $totalCount = DB::table('suppliers_evaluation')->count();
+
+        $rows = $query->latest('a.created_at')
             ->offset($offset)
             ->limit($size)
             ->get();
 
-        $items = $rows->map(fn($row) => EvaluationsTableData::from([
+        $items = $rows->map(fn ($row): EvaluationsTableData => EvaluationsTableData::from([
             'id' => (int) $row->id,
             'date' => (string) $row->date,
             'user' => (string) $row->user,

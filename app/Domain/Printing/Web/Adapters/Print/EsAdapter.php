@@ -53,12 +53,13 @@ final class EsAdapter
 
         // Map marca → consecutivos + orden names from ES API response
         $consecutivos = [];
-        $ordenNames   = [];
+        $ordenNames = [];
         $noDataMarcas = [];
+        $counter = count($itemCodes);
 
-        for ($i = 0; $i < count($itemCodes); $i++) {
-            $marca   = $marcas[$i] ?? '';
-            $esId    = $esIds[$i] ?? '';
+        for ($i = 0; $i < $counter; $i++) {
+            $marca = $marcas[$i] ?? '';
+            $esId = $esIds[$i] ?? '';
             $apiRows = $esData[$esId] ?? [];
 
             $found = false;
@@ -76,21 +77,21 @@ final class EsAdapter
 
             if (! $found && ! isset($consecutivos[$marca])) {
                 $consecutivos[$marca] = ['NO_DATA'];
-                $ordenNames[$marca]   = ['SIN DATOS ES'];
-                $noDataMarcas[]       = $marca;
+                $ordenNames[$marca] = ['SIN DATOS ES'];
+                $noDataMarcas[] = $marca;
             }
         }
 
         return response(
             view('printing::print.es', [
-                'wo'           => $wo,
-                'itemCodes'    => $itemCodes,
-                'marcas'       => $marcas,
-                'itemsMap'     => $itemsMap,
+                'wo' => $wo,
+                'itemCodes' => $itemCodes,
+                'marcas' => $marcas,
+                'itemsMap' => $itemsMap,
                 'consecutivos' => $consecutivos,
-                'ordenNames'   => $ordenNames,
+                'ordenNames' => $ordenNames,
                 'noDataMarcas' => array_unique($noDataMarcas),
-                'qrUrl'        => $qrUrl,
+                'qrUrl' => $qrUrl,
             ])->render()
         )->header('Content-Type', 'text/html; charset=utf-8');
     }

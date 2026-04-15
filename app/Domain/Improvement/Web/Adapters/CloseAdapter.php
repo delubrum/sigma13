@@ -25,8 +25,8 @@ final class CloseAdapter
         }
 
         $this->hxModalHeader([
-            'icon'     => 'ri-checkbox-circle-line',
-            'title'    => 'Cerrar Mejora',
+            'icon' => 'ri-checkbox-circle-line',
+            'title' => 'Cerrar Mejora',
             'subtitle' => "Evaluación de cierre · #{$id}",
         ]);
         $this->hxModalWidth('40');

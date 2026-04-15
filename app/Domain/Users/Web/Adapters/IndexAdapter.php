@@ -6,7 +6,6 @@ namespace App\Domain\Users\Web\Adapters;
 
 use App\Contracts\HasDetail;
 use App\Contracts\HasModule;
-use App\Domain\Shared\Data\ActionOption;
 use App\Domain\Shared\Data\Config;
 use App\Domain\Shared\Data\PaginatedResult;
 use App\Domain\Shared\Data\Tabs;
