@@ -1,7 +1,7 @@
-<div 
-    x-data="{ 
+<div
+    x-data="{
         search: '',
-        userPermissions: @js(array_map('intval', $userPermissions)),
+        userPermissions: @js($data->userPermissions),
         toggle(id) {
             id = parseInt(id);
             if (this.userPermissions.includes(id)) {
@@ -22,12 +22,12 @@
     }"
     class="p-4 h-full flex flex-col gap-4 overflow-hidden"
 >
-    
+
     {{-- Buscador --}}
     <div class="relative shrink-0">
         <i class="ri-search-line absolute left-4 top-1/2 -translate-y-1/2 text-sigma-tx2 text-sm opacity-50"></i>
-        <input 
-            type="text" 
+        <input
+            type="text"
             x-model="search"
             placeholder="Buscar permisos por nombre o descripción..."
             class="w-full pl-10 pr-4 py-3 rounded-2xl bg-sigma-bg border border-sigma-b text-[11px] font-bold uppercase tracking-wider focus:ring-2 focus:ring-sigma-ac focus:border-sigma-ac transition-all outline-none"
@@ -36,8 +36,8 @@
 
     {{-- Lista Grouped --}}
     <div class="flex-1 overflow-y-auto scroll pr-2 space-y-8">
-        @foreach($permissions as $category => $items)
-            <div 
+        @foreach($data->permissions as $category => $items)
+            <div
                 x-show="isCategoryVisible(@js($items))"
                 x-transition:enter="transition ease-out duration-200"
                 x-transition:enter-start="opacity-0 translate-y-2"
@@ -57,26 +57,26 @@
                 {{-- Permisos en Lista --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 mt-2">
                     @foreach($items as $permission)
-                        <div 
-                            x-show="isVisible(@js($permission->name), @js($permission->title))"
-                            @click="toggle(@js($permission->id))"
-                            hx-post="{{ route('users.permission.update', $user->id) }}"
-                            hx-vals='{"permission_id": "{{ $permission->id }}"}'
+                        <div
+                            x-show="isVisible(@js($permission['name']), @js($permission['title']))"
+                            @click="toggle(@js($permission['id']))"
+                            hx-post="{{ route('users.permission.update', $data->id) }}"
+                            hx-vals='{"permission_id": "{{ $permission['id'] }}"}'
                             hx-swap="none"
                             class="flex items-center justify-between p-2.5 rounded-xl border border-sigma-b hover:bg-sigma-bg2 cursor-pointer transition-all group select-none"
-                            :class="userPermissions.includes({{ (int)$permission->id }}) ? 'bg-sigma-ac/4 border-sigma-ac/30 shadow-sm' : 'bg-sigma-bg'"
+                            :class="userPermissions.includes({{ (int)$permission['id'] }}) ? 'bg-sigma-ac/4 border-sigma-ac/30 shadow-sm' : 'bg-sigma-bg'"
                         >
                             <div class="flex items-center min-w-0 pr-2">
-                                <span class="text-[10px] font-black text-sigma-tx uppercase truncate" title="{{ $permission->name }}">{{ $permission->name }}</span>
+                                <span class="text-[10px] font-black text-sigma-tx uppercase truncate" title="{{ $permission['name'] }}">{{ $permission['name'] }}</span>
                             </div>
 
                             {{-- Switch --}}
                             <div class="relative inline-flex h-3.5 w-6 shrink-0 items-center rounded-full transition-colors focus-visible:outline-none"
-                                 :class="userPermissions.includes({{ (int)$permission->id }}) ? 'bg-sigma-ac' : 'bg-sigma-b'"
+                                 :class="userPermissions.includes({{ (int)$permission['id'] }}) ? 'bg-sigma-ac' : 'bg-sigma-b'"
                             >
-                                <span 
+                                <span
                                     class="pointer-events-none inline-block h-2.5 w-2.5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
-                                    :class="userPermissions.includes({{ (int)$permission->id }}) ? 'translate-x-3' : 'translate-x-0.5'"
+                                    :class="userPermissions.includes({{ (int)$permission['id'] }}) ? 'translate-x-3' : 'translate-x-0.5'"
                                 ></span>
                             </div>
                         </div>

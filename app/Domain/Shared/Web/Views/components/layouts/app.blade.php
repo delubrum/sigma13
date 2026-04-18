@@ -65,7 +65,7 @@
          @open-modal.window="open = true; document.getElementById('modal-actions').innerHTML = '';"
          @close-modal.window="open = false"
          @set-modal-width.window="modalWidth = $event.detail.width"
-         @update-modal-actions.window="document.getElementById('modal-actions').innerHTML = $event.detail.html"
+         @update-modal-actions.window="const el = document.getElementById('modal-actions'); el.innerHTML = $event.detail.html; htmx.process(el);"
          @update-modal-header.window="icon = $event.detail.icon; title = $event.detail.title; subtitle = $event.detail.subtitle"
          x-show="open" x-cloak
          class="fixed inset-0 z-50 flex items-start pt-4 pb-4 justify-center p-4 bg-black/40 backdrop-blur-sm transition-opacity duration-500"

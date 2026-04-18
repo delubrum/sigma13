@@ -7,6 +7,7 @@ namespace App\Domain\Shared\Web\Actions;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use App\Support\DomainResolver;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 use Spatie\LaravelData\Data;
@@ -97,7 +98,7 @@ final class Excel
      */
     private function resolveModel(string $route): string
     {
-        $domain = Str::studly($route);
+        $domain = DomainResolver::fromRoute($route);
         $modelName = Str::studly(Str::singular($route));
         /** @var class-string<Model> $class */
         $class = "App\\Domain\\{$domain}\\Models\\{$modelName}";
@@ -121,7 +122,7 @@ final class Excel
      */
     private function resolveDataClass(string $route): string
     {
-        $domain = Str::studly($route);
+        $domain = DomainResolver::fromRoute($route);
         /** @var class-string<Data> $class */
         $class = "App\\Domain\\{$domain}\\Data\\Table";
 

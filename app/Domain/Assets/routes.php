@@ -38,12 +38,10 @@ Route::middleware('auth')->prefix('assets')->name('assets.')->group(function ():
     Route::patch('/assignments/{event}', (new Assignment)->asUpdate(...))->middleware(ProtectAgainstSpam::class)->name('assignments.update');
     Route::get('/{asset}/returns/create', (new ReturnAction)->asController(...))->name('returns.create');
     Route::post('/{asset}/returns', (new ReturnAction)->asStore(...))->middleware(ProtectAgainstSpam::class)->name('returns.store');
-    Route::get('/{asset}/documents', [Documents::class, 'asController'])->name('documents');
-    Route::get('/{asset}/documents/data', [Documents::class, 'asData'])->name('documents.data');
+    Route::moduleTab('documents', Documents::class);
     Route::get('/{asset}/documents/create', (new Document)->asController(...))->name('documents.create');
     Route::post('/{asset}/documents', (new Document)->asStore(...))->middleware(ProtectAgainstSpam::class)->name('documents.store');
-    Route::get('/{asset}/automations', [Automations::class, 'asController'])->name('automations');
-    Route::get('/{asset}/automations/data', [Automations::class, 'asData'])->name('automations.data');
+    Route::moduleTab('automations', Automations::class);
     Route::get('/{asset}/automations/create', (new Automation)->asController(...))->name('automations.create');
     Route::post('/{asset}/automations', (new Automation)->asStore(...))->middleware(ProtectAgainstSpam::class)->name('automations.store');
 
@@ -51,6 +49,5 @@ Route::middleware('auth')->prefix('assets')->name('assets.')->group(function ():
     Route::post('/{asset}/ai/generate', (new AIResolver)->asGenerate(...))->name('ai.generate');
 
     Route::get('/{asset}/preventive', (new Preventive)->asController(...))->name('preventive');
-    Route::get('/{asset}/maintenances', (new Maintenances)->asController(...))->name('maintenances');
-    Route::get('/{asset}/maintenances/data', (new Maintenances)->asData(...))->name('maintenances.data');
+    Route::moduleTab('maintenances', Maintenances::class);
 });

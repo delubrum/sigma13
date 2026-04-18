@@ -1,6 +1,8 @@
 @props([
     'route',
     'config',
+    'hasDetail' => false,
+    'hasEditDetail' => false,
 ])
 
 <x-layouts.app :title="$config->title" :icon="$config->icon">
@@ -39,8 +41,9 @@
             'persistenceID' => $storageKey,
             'locale' => "es",
             'columns' => $config->columns,
+            'detailUrl' => $hasDetail ? "/$route/{id}" : ($hasEditDetail ? "/$route/create/{id}" : null),
         ];
-    @endphp
+@endphp
 
     <div class="flex flex-col gap-4 h-full animate-core">
         
@@ -215,7 +218,7 @@
                     hx-get="/{{ $route }}/create"
                     hx-target="#modal-body"
                     hx-swap="innerHTML"
-                    hx-indicator="#global-loader"
+
                     hx-on::after-request="window.dispatchEvent(new CustomEvent('open-modal'))"
                     class="flex items-center gap-2 px-4 py-2 rounded-xl bg-sigma-ac text-sigma-ac-inv text-[10px] font-black uppercase tracking-widest hover:scale-[1.02] active:scale-[0.98] transition-all">
                     <i class="{{ $config->icon }} text-sm"></i>

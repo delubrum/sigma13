@@ -5,24 +5,13 @@ declare(strict_types=1);
 namespace App\Domain\Assets\Web\Adapters\Tabs;
 
 use App\Domain\Assets\Actions\GetAssetPreventiveAction;
-use App\Support\HtmxOrchestrator;
-use Illuminate\Http\Response;
-use Lorisleiva\Actions\Concerns\AsAction;
+use App\Domain\Shared\Web\Adapters\AbstractTabAdapter;
 
-final class PreventiveTabAdapter
+final class PreventiveTabAdapter extends AbstractTabAdapter
 {
-    use AsAction;
-    use HtmxOrchestrator;
+    protected function view(): string { return 'assets::tabs.preventive'; }
 
-    public function handle(int $id): Response
-    {
-        $automations = GetAssetPreventiveAction::run($id);
+    protected function viewKey(): string { return 'automations'; }
 
-        return $this->hxView('assets::tabs.preventive', ['automations' => $automations]);
-    }
-
-    public function asController(int $id): Response
-    {
-        return $this->handle($id);
-    }
+    protected function getData(int $id): mixed { return GetAssetPreventiveAction::run($id); }
 }

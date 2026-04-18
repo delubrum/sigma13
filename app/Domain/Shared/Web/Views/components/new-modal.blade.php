@@ -1,11 +1,11 @@
 <form id="sigma-new-form"
-      x-data="{ loading: false }"
+      x-data="{ loading: false, _deps: {}, _track(name, val) { this._deps[name] = val } }"
       @submit="loading = true"
       @htmx:after-request="loading = false"
       hx-{{ $method ?? 'post' }}="{{ $customPostRoute ?? "/{$route}/upsert" }}"
       hx-target="{{ $target ?? '#modal-body' }}"
       hx-swap="innerHTML"
-      hx-indicator="#global-loader"
+
       @if(isset($config->multipart) && $config->multipart)
       hx-encoding="multipart/form-data"
       enctype="multipart/form-data"
@@ -14,9 +14,15 @@
 
     @csrf
     @honeypot
-    @if(isset($data['id']))
-        <input type="hidden" name="id" value="{{ $data['id'] }}">
-    @endif
+    @php
+        $loopData = is_array($data) ? $data : (method_exists($data, 'toArray') ? $data->toArray() : $data);
+    @endphp
+
+    @foreach($loopData ?? [] as $key => $val)
+        @if(!is_array($val))
+            <input type="hidden" name="{{ $key }}" value="{{ $val }}">
+        @endif
+    @endforeach
 
     @foreach ($config->formFields as $field)
         @php

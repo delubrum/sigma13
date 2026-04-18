@@ -4,8 +4,13 @@ declare(strict_types=1);
 
 namespace App\Domain\Shared\Services;
 
+use App\Domain\Shared\Data\Action;
+use App\Domain\Shared\Data\ActionOption;
 use App\Domain\Shared\Data\Column;
 use App\Domain\Shared\Data\Field;
+use App\Domain\Shared\Data\Tab;
+use App\Domain\Shared\Data\Tabs;
+use App\Domain\Shared\Services\OptionsResolver;
 use Illuminate\Support\Str;
 use ReflectionClass;
 use ReflectionProperty;
@@ -47,6 +52,11 @@ final class SchemaGenerator
             $field->label = $field->label ?: Str::title(str_replace('_', ' ', $property->getName()));
             $field->type = $field->type === 'text' ? self::inferType($property, $field) : $field->type;
             $field->required = self::isRequired($property);
+
+            // Resolve route-based options at render time
+            if ($field->route && $field->options === []) {
+                $field->options = OptionsResolver::resolve($field->route, $field->routeParams);
+            }
 
             $fields[] = $field;
         }
@@ -107,6 +117,73 @@ final class SchemaGenerator
         $instance = $attributes !== [] ? $attributes[0]->newInstance() : null;
 
         return $instance;
+    }
+
+    /**
+     * @template T of \Spatie\LaravelData\Data
+     *
+     * @param  class-string<T>  $dataClass
+     * @return list<ActionOption>
+     */
+    public static function toOptions(string $dataClass): array
+    {
+        $reflection = new ReflectionClass($dataClass);
+        $options = [];
+
+        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
+            /** @var Action|null $action */
+            $action = self::getAttribute($property, Action::class);
+
+            if (! $action instanceof Action) {
+                continue;
+            }
+
+            $options[] = new ActionOption(
+                label:    $action->label,
+                icon:     $action->icon,
+                route:    $action->route,
+                target:   $action->target,
+                level:    $action->level,
+                method:   $action->method,
+                confirm:  $action->confirm,
+                prompt:   $action->prompt,
+                ability:      $action->ability,
+                showWhenCan:  $action->showWhenCan,
+            );
+        }
+
+        return $options;
+    }
+
+    /**
+     * @template T of \Spatie\LaravelData\Data
+     *
+     * @param  class-string<T>  $dataClass
+     * @return list<Tabs>
+     */
+    public static function toTabs(string $dataClass): array
+    {
+        $reflection = new ReflectionClass($dataClass);
+        $tabs = [];
+
+        foreach ($reflection->getProperties(ReflectionProperty::IS_PUBLIC) as $property) {
+            /** @var Tab|null $tab */
+            $tab = self::getAttribute($property, Tab::class);
+
+            if (! $tab instanceof Tab) {
+                continue;
+            }
+
+            $tabs[] = new Tabs(
+                key:     $property->getName(),
+                label:   $tab->label,
+                icon:    $tab->icon,
+                route:   $tab->route,
+                default: $tab->default,
+            );
+        }
+
+        return $tabs;
     }
 
     private static function isRequired(ReflectionProperty $property): bool

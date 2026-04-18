@@ -77,7 +77,7 @@
                 style="{{ $btnStyle }}"
                 hx-get="{{ $createUrl }}"
                 hx-target="#modal-body-2"
-                hx-indicator="#global-loader"
+
                 hx-on::after-request="if(event.detail.successful) window.dispatchEvent(new CustomEvent('open-modal-2'))">
                 <i class="{{ $newBtnIcon }} text-sm"></i>
                 <span>{{ $newBtnLabel }}</span>

@@ -9,38 +9,29 @@ use App\Domain\Assets\Data\Tabs\MovementsTableData;
 use App\Domain\Shared\Data\Config;
 use App\Domain\Shared\Data\PaginatedResult;
 use App\Domain\Shared\Services\SchemaGenerator;
-use App\Domain\Shared\Web\Actions\SubTableAdapter;
-use Lorisleiva\Actions\Concerns\AsAction;
+use App\Domain\Shared\Web\Adapters\AbstractSubTableAdapter;
 
-/** @extends SubTableAdapter<MovementsTableData> */
-final class MovementsTabAdapter extends SubTableAdapter
+/** @extends AbstractSubTableAdapter<MovementsTableData> */
+final class MovementsTabAdapter extends AbstractSubTableAdapter
 {
-    use AsAction;
-
-    protected function tabConfig(): Config
+    public function config(): Config
     {
         return new Config(
-            title: 'Historial de Movimientos',
-            icon: 'ri-arrow-left-right-line',
+            title:   'Historial de Movimientos',
+            icon:    'ri-arrow-left-right-line',
             columns: SchemaGenerator::toColumns(MovementsTableData::class),
         );
     }
 
-    protected function tabRoute(): string
+    protected function route(): string
     {
         return 'assets.movements';
     }
 
     /** @return PaginatedResult<MovementsTableData> */
-    protected function tabData(int $parentId, int $page, int $size): PaginatedResult
+    protected function getData(int $parentId, int $page, int $size): PaginatedResult
     {
         /** @var PaginatedResult<MovementsTableData> $result */
-        $result = GetAssetMovementsAction::run(
-            assetId: $parentId,
-            page: $page,
-            size: $size,
-        );
-
-        return $result;
+        return GetAssetMovementsAction::run(assetId: $parentId, page: $page, size: $size);
     }
 }

@@ -22,7 +22,7 @@
         "notyf": "^3.10.0",
         "qrcode": "^1.5.4",
         "remixicon": "^4.9.1",
-        "slim-select": "^3.4.3",
-        "tabulator-tables": "^6.4.0"
+        "tabulator-tables": "^6.4.0",
+        "tom-select": "^2.5.2"
     }
 }

@@ -10,6 +10,7 @@ use App\Support\HtmxOrchestrator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Support\DomainResolver;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -20,7 +21,7 @@ final class Detail
 
     public function handle(string $route, string $id): View
     {
-        $domain = Str::studly($route);
+        $domain = DomainResolver::fromRoute($route);
         $indexAction = "App\\Domain\\{$domain}\\Web\\Adapters\\IndexAdapter";
 
         if (! class_exists($indexAction)) {

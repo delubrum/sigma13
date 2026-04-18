@@ -5,59 +5,39 @@ declare(strict_types=1);
 namespace App\Domain\Assets\Web\Adapters;
 
 use App\Contracts\HasDetail;
-use App\Contracts\HasModule;
+use App\Contracts\HasOptions;
 use App\Domain\Assets\Actions\GetAssetsDataAction;
 use App\Domain\Assets\Actions\GetAssetSidebarAction;
+use App\Domain\Assets\Data\ActionsData;
 use App\Domain\Assets\Data\SidebarData;
 use App\Domain\Assets\Data\TableData;
+use App\Domain\Assets\Data\TabsData;
 use App\Domain\Assets\Data\UpsertData;
-use App\Domain\Shared\Data\ActionOption;
 use App\Domain\Shared\Data\Config;
 use App\Domain\Shared\Data\PaginatedResult;
-use App\Domain\Shared\Data\Tabs;
 use App\Domain\Shared\Services\SchemaGenerator;
-use App\Support\HtmxOrchestrator;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Http\Response;
-use Lorisleiva\Actions\Concerns\AsAction;
+use App\Domain\Shared\Web\Adapters\AbstractIndexAdapter;
+use Illuminate\Support\Facades\DB;
 
-final class IndexAdapter implements HasDetail, HasModule
+final class IndexAdapter extends AbstractIndexAdapter implements HasDetail, HasOptions
 {
-    use AsAction;
-    use HtmxOrchestrator;
-
-    public function handle(): Response
+    protected function route(): string
     {
-        return $this->hxView('components::index', [
-            'route' => 'assets',
-            'config' => $this->config(),
-        ]);
+        return 'assets';
     }
 
     public function config(): Config
     {
         return new Config(
-            title: 'Activos',
-            icon: 'ri-stack-line',
-            subtitle: 'Registro de activos tecnológicos',
+            title:          'Activos',
+            icon:           'ri-stack-line',
+            subtitle:       'Registro de activos tecnológicos',
             newButtonLabel: 'Nuevo Activo',
-            modalWidth: '90',
-            columns: SchemaGenerator::toColumns(TableData::class),
-            formFields: SchemaGenerator::toFields(UpsertData::class),
-            tabs: [
-                new Tabs(key: 'details', label: 'Detalles', icon: 'ri-information-line', route: 'assets.details', default: true),
-                new Tabs(key: 'movements', label: 'Movimientos', icon: 'ri-arrow-left-right-line', route: 'assets.movements'),
-                new Tabs(key: 'documents', label: 'Documentos', icon: 'ri-file-line', route: 'assets.documents'),
-                new Tabs(key: 'automations', label: 'Automations', icon: 'ri-settings-4-line', route: 'assets.automations'),
-                new Tabs(key: 'maintenances', label: 'Correctivos', icon: 'ri-tools-line', route: 'assets.maintenances'),
-                new Tabs(key: 'preventive', label: 'Preventivos', icon: 'ri-calendar-check-line', route: 'assets.preventive'),
-                new Tabs(key: 'ai', label: 'SIGMA AI', icon: 'ri-robot-2-line', route: 'assets.ai'),
-            ],
-            options: [
-                new ActionOption(label: 'Editar Activo', icon: 'ri-edit-line', route: 'assets/create', target: '#modal-body', level: 1),
-                new ActionOption(label: 'Dar de Baja', icon: 'ri-delete-bin-line', route: 'assets/dispose', target: '#modal-body-2', level: 2),
-            ],
+            modalWidth:     '90',
+            columns:        SchemaGenerator::toColumns(TableData::class),
+            formFields:     SchemaGenerator::toFields(UpsertData::class),
+            tabs:           SchemaGenerator::toTabs(TabsData::class),
+            options:        SchemaGenerator::toOptions(ActionsData::class),
         );
     }
 
@@ -69,28 +49,31 @@ final class IndexAdapter implements HasDetail, HasModule
         return $result;
     }
 
-    public function asController(): Response
+    public function resolveOptions(string $key, array $params): array
     {
-        return $this->handle();
+        return match ($key) {
+            'assets' => DB::table('assets')
+                ->select('id', 'hostname', 'serial', 'sap', 'area')
+                ->orderBy('hostname')
+                ->when(isset($params['area']), fn ($q) => $q->whereIn('area', explode(',', $params['area'])))
+                ->get()
+                ->map(fn (object $a): array => [
+                    'group' => $a->area === 'Locative' ? 'Locative' : 'Machinery',
+                    'value' => $a->id,
+                    'label' => mb_convert_case(
+                        implode(' | ', array_filter([$a->hostname, $a->serial, $a->sap])),
+                        MB_CASE_TITLE, 'UTF-8'
+                    ),
+                ])->all(),
+            default => [],
+        };
     }
 
-    public function asData(Request $request): JsonResponse
+    protected function getData(array $filters, array $sorts, int $page, int $size): PaginatedResult
     {
-        $filters = $request->collect('filter')->pluck('value', 'field')->toArray();
-        $sorts = $request->collect('sort')->pluck('dir', 'field')->toArray();
-
         /** @var PaginatedResult<TableData> $result */
-        $result = GetAssetsDataAction::run(
-            filters: $filters,
-            sorts: $sorts,
-            page: $request->integer('page', 1),
-            size: $request->integer('size', 15),
-        );
+        $result = GetAssetsDataAction::run(filters: $filters, sorts: $sorts, page: $page, size: $size);
 
-        return response()->json([
-            'data' => $result->items,
-            'last_page' => $result->lastPage,
-            'last_row' => $result->total,
-        ]);
+        return $result;
     }
 }

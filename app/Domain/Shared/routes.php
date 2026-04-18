@@ -7,6 +7,8 @@ use App\Domain\Shared\Web\Actions\Delete;
 use App\Domain\Shared\Web\Actions\Detail;
 use App\Domain\Shared\Web\Actions\DownloadMedia;
 use App\Domain\Shared\Web\Actions\Excel;
+use App\Domain\Shared\Web\Actions\Patch;
+use App\Domain\Shared\Web\Actions\Sidebar;
 use App\Domain\Shared\Web\Actions\Upload;
 use App\Domain\Shared\Web\Actions\Upsert;
 use Illuminate\Support\Facades\Route;
@@ -17,7 +19,9 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/{route}/create/{id?}', Create::class);
     Route::post('/{route}/upsert', Upsert::class)->name('global.upsert');
     Route::get('/{route}/{id}', [Detail::class, 'asController'])->name('detail')->where('id', '[0-9]+');
+    Route::get('/{route}/{id}/sidebar', [Sidebar::class, 'asController'])->name('shared.sidebar')->where('id', '[0-9]+');
     Route::get('/storage/media/{id}', DownloadMedia::class)->name('shared.media.download');
     Route::post('/{route}/{id}/upload', Upload::class)->name('shared.upload');
     Route::delete('/{route}/{id}', Delete::class)->name('global.delete');
+    Route::post('/{route}/{id}/patch', [Patch::class, 'asController'])->name('global.patch')->where('id', '[0-9]+');
 });

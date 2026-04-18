@@ -9,36 +9,27 @@ use App\Domain\Assets\Data\Tabs\DocumentsTableData;
 use App\Domain\Assets\Web\Adapters\Modals\DocumentsModalAdapter;
 use App\Domain\Shared\Data\Config;
 use App\Domain\Shared\Data\PaginatedResult;
-use App\Domain\Shared\Web\Actions\SubTableAdapter;
-use Lorisleiva\Actions\Concerns\AsAction;
+use App\Domain\Shared\Web\Adapters\AbstractSubTableAdapter;
 
-/** @extends SubTableAdapter<DocumentsTableData> */
-final class DocumentsTabAdapter extends SubTableAdapter
+/** @extends AbstractSubTableAdapter<DocumentsTableData> */
+final class DocumentsTabAdapter extends AbstractSubTableAdapter
 {
-    use AsAction;
-
     public function __construct(private readonly DocumentsModalAdapter $documentConfig) {}
 
-    protected function tabConfig(): Config
+    public function config(): Config
     {
         return $this->documentConfig->config();
     }
 
-    protected function tabRoute(): string
+    protected function route(): string
     {
         return 'assets.documents';
     }
 
     /** @return PaginatedResult<DocumentsTableData> */
-    protected function tabData(int $parentId, int $page, int $size): PaginatedResult
+    protected function getData(int $parentId, int $page, int $size): PaginatedResult
     {
         /** @var PaginatedResult<DocumentsTableData> $result */
-        $result = GetAssetDocumentsAction::run(
-            assetId: $parentId,
-            page: $page,
-            size: $size,
-        );
-
-        return $result;
+        return GetAssetDocumentsAction::run(assetId: $parentId, page: $page, size: $size);
     }
 }

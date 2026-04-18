@@ -5,24 +5,13 @@ declare(strict_types=1);
 namespace App\Domain\Assets\Web\Adapters\Tabs;
 
 use App\Domain\Assets\Actions\GetAssetDetailsAction;
-use App\Support\HtmxOrchestrator;
-use Illuminate\Http\Response;
-use Lorisleiva\Actions\Concerns\AsAction;
+use App\Domain\Shared\Web\Adapters\AbstractTabAdapter;
 
-final class DetailsTabAdapter
+final class DetailsTabAdapter extends AbstractTabAdapter
 {
-    use AsAction;
-    use HtmxOrchestrator;
+    protected function view(): string { return 'assets::tabs.details'; }
 
-    public function handle(int $id): Response
-    {
-        $details = GetAssetDetailsAction::run($id);
+    protected function viewKey(): string { return 'details'; }
 
-        return $this->hxView('assets::tabs.details', ['details' => $details]);
-    }
-
-    public function asController(int $id): Response
-    {
-        return $this->handle($id);
-    }
+    protected function getData(int $id): mixed { return GetAssetDetailsAction::run($id); }
 }

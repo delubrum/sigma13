@@ -3,8 +3,8 @@
     admin off
 }
 
-:80 {
-    root * /var/www/html/public
+:8000 {
+    root * /home/felipe/Escritorio/Proyects/sigma13/public
     encode zstd br gzip
     php_server
 }

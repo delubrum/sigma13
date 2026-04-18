@@ -8,6 +8,7 @@ use App\Support\HtmxOrchestrator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Support\DomainResolver;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Lorisleiva\Actions\Concerns\AsAction;
@@ -20,7 +21,7 @@ final class Upsert
 
     public function handle(string $route, Request $request): JsonResponse
     {
-        $domain = Str::studly($route);
+        $domain = DomainResolver::fromRoute($route);
         $dtoClass = "App\\Domain\\{$domain}\\Data\\UpsertData";
         $modelClass = "App\\Domain\\{$domain}\\Models\\".Str::singular($domain);
 
@@ -50,7 +51,11 @@ final class Upsert
         unset($attributes['id']);
 
         /** @var class-string<Model> $modelClass */
-        $modelClass::updateOrCreate(['id' => $id], $attributes);
+        if ($id) {
+            $modelClass::where('id', $id)->update($attributes);
+        } else {
+            $modelClass::create($attributes);
+        }
 
         $this->hxNotify($id ? 'Registro actualizado correctamente' : 'Registro creado correctamente');
         $this->hxRefreshTables(["dt_{$route}"]);

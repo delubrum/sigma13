@@ -41,6 +41,9 @@ final class Field extends Data
         public ?string $route = null,
         /** @var array<string, mixed> */
         public array $routeParams = [],
+        public ?string $dependsOn = null,
+        /** @var string|list<string>|null */
+        public mixed $showWhen = null,
     ) {}
 
     public static function make(string $name, ?string $label = null): self

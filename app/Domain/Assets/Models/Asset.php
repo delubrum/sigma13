@@ -141,6 +141,7 @@ class Asset extends Model implements HasMedia
         $this->addMediaConversion('thumb')
             ->width(400)
             ->height(400)
-            ->sharpen(10);
+            ->quality(75)
+            ->optimize();
     }
 }

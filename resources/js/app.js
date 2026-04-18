@@ -31,9 +31,9 @@ import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 window.flatpickr = flatpickr;
 
-import SlimSelect from 'slim-select';
-import 'slim-select/styles';
-window.SlimSelect = SlimSelect;
+import TomSelect from 'tom-select';
+import 'tom-select/dist/css/tom-select.css';
+window.TomSelect = TomSelect;
 
 import Chart from 'chart.js/auto';
 window.Chart = Chart;
@@ -50,12 +50,16 @@ window.notyf = new Notyf({
 import QRCode from 'qrcode';
 window.QRCode = QRCode;
 
-// Global Indicator
-document.addEventListener('htmx:beforeRequest', () => {
-    document.getElementById('hx-indicator')?.classList.remove('hidden');
+// Global indicator — fires on every HTMX request regardless of hx-indicator attribute
+let _pendingRequests = 0;
+const _loader = () => document.getElementById('global-loader');
+htmx.on('htmx:beforeRequest', () => {
+    _pendingRequests++;
+    _loader()?.classList.add('htmx-request');
 });
-document.addEventListener('htmx:afterRequest', () => {
-    document.getElementById('hx-indicator')?.classList.add('hidden');
+htmx.on('htmx:afterRequest', () => {
+    _pendingRequests = Math.max(0, _pendingRequests - 1);
+    if (_pendingRequests === 0) _loader()?.classList.remove('htmx-request');
 });
 
 // --- Tabulator init (single element) ---
@@ -78,6 +82,7 @@ window.initTabulatorEl = function(el) {
 
     const table = new Tabulator(el, config);
     el.tabulator = table;
+    el.classList.toggle('tabulator-clickable', !!config.detailUrl);
 
     table.on("renderComplete", () => { window.htmx.process(el); });
 
@@ -91,11 +96,12 @@ window.initTabulatorEl = function(el) {
 
         const id = new URLSearchParams(window.location.search).get("id");
         const route = el.dataset.route;
-        if (id && route && !el.dataset.detailOpened) {
+        if (id && route && !el.dataset.detailOpened && config.detailUrl) {
             el.dataset.detailOpened = "true";
+            const url = config.detailUrl.replace('{id}', id);
             setTimeout(() => {
                 window.dispatchEvent(new CustomEvent('open-modal'));
-                window.htmx.ajax('GET', `/${route}/${id}`, { target: '#modal-body', swap: 'innerHTML' });
+                window.htmx.ajax('GET', url, { target: '#modal-body', swap: 'innerHTML' });
             }, 300);
         }
     });
@@ -104,9 +110,12 @@ window.initTabulatorEl = function(el) {
     if (route) {
         table.on("rowClick", (e, row) => {
             if (e.target.closest('button, a, input, [tabulator-field="files"], .no-click')) return;
+            if (!config.detailUrl) return;
+            
             const id = row.getData().id;
+            const url = config.detailUrl.replace('{id}', id);
             window.dispatchEvent(new CustomEvent('open-modal'));
-            window.htmx.ajax('GET', `/${route}/${id}`, { target: '#modal-body', swap: 'innerHTML' });
+            window.htmx.ajax('GET', url, { target: '#modal-body', swap: 'innerHTML' });
         });
     }
 };
@@ -140,11 +149,94 @@ window.resetTabulatorEl = function(el) {
     table.redraw(true);
 };
 
-// --- sigmaInit (container-level widget init) ---
+// --- TomSelect helpers ---
+function makeTomSelect(el, extraSettings = {}) {
+    if (el._tomSelect) return el._tomSelect;
+
+    const placeholder = el.dataset.placeholder || el.querySelector('option[value=""]')?.textContent || '— Seleccionar —';
+
+    const ts = new TomSelect(el, {
+        allowEmptyOption: true,
+        placeholder,
+        onInitialize() {
+            // Set data-placeholder so the CSS ::before can show it
+            this.control.dataset.placeholder = placeholder;
+            // Track Alpine _deps on init so x-show works from the start
+            const form = el.closest('form');
+            const alpineRoot = form?.closest('[x-data]');
+            if (alpineRoot?._x_dataStack) {
+                const scope = alpineRoot._x_dataStack[0];
+                if (scope && '_track' in scope) scope._track(el.name, el.value);
+            }
+        },
+        onItemAdd() {
+            this.blur();
+        },
+        ...extraSettings,
+    });
+
+    el._tomSelect = ts;
+    return ts;
+}
+
 function sigmaInit(container = document) {
-    container.querySelectorAll('[data-widget="slimselect"]').forEach(el => {
-        if (!el.nextElementSibling?.classList.contains('ss-main')) {
-            new SlimSelect({ select: el });
+    // Standard selects (no dependency)
+    container.querySelectorAll('[data-widget="tomselect"]:not([data-depends-on])').forEach(el => {
+        if (!el._tomSelect) makeTomSelect(el);
+    });
+
+    // Dependent selects — options filtered by parent value
+    container.querySelectorAll('[data-depends-on]').forEach(el => {
+        if (el.dataset.tsDepInit) return;
+        el.dataset.tsDepInit = '1';
+
+        const dependsOn  = el.dataset.dependsOn;
+        const showWhen   = JSON.parse(el.dataset.showWhen   || '[]');
+        const allOptions = JSON.parse(el.dataset.allOptions || '[]');
+
+        let ts = null;
+
+        const syncOptions = (parentValue) => {
+            const visible = showWhen.map(String).includes(String(parentValue));
+
+            if (!visible) {
+                if (ts) { ts.destroy(); ts = null; }
+                el.value = '';
+                return;
+            }
+
+            const filtered = allOptions.filter(o => String(o.group) === String(parentValue));
+
+            if (ts) {
+                ts.clearOptions();
+                ts.addOption({ value: '', text: '' });
+                filtered.forEach(o => ts.addOption({ value: String(o.value), text: o.label }));
+                ts.setValue('', true);
+                ts.refreshOptions(false);
+            } else {
+                // Build <option> elements so TomSelect can read them
+                el.innerHTML = '<option value=""></option>' +
+                    filtered.map(o => `<option value="${o.value}">${o.label}</option>`).join('');
+
+                ts = makeTomSelect(el, { placeholder: '— Seleccionar —' });
+            }
+        };
+
+        // Watch parent — use event delegation on form so it fires regardless of init order
+        const form = el.closest('form');
+        if (form) {
+            // Init with current parent value immediately
+            const parent = form.querySelector(`[name="${dependsOn}"]`);
+            if (parent) syncOptions(parent.value);
+
+            // Re-sync whenever parent changes (TomSelect fires native 'change' on the <select>)
+            form.addEventListener('change', (e) => {
+                const isParent = e.target.name === dependsOn || e.target.closest(`[name="${dependsOn}"]`);
+                if (isParent) {
+                    const parentEl = form.querySelector(`[name="${dependsOn}"]`);
+                    syncOptions(parentEl?.value ?? '');
+                }
+            });
         }
     });
 

@@ -11,7 +11,7 @@ use App\Domain\Assets\Web\Adapters\Tabs\MaintenancesTabAdapter;
 use App\Domain\Assets\Web\Adapters\Tabs\MovementsTabAdapter;
 use App\Domain\Employees\Models\Employee;
 use App\Domain\Shared\Web\Actions\SubTableAdapter;
-use App\Domain\Tickets\Web\Adapters\TasksAdapter;
+use App\Domain\HelpDesk\Web\Adapters\Tabs\TasksTabAdapter;
 use App\Domain\Users\Models\User;
 use App\Support\HtmxOrchestrator;
 use Carbon\Carbon;
@@ -194,8 +194,8 @@ arch('el domain solo puede usar la lista blanca estricta')
 
 $modules = [
     'Assets', 'Dashboard', 'Documents', 'Employees', 'Extrusion',
-    'Identity', 'Improvement', 'JobProfiles', 'Performance', 'Ppe', 'Preventive',
-    'Printing', 'Recruitment', 'Tickets', 'Users',
+    'HelpDesk', 'Identity', 'Improvement', 'JobProfiles', 'Performance', 'Ppe', 'Preventive',
+    'Printing', 'Recruitment', 'Users',
 ];
 
 // User y Asset son modelos de infraestructura compartida (como Authenticatable).
@@ -230,7 +230,7 @@ $subTableAdapters = [
     MaintenancesTabAdapter::class,
     AutomationsTabAdapter::class,
     MovementsTabAdapter::class,
-    TasksAdapter::class,
+    TasksTabAdapter::class,
 ];
 
 // Scan per-module to avoid Pest wildcard quirks with ->classes()->toUse()

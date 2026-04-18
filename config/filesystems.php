@@ -70,7 +70,7 @@ return [
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', true),
             'visibility' => 'public',
             'url' => env('R2_PUBLIC_URL'), // <--- VITAL PARA EL QR
-            'throw' => false,
+            'throw' => true,
         ],
 
         's3' => [

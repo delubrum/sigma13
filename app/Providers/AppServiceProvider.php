@@ -9,6 +9,7 @@ use App\Domain\Shared\Events\PasswordResetRequested;
 use App\Domain\Shared\Events\UserCreated;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -26,6 +27,12 @@ final class AppServiceProvider extends ServiceProvider
             SendUserInvitation::class
         );
 
+        Route::macro('moduleTab', function (string $name, string $adapter): void {
+            /** @var \Illuminate\Routing\Router $this */
+            Route::get("/{id}/{$name}", [$adapter, 'asController'])->name($name);
+            Route::get("/{id}/{$name}/data", [$adapter, 'asData'])->name("{$name}.data");
+        });
+
         Blade::anonymousComponentPath(app_path('Domain/Shared/Web/Views/components'));
 
         View::addNamespace('components', app_path('Domain/Shared/Web/Views/components'));
@@ -37,7 +44,7 @@ final class AppServiceProvider extends ServiceProvider
         View::addNamespace('identity', app_path('Domain/Identity/Web/Views'));
         View::addNamespace('auth', app_path('Domain/Identity/Web/Views/auth'));
         View::addNamespace('operations', app_path('Domain/Operations/Web/Views'));
-        View::addNamespace('maintenance', app_path('Domain/Maintenance/Web/Views'));
+        View::addNamespace('helpdesk', app_path('Domain/HelpDesk/Web/Views'));
         View::addNamespace('recruitment', app_path('Domain/Recruitment/Web/Views'));
         View::addNamespace('it', app_path('Domain/IT/Web/Views'));
         View::addNamespace('engineering', app_path('Domain/Engineering/Web/Views'));
@@ -46,5 +53,6 @@ final class AppServiceProvider extends ServiceProvider
         View::addNamespace('job-profiles', app_path('Domain/JobProfiles/Web/Views'));
         View::addNamespace('ppe',       app_path('Domain/Ppe/Web/Views'));
         View::addNamespace('extrusion', app_path('Domain/Extrusion/Web/Views'));
+        View::addNamespace('stock',     app_path('Domain/Stock/Web/Views'));
     }
 }

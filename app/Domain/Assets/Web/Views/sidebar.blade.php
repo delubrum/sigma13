@@ -12,7 +12,7 @@
            hx-post="{{ route('shared.upload', ['route' => 'assets', 'id' => $data->id, 'collection' => 'profile']) }}"
            hx-encoding="multipart/form-data"
            hx-trigger="change"
-           hx-indicator="#global-loader"
+
            hx-on::after-request="if(event.detail.successful) htmx.trigger('#asset_photo_preview', 'refresh')"
            accept="image/*"
            name="file">

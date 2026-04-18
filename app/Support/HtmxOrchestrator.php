@@ -141,9 +141,10 @@ trait HtmxOrchestrator
             // Automatizar Menú de Acciones (Opciones) - Solo si no se ha definido manualmente
             if (count($config->options) > 0 && ! isset($this->hxTriggers['update-modal-actions'.$suffix])) {
                 $actionsHtml = view('components::modal-actions', [
-                    'options' => $config->options,
-                    'id' => $viewData['id'] ?? null,
-                    'suffix' => $suffix,
+                    'options'     => $config->options,
+                    'id'          => $viewData['id'] ?? null,
+                    'sidebarData' => $viewData['data'] ?? null,
+                    'suffix'      => $suffix,
                 ])->render();
 
                 $this->hxModalActions($actionsHtml, $suffix);

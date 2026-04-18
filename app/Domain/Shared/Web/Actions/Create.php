@@ -9,6 +9,7 @@ use App\Support\HtmxOrchestrator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use App\Support\DomainResolver;
 use Illuminate\Support\Str;
 use Lorisleiva\Actions\Concerns\AsAction;
 
@@ -19,7 +20,7 @@ final class Create
 
     public function handle(string $route, ?int $id = null): View
     {
-        $domain = Str::studly($route);
+        $domain = DomainResolver::fromRoute($route);
         $indexAction = "App\\Domain\\{$domain}\\Actions\\Index";
 
         if (! class_exists($indexAction)) {
@@ -36,7 +37,9 @@ final class Create
 
         /** @var HasModule $instance */
         $instance = resolve($indexAction);
-        $config = $instance->config();
+        $config = method_exists($instance, 'createConfig')
+            ? $instance->createConfig()
+            : $instance->config();
 
         if ($config->formFields === []) {
             abort(404, 'Este módulo no permite creación de registros.');

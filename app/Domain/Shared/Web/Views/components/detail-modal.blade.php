@@ -1,6 +1,9 @@
 <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
 
-    <div id="sidebar-summary" class="rounded-lg shadow-md col-span-1 overflow-hidden" style="background:var(--bg); border:1px solid var(--b)">
+    <div id="sidebar-summary" class="rounded-lg shadow-md col-span-1 overflow-hidden" style="background:var(--bg); border:1px solid var(--b)"
+         hx-get="/{{ $route }}/{{ $id }}/sidebar"
+         hx-trigger="refresh"
+         hx-swap="innerHTML">
         @if($sidebarView && $sidebarData)
             @include($sidebarView, ['data' => $sidebarData])
         @endif

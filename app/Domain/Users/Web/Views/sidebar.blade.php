@@ -8,7 +8,7 @@
                     <x-form-field 
                         :field="$field" 
                         :value="old($field->name, $data->{$field->name === 'is_active' ? 'isActive' : $field->name} ?? null)"
-                        :hx-post="route('users.field.update', $data->id)"
+                        :hx-post="route('global.patch', ['users', $data->id])"
                         :hx-vals="['field' => $field->name]"
                         hx-trigger="change"
                     />
@@ -41,7 +41,7 @@
                 @click="active = !active"
                 hx-post="{{ route('users.status.update', $data->id) }}"
                 hx-swap="none"
-                hx-indicator="#status-loader"
+
                 class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sigma-ac focus-visible:ring-offset-2"
                 :class="active ? 'bg-green-500' : 'bg-sigma-b'"
             >
@@ -52,9 +52,7 @@
                 ></span>
             </button>
         </div>
-        <div id="status-loader" class="htmx-indicator flex justify-center mt-2">
-            <i class="ri-loader-4-line animate-spin text-sigma-ac"></i>
-        </div>
+
         @endif
     </x-sidebar-section>
 

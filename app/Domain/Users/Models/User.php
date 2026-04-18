@@ -62,6 +62,12 @@ class User extends Authenticatable implements CanResetPasswordContract
     /** @use HasFactory<UserFactory> */
     use HasFactory;
 
+    /** @return UserFactory */
+    protected static function newFactory(): UserFactory
+    {
+        return UserFactory::new();
+    }
+
     use LogsActivity;
     use Notifiable;
 

@@ -9,4 +9,5 @@ use Spatie\LaravelData\Data;
 interface HasDetail
 {
     public function sidebarData(int $id): Data;
+
 }
